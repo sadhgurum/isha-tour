@@ -30,7 +30,8 @@ body {
 
 #title h1,
 #info h2,
-#loader h1 {
+#loader h1,
+.landmark-label {
   font-family: 'Isha Tour Hand', var(--text-font);
   font-synthesis: none;
 }
@@ -55,6 +56,29 @@ canvas#scene:active {
 }
 body.ready .ui {
   opacity: 1;
+}
+#landmark-labels {
+  inset: 0;
+  z-index: 1;
+  overflow: hidden;
+}
+.landmark-label {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: max-content;
+  max-width: min(16rem, 42vw);
+  color: var(--ink);
+  font-size: clamp(0.9375rem, 1.4vw, 1.0625rem);
+  line-height: 1.2;
+  -webkit-text-stroke: 2px rgba(0, 0, 0, 0.85);
+  paint-order: stroke fill;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+.landmark-label[hidden] {
+  visibility: hidden;
+  display: block;
 }
 #title {
   top: 22px;
@@ -361,8 +385,7 @@ body.walking #joy.touch ~ #touch-flight {
 #touch-descend {
   grid-row: 2;
 }
-body.walking #nav,
-body.walking #info {
+body.walking #nav {
   opacity: 0.25;
 }
 @media (max-width: 720px) {

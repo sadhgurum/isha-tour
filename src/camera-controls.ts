@@ -587,9 +587,12 @@ export function createWalker(
       f /= m;
       r /= m;
     }
-    movingFor = !w.fly && m > 0.05 ? Math.min(movingFor + dt, 2) : 0;
-    const pace = lerp(3.6, 7.2, clamp((movingFor - 0.35) / 1.65, 0, 1));
-    const speed = w.fly ? 14 : shift ? 10.8 : pace,
+    movingFor = !w.fly && m > 0.05 ? Math.min(movingFor + dt, 5) : 0;
+    const pace =
+      lerp(3.6, 7.2, clamp((movingFor - 0.35) / 1.65, 0, 1)) +
+      lerp(0, 7.2, clamp((movingFor - 2) / 2, 0, 1)) +
+      lerp(0, 14.4, clamp(movingFor - 4, 0, 1));
+    const speed = w.fly ? 14 : Math.max(pace, shift ? 10.8 : 0),
       sy = Math.sin(w.yaw),
       cy = Math.cos(w.yaw);
     const dx = (-sy * f + cy * r) * speed * dt,
@@ -610,23 +613,29 @@ export function createWalker(
           : terrain.groundHeight(w.pos.x, w.pos.z),
       );
     } else {
-      const objs = near(w.pos.x, w.pos.z);
-      if (!blockedMove(w.pos.x, w.pos.z, dx, dz, w.pos.y, objs)) {
-        w.pos.x += dx;
-        w.pos.z += dz;
-      } else if (!blockedMove(w.pos.x, w.pos.z, dx, 0, w.pos.y, objs))
-        w.pos.x += dx; // Slide along the wall.
-      else if (!blockedMove(w.pos.x, w.pos.z, 0, dz, w.pos.y, objs))
-        w.pos.z += dz;
-      const fl = floorAt(w.pos.x, w.pos.z, w.pos.y, objs);
-      if (fl >= w.pos.y - 0.05) {
-        w.pos.y = lerp(w.pos.y, fl, 1 - Math.exp(-dt * 18));
-        w.vy = 0;
-      } // Ease upward when climbing steps.
-      else {
-        w.vy -= 9.8 * dt;
-        w.pos.y = Math.max(fl, w.pos.y + w.vy * dt);
-        if (w.pos.y === fl) w.vy = 0;
+      // Sample the floor along fast moves so stairs still work at low frame rates.
+      const steps = Math.max(1, Math.ceil(Math.hypot(dx, dz) / 0.6));
+      const stepX = dx / steps,
+        stepZ = dz / steps,
+        stepTime = dt / steps;
+      for (let i = 0; i < steps; i++) {
+        const objs = near(w.pos.x, w.pos.z);
+        if (!blockedMove(w.pos.x, w.pos.z, stepX, stepZ, w.pos.y, objs)) {
+          w.pos.x += stepX;
+          w.pos.z += stepZ;
+        } else if (!blockedMove(w.pos.x, w.pos.z, stepX, 0, w.pos.y, objs))
+          w.pos.x += stepX; // Slide along the wall.
+        else if (!blockedMove(w.pos.x, w.pos.z, 0, stepZ, w.pos.y, objs))
+          w.pos.z += stepZ;
+        const fl = floorAt(w.pos.x, w.pos.z, w.pos.y, objs);
+        if (fl >= w.pos.y - 0.05) {
+          w.pos.y = lerp(w.pos.y, fl, 1 - Math.exp(-stepTime * 18));
+          w.vy = 0;
+        } else {
+          w.vy -= 9.8 * stepTime;
+          w.pos.y = Math.max(fl, w.pos.y + w.vy * stepTime);
+          if (w.pos.y === fl) w.vy = 0;
+        }
       }
     }
     w.pos.x = clamp(w.pos.x, minX, maxX);

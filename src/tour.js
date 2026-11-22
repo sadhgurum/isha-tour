@@ -7993,10 +7993,12 @@ function createKalabhairava() {
  * rotY: Heading as face(east, north), with an optional offset for the building's measured angle.
  * view: Camera { d: distance, yaw: heading relative to the front, ph: pitch, h: target height }.
  * clear: Vegetation exclusion [local x, local z, radius]. pit: Terrain opening [local x, local z, half-width, half-depth].
+ * labelHeight: Height of the landmark label anchor above the component origin.
  * ground: Local ground-cover footprint, tint color and edge blend. */
 const COMPONENTS = [
   {
     id: 'adiyogi',
+    labelHeight: 37,
     zone: 'out',
     create: createAdiyogi,
     at: [562, -629],
@@ -8018,6 +8020,7 @@ const COMPONENTS = [
   },
   {
     id: 'kalabhairava',
+    labelHeight: 11,
     zone: 'out',
     create: createKalabhairava,
     at: [683, -1539],
@@ -8030,6 +8033,7 @@ const COMPONENTS = [
   },
   {
     id: 'malai',
+    labelHeight: 9,
     zone: 'out',
     create: createMalaiVasal,
     at: [747, -1653],
@@ -8042,6 +8046,7 @@ const COMPONENTS = [
   },
   {
     id: 'sarpa',
+    labelHeight: 12,
     zone: 'out',
     create: createSarpaVasal,
     at: [190, -175],
@@ -8054,6 +8059,7 @@ const COMPONENTS = [
   },
   {
     id: 'moondram',
+    labelHeight: 8.5,
     zone: 'out',
     create: createMoondramPirai,
     at: [195, -228],
@@ -8075,6 +8081,7 @@ const COMPONENTS = [
   },
   {
     id: 'unavagam',
+    labelHeight: 7,
     create: createUnavagam,
     at: [241, -85],
     rotY: face(-0.14, -0.99),
@@ -8095,6 +8102,7 @@ const COMPONENTS = [
 
   {
     id: 'suryakund',
+    labelHeight: 11,
     create: createSuryakund,
     at: [185, -25],
     rotY: AX + Math.PI,
@@ -8117,6 +8125,7 @@ const COMPONENTS = [
   },
   {
     id: 'naga',
+    labelHeight: 5.5,
     create: createNagaShrine,
     at: [209.8, -28.2],
     rotY: AX + Math.PI,
@@ -8125,6 +8134,7 @@ const COMPONENTS = [
   },
   {
     id: 'ponds',
+    labelHeight: 5,
     create: createLotusPonds,
     at: [112, -14],
     rotY: 0,
@@ -8138,6 +8148,7 @@ const COMPONENTS = [
   },
   {
     id: 'nandi',
+    labelHeight: 6,
     create: createNandi,
     at: [76, -10],
     rotY: AX + Math.PI,
@@ -8146,6 +8157,7 @@ const COMPONENTS = [
   },
   {
     id: 'dhyanalinga',
+    labelHeight: 11.5,
     create: createDhyanalinga,
     at: [0, -1],
     rotY: AX,
@@ -8168,6 +8180,7 @@ const COMPONENTS = [
   },
   {
     id: 'bhairavi',
+    labelHeight: 8,
     create: createLingaBhairavi,
     at: [-43, -33],
     rotY: face(0.82, 0.57),
@@ -8188,6 +8201,7 @@ const COMPONENTS = [
   },
   {
     id: 'sadhana',
+    labelHeight: 10,
     create: createSadhanaHalls,
     at: [-55, 9],
     rotY: AX,
@@ -8200,6 +8214,7 @@ const COMPONENTS = [
   },
   {
     id: 'chandrakund',
+    labelHeight: 7,
     create: createChandrakund,
     at: [10, 44],
     rotY: AX,
@@ -8221,6 +8236,7 @@ const COMPONENTS = [
   },
   {
     id: 'deposit',
+    labelHeight: 6.5,
     create: createDepositCounter,
     at: [27, 63],
     rotY: AX,
@@ -8229,6 +8245,7 @@ const COMPONENTS = [
   },
   {
     id: 'ishalife',
+    labelHeight: 6,
     create: createIshaLife,
     at: [57, 52],
     rotY: AX,
@@ -8241,6 +8258,7 @@ const COMPONENTS = [
   },
   {
     id: 'welcome',
+    labelHeight: 7,
     create: createWelcomePoint,
     at: [100, 125],
     rotY: face(-0.987, 0.16),
@@ -8253,6 +8271,7 @@ const COMPONENTS = [
 
   {
     id: 'spanda',
+    labelHeight: 11,
     create: createSpandaHall,
     at: [174, 205],
     rotY: face(-0.83, -0.56),
@@ -8285,6 +8304,7 @@ const COMPONENTS = [
 
   {
     id: 'alayam',
+    labelHeight: 15,
     create: createAdiyogiAlayam,
     at: [250, 62],
     rotY: face(1, 0) - 0.15,
@@ -8299,6 +8319,7 @@ const COMPONENTS = [
   },
   {
     id: 'nalanda',
+    labelHeight: 13,
     create: createNalanda,
     at: [3, 396],
     rotY: face(0, -1),
@@ -8319,6 +8340,7 @@ const COMPONENTS = [
   },
   {
     id: 'bhiksha',
+    labelHeight: 12,
     create: createBhikshaHall,
     at: [222, 353],
     rotY: face(0, -1) - 0.1,
@@ -8333,6 +8355,7 @@ const COMPONENTS = [
   },
   {
     id: 'metalbridge',
+    labelHeight: 5,
     create: createMetalBridge,
     at: [372, 356],
     rotY: 0.161,
@@ -8575,6 +8598,99 @@ function setPeople(on) {
 }
 
 // Interface.
+const labelLayer = $('#landmark-labels');
+const labelProjection = new V3();
+const labelObstacles = ['#title', '#moods', '#nav', '#info', '#navBtn'].map($);
+const landmarkLabels = COMPONENTS.filter((c) => c.labelHeight).map((c) => {
+  const element = document.createElement('span');
+  element.className = 'landmark-label';
+  element.dir = 'auto';
+  element.hidden = true;
+  labelLayer.append(element);
+  onLanguageChange(() => {
+    element.textContent = placeText(c.id).name;
+  });
+  const anchor = new V3(...c.pos);
+  anchor.y += c.labelHeight;
+  // Large landmarks need more room in the frame than small buildings and shrines.
+  const range = Math.max(85, c.view.d * 1.5);
+  return { component: c, element, anchor, range };
+});
+let selectedPlace;
+
+function updateLandmarkLabels() {
+  const hideLabels =
+    (walker.on && !walker.fly) ||
+    (!walker.on && selectedPlace?.detail && controls.radius < 28);
+  if (hideLabels) {
+    labelLayer.hidden = true;
+    return;
+  }
+  labelLayer.hidden = false;
+  const { clientWidth: width, clientHeight: height } = labelLayer;
+  const candidates = [];
+  for (const label of landmarkLabels) {
+    const distance = label.anchor.distanceTo(camera.position);
+    if (distance >= label.range) continue;
+    const p = labelProjection.copy(label.anchor).project(camera);
+    if (Math.abs(p.x) > 1 || Math.abs(p.y) > 1 || Math.abs(p.z) > 1) continue;
+
+    const x = (p.x + 1) * width * 0.5;
+    const y = (1 - p.y) * height * 0.5;
+    const halfWidth = label.element.offsetWidth / 2;
+    const bounds = {
+      left: x - halfWidth,
+      right: x + halfWidth,
+      top: y - label.element.offsetHeight - 6,
+      bottom: y - 6,
+    };
+    if (
+      bounds.left < 6 ||
+      bounds.right > width - 6 ||
+      bounds.top < 6 ||
+      y > height - 6
+    )
+      continue;
+    const opacity =
+      0.9 * (1 - smooth(label.range * 0.75, label.range, distance));
+    candidates.push({ label, distance, bounds, opacity });
+  }
+  candidates.sort(
+    (a, b) =>
+      Number(b.label.component === selectedPlace) -
+        Number(a.label.component === selectedPlace) ||
+      b.opacity - a.opacity ||
+      a.distance - b.distance,
+  );
+  const occupied = labelObstacles
+    .map((element) => element.getBoundingClientRect())
+    .filter((rect) => rect.width && rect.height);
+  const visible = new Map();
+  for (const { label, bounds, opacity } of candidates) {
+    if (
+      occupied.some(
+        (rect) =>
+          bounds.left < rect.right + 6 &&
+          bounds.right > rect.left - 6 &&
+          bounds.top < rect.bottom + 6 &&
+          bounds.bottom > rect.top - 6,
+      )
+    )
+      continue;
+    occupied.push(bounds);
+    visible.set(label, { bounds, opacity });
+  }
+  for (const label of landmarkLabels) {
+    const placement = visible.get(label);
+    label.element.hidden = !placement;
+    if (placement) {
+      const { bounds, opacity } = placement;
+      label.element.style.transform = `translate(${Math.round(bounds.left)}px, ${Math.round(bounds.top)}px)`;
+      label.element.style.opacity = opacity.toFixed(2);
+    }
+  }
+}
+
 let activeInfo = () => ({
   name: message('overview'),
   description: message('overviewDescription'),
@@ -8633,6 +8749,7 @@ function buildUI() {
   };
   onLanguageChange(walkHint);
   const startWalk = () => {
+    selectedPlace = undefined;
     controls.enabled = false;
     walker.enter(camera.position.x, camera.position.z, controls.theta);
     walk.classList.add('on');
@@ -8682,15 +8799,16 @@ function buildUI() {
     ppl.classList.toggle('on', peopleOn);
   };
   $('#moods').append(ppl);
-  const add = (readInfo, view, detail = false) => {
+  const add = (readInfo, view, component) => {
     const b = document.createElement('button');
-    if (detail) b.classList.add('nav-detail');
+    if (component?.detail) b.classList.add('nav-detail');
     onLanguageChange(() => {
       b.textContent = readInfo().name;
     });
     b.onclick = () => {
       stopWalk();
       document.body.classList.remove('navOpen');
+      selectedPlace = component;
       controls.flyTo(view);
       showInfo(readInfo);
       document
@@ -8712,7 +8830,7 @@ function buildUI() {
     $('#nav').append(h);
     for (const c of COMPONENTS) {
       if (c.nav !== false && (c.zone === 'out') === (zone === 'out')) {
-        add(() => placeText(c.id), c.cam, c.detail);
+        add(() => placeText(c.id), c.cam, c);
       }
     }
   }
@@ -8831,6 +8949,7 @@ renderer.setAnimationLoop(() => {
   for (const { light, base } of FX.lights)
     light.intensity = base * state.lamp * state.lamp * flick;
   renderer.render(scene, camera);
+  updateLandmarkLabels();
   acc += dt;
   frames++;
   if (frames === 90) {

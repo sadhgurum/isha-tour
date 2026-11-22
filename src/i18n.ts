@@ -91,7 +91,7 @@ export async function initializeLanguage(
   }
 
   for (const [language, nativeName] of languages) {
-    const option = new Option(nativeName, language);
+    const option = new Option(`${nativeName} (${language})`, language);
     option.lang = language === 'zh' ? 'zh-Hans' : language;
     option.dir = rightToLeft.has(language) ? 'rtl' : 'ltr';
     select.add(option);
