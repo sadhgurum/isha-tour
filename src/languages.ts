@@ -1,4 +1,4 @@
-// Language codes and endonyms mirror Bhasha's supported-language catalog.
+// Language codes and endonyms come from Bhasha's supported-language catalog.
 // Bhasha is MIT licensed, Copyright (c) 2026 Live Stream Miracles.
 export const languages = [
   ['af', 'Afrikaans'],
@@ -17,12 +17,9 @@ export const languages = [
   ['da', 'Dansk'],
   ['nl', 'Nederlands'],
   ['en', 'English'],
-  ['et', 'Eesti'],
   ['fil', 'Filipino'],
   ['fi', 'Suomi'],
   ['fr', 'Français'],
-  ['fy', 'Frysk'],
-  ['gl', 'Galego'],
   ['ka', 'ქართული'],
   ['de', 'Deutsch'],
   ['el', 'Ελληνικά'],
@@ -31,7 +28,6 @@ export const languages = [
   ['he', 'עברית'],
   ['hi', 'हिन्दी'],
   ['hu', 'Magyar'],
-  ['is', 'Íslenska'],
   ['id', 'Bahasa Indonesia'],
   ['it', 'Italiano'],
   ['ja', '日本語'],
@@ -40,16 +36,13 @@ export const languages = [
   ['ko', '한국어'],
   ['ky', 'Кыргызча'],
   ['lo', 'ລາວ'],
-  ['lv', 'Latviešu'],
   ['ln', 'Lingála'],
   ['lt', 'Lietuvių'],
-  ['mk', 'Македонски'],
   ['ms', 'Bahasa Melayu'],
   ['ml', 'മലയാളം'],
   ['mr', 'मराठी'],
   ['ne', 'नेपाली'],
   ['no', 'Norsk'],
-  ['nb', 'Norsk bokmål'],
   ['or', 'ଓଡ଼ିଆ'],
   ['fa', 'فارسی'],
   ['pl', 'Polski'],
@@ -58,25 +51,22 @@ export const languages = [
   ['ro', 'Română'],
   ['ru', 'Русский'],
   ['sk', 'Slovenčina'],
-  ['sl', 'Slovenščina'],
   ['es', 'Español'],
   ['sw', 'Kiswahili'],
   ['sv', 'Svenska'],
   ['ta', 'தமிழ்'],
   ['te', 'తెలుగు'],
   ['th', 'ไทย'],
-  ['tl', 'Tagalog'],
   ['tr', 'Türkçe'],
   ['uk', 'Українська'],
   ['ur', 'اردو'],
   ['uz', 'Oʻzbekcha'],
   ['vi', 'Tiếng Việt'],
-  ['cy', 'Cymraeg'],
   ['zu', 'isiZulu'],
 ] as const;
 
-export function localeFile(code: (typeof languages)[number][0]) {
+export function supportedLanguage(code: string | null) {
   if (code === 'nb') return 'no';
   if (code === 'tl') return 'fil';
-  return code;
+  return languages.find(([id]) => id === code)?.[0];
 }

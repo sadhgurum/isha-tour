@@ -1,15 +1,12 @@
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import { languages, localeFile } from '../src/languages.ts';
+import { languages } from '../src/languages.ts';
 
 const codes = languages.map(([code]) => code);
 assert.equal(new Set(codes).size, codes.length, 'Duplicate language code');
 
 async function load(code) {
-  const file = new URL(
-    `../src/locales/${localeFile(code)}.json`,
-    import.meta.url,
-  );
+  const file = new URL(`../src/locales/${code}.json`, import.meta.url);
   return JSON.parse(await readFile(file, 'utf8'));
 }
 

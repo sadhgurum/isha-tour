@@ -1,4 +1,4 @@
-import { languages, localeFile } from './languages';
+import { languages, supportedLanguage } from './languages';
 import english from './locales/en.json';
 
 type Language = (typeof languages)[number][0];
@@ -36,23 +36,21 @@ export function bindMessage(
   });
 }
 
-function supported(code: string | null) {
-  return languages.find(([id]) => id === code)?.[0];
-}
-
 function preferredLanguage() {
-  const shared = supported(new URL(location.href).searchParams.get('lang'));
+  const shared = supportedLanguage(
+    new URL(location.href).searchParams.get('lang'),
+  );
   if (shared) return shared;
 
   try {
-    const saved = supported(localStorage.getItem(storageKey));
+    const saved = supportedLanguage(localStorage.getItem(storageKey));
     if (saved) return saved;
   } catch {
     // The picker also works when browser storage is blocked.
   }
 
   for (const tag of navigator.languages) {
-    const language = supported(tag.toLowerCase().split('-')[0]);
+    const language = supportedLanguage(tag.toLowerCase().split('-')[0]);
     if (language) return language;
   }
   return 'en';
@@ -62,7 +60,7 @@ async function activate(language: Language) {
   const revision = ++request;
   let next = english;
   if (language !== 'en') {
-    const load = loaders[`./locales/${localeFile(language)}.json`];
+    const load = loaders[`./locales/${language}.json`];
     if (!load) throw new Error(`Missing tour locale: ${language}`);
     next = await load();
   }
@@ -107,7 +105,7 @@ export async function initializeLanguage(
   updateSelection();
 
   select.addEventListener('change', async () => {
-    const language = supported(select.value);
+    const language = supportedLanguage(select.value);
     if (!language) return;
     try {
       if (!(await activate(language))) return;
