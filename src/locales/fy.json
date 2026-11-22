@@ -1,0 +1,173 @@
+{
+  "ui": {
+    "pageTitle": "Isha Yoga Center · Firtuele 3D-rûnlieding",
+    "language": "Taal",
+    "foothills": "Oan de foet fan it Velliangiri-berchtme",
+    "subtitle": "Coimbatore · Velliangiri · Skaal 1:1",
+    "credit": "Model troch Claude",
+    "loading": "De 3D-motor wurdt laden…",
+    "engineError": "De 3D-motor koe net laden wurde. Ferfarskje de side om it nochris te besykjen.",
+    "engineReady": "De 3D-motor is klear",
+    "ready": "Klear",
+    "textures": "Tekstueren en materialen oanmeitsje",
+    "sky": "Loft en mist oanmeitsje",
+    "terrain": "It Velliangiri-berchtme bouwe",
+    "roads": "Diken en paden oanlizze",
+    "vegetation": "Beammen en palmen plantsje",
+    "peopleStep": "Besikers en okseweinen tafoegje",
+    "lamps": "De oaljelampen oanstekke",
+    "shaders": "Shaders kompilearje",
+    "dawn": "Moarntiid",
+    "dusk": "Jûnskimer",
+    "night": "Nacht",
+    "cutaway": "Binnen sjen",
+    "cutawayTip": "Ferbergje de dakken om yn de gebouwen te sjen.",
+    "walk": "Kuierje",
+    "walkTip": "Rin mei WASD of de pylktoetsen. Sleep om om dy hinne te sjen. Hâld Shift yn om te draven, druk op F om te fleanen en op Esc om ôf te sluten.",
+    "walkHint": "Rin mei WASD of de pylktoetsen. Sleep om te sjen. Shift om te draven, F om te fleanen, Esc om ôf te sluten.",
+    "flightHint": "Flean mei WASD. Spaasjetoets of E om te stiigjen, Q of C om te sakjen, F om te lânjen en Esc om ôf te sluten.",
+    "orbitHint": "Sleep om te draaien, rôlje of knyp om yn te zoomen. Sleep mei de rjochtermûsknop of mei Shift om it byld te ferskowen.",
+    "walkDescription": "Ferken it terrein rinnend. Brûk WASD, de pylktoetsen of de joystick op it oanreitsskerm. Sleep om om dy hinne te sjen. Druk op Esc of kies nochris Kuierje om werom te gean nei it loftoansicht.",
+    "aerial": "Loftoansicht",
+    "aerialDescription": "Kies in lokaasje om derhinne te fleanen of kies Kuierje om it terrein rinnend te ferkennen.",
+    "people": "Minsken",
+    "peopleTip": "Lit besikers, groepen en okseweinen sjen of ferbergje se.",
+    "overview": "Oersjoch",
+    "overviewDescription": "Ferken it Isha Yoga Center oan de foet fan it Velliangiri-berchtme. Kies in lokaasje om derhinne te fleanen.",
+    "outsideHeading": "Bûten Sarpa Vasal · Iepenbier gebiet",
+    "insideHeading": "Binnen Sarpa Vasal · Terrein",
+    "all": "Alles",
+    "out": "Bûten",
+    "in": "Binnen",
+    "allTip": "Lit alle gebouwen sjen.",
+    "outTip": "Lit allinnich de gebouwen bûten Sarpa Vasal sjen.",
+    "inTip": "Lit allinnich de gebouwen binnen Sarpa Vasal sjen.",
+    "navigation": "Lokaasjes"
+  },
+  "places": {
+    "adiyogi": {
+      "name": "Adiyogi-byld",
+      "description": "Dit 34 meter hege stielen boarstbyld fan Shiva sjocht nei it suden. De Yogeshwar Linga stiet yn it paviljoen derfoar."
+    },
+    "yogeshwar": {
+      "name": "Yogeshwar Linga",
+      "description": "Dizze linga stiet foar fiif wichtige chakra's. Besikers offerje wetter en neemblêden."
+    },
+    "kalabhairava": {
+      "name": "Kalabhairava Sthanam",
+      "description": "Tusken Adiyogi en Malai Vasal stiet in stiennen hillichdom mei úthoude pylders."
+    },
+    "malai": {
+      "name": "Haadyngong Malai Vasal",
+      "description": "De haadpoarte ten suden fan Adiyogi hat in grutte natuerstien boppe de trochgong."
+    },
+    "sarpa": {
+      "name": "Sarpa Vasal-poarte",
+      "description": "Yn dizze graniten poarte oan Narasipuram Road stiet in donkere kobra."
+    },
+    "moondram": {
+      "name": "Moondram Pirai Eatery",
+      "description": "Dit restaurant leit ten suden fan Sarpa Vasal. De bûtenkant yn it model is in benadering."
+    },
+    "moondram-in": {
+      "name": "Binnen yn it restaurant",
+      "description": "De ytseal hat izeren tafels, wite dakspanten en in ôfbylding fan Devi."
+    },
+    "unavagam": {
+      "name": "Velliangiri Unavagam",
+      "description": "In Súd-Yndiaansk fegetarysk restaurant krekt binnen Surya Vasal."
+    },
+    "unavagam-in": {
+      "name": "Under it ôfdak",
+      "description": "Besikers helje iten by de útfinersters en ite oan steantafels ûnder it ôfdak."
+    },
+    "suryakund": {
+      "name": "Suryakund en Mandapam",
+      "description": "Achtentweintich brede stiennen trêden liede nei it bad foar manlju. Dêrboppe hinget in koperen sinne."
+    },
+    "surya-in": {
+      "name": "Treppen en bad",
+      "description": "Stiennen trêden rinne it bad yn. Oan de oare kant rint in wettergerdyn by de muorre del."
+    },
+    "naga": {
+      "name": "Naga-hillichdom",
+      "description": "Boppe-oan de Suryakund-trep binne yninoar kronkele kobra's yn in swarte stien úthoud."
+    },
+    "ponds": {
+      "name": "Lotusfivers en bôgebrêge",
+      "description": "In wite bôgebrêge giet oer de lotusfivers tusken Nandi en Suryakund."
+    },
+    "nandi": {
+      "name": "Nandi",
+      "description": "Dizze lizzende swarte bolle sjocht nei Dhyanalinga en draacht in rige brûnzen beltsjes."
+    },
+    "dhyanalinga": {
+      "name": "Dhyanalinga",
+      "description": "Besikers geane troch in stiennen bôge oan de eastkant de meditaasjeseal mei bakstiennen koepel yn."
+    },
+    "dhyana-in": {
+      "name": "Binnen yn Dhyanalinga",
+      "description": "Sân koperen bannen sitte om de swarte graniten Dhyanalinga. By de muorre lâns binne 28 meditaasjenissen."
+    },
+    "bhairavi": {
+      "name": "Linga Bhairavi",
+      "description": "Dit Devi-hillichdom súdwestlik fan Dhyanalinga hat in trijehoekige hillichste romte en in dakljocht."
+    },
+    "lb-in": {
+      "name": "Devi en de trijetine",
+      "description": "Foar Devi, dy't in read-gouden sari draacht, stiet in grutte trijetine."
+    },
+    "sadhana": {
+      "name": "Sadhana-sealen 1 en 2",
+      "description": "Yn dizze twa sealen westlik fan Dhyanalinga wurde Darshan, Aumkar-inisjaasjes en oefeningen holden."
+    },
+    "chandrakund": {
+      "name": "Chandrakund",
+      "description": "Twaëntritich stiennen trêden geane nei it bad foar froulju ûnder in muorreskildering yn Kerala-styl."
+    },
+    "chandra-in": {
+      "name": "De trep nei it bad",
+      "description": "De stiennen trep liedt nei it bad en syn linga ûnder de skildering fan de Mahakumbha Mela."
+    },
+    "deposit": {
+      "name": "Bagaazjebewarring",
+      "description": "Besikers kinne hjir harren telefoans en bagaazje efterlitte foardat se it terrein opgeane."
+    },
+    "ishalife": {
+      "name": "Isha Life en Peppervine Eatery",
+      "description": "De Isha Life-winkels lizze oan de haadwei, deun by Peppervine Eatery mei syn stiennen pylders."
+    },
+    "welcome": {
+      "name": "Untfangstpunt",
+      "description": "Besikers skriuwe harren hjir yn. Pindelbussen en okseweinen ride hjirwei."
+    },
+    "spanda": {
+      "name": "Spanda Hall",
+      "description": "Yn dizze grutte seal wurde programma's foar fierderfoardere dielnimmers holden, lykas Bhava Spandana."
+    },
+    "spanda-in": {
+      "name": "Binnen yn Spanda Hall",
+      "description": "Op de noardmuorre sjogge jo in muorreskildering yn Kerala-styl oer it libben fan Adiyogi."
+    },
+    "alayam": {
+      "name": "Adiyogi Alayam",
+      "description": "Dizze grutte seal hat in ljochtrôze bôgedak en pylders mei úthoude slangen."
+    },
+    "nalanda": {
+      "name": "Nalanda",
+      "description": "Nalanda Stay biedt ferbliuw en konferinsjeromte. De sportfjilden lizze súdlik dêrfan."
+    },
+    "bhiksha": {
+      "name": "Bhiksha Hall",
+      "description": "Yn dizze ytseal kinne likernôch twatûzen minsken op de flier sitte en yn stilte ite."
+    },
+    "metalbridge": {
+      "name": "Stielen brêge",
+      "description": "Dizze stielen fuotbrêge giet oer in berchstream oan de ein fan de okseweinrûte."
+    },
+    "campus": {
+      "name": "Oare gebouwen op it terrein",
+      "description": ""
+    }
+  }
+}

@@ -1,0 +1,173 @@
+{
+  "ui": {
+    "pageTitle": "Isha Yoga Center · 3D Virtual Tour",
+    "language": "Language",
+    "foothills": "Velliangiri foothills",
+    "subtitle": "Coimbatore · Velliangiri foothills · 1:1 scale",
+    "credit": "Model by Claude",
+    "loading": "Loading the 3D engine…",
+    "engineError": "Could not load the 3D engine. Refresh to try again.",
+    "engineReady": "3D engine ready",
+    "ready": "Ready",
+    "textures": "Creating textures and materials",
+    "sky": "Creating sky and mist",
+    "terrain": "Building the Velliangiri Hills",
+    "roads": "Laying out roads and paths",
+    "vegetation": "Planting trees and palms",
+    "peopleStep": "Adding visitors and bullock carts",
+    "lamps": "Lighting the oil lamps",
+    "shaders": "Compiling shaders",
+    "dawn": "Dawn",
+    "dusk": "Dusk",
+    "night": "Night",
+    "cutaway": "Cutaway",
+    "cutawayTip": "Hide roofs to see inside buildings.",
+    "walk": "Walk",
+    "walkTip": "Walk with WASD or arrow keys. Drag to look, hold Shift to run, press F to fly, and press Esc to exit.",
+    "walkHint": "Walk with WASD or arrow keys. Drag to look. Shift to run, F to fly, Esc to exit.",
+    "flightHint": "Fly with WASD. Space or E to rise, Q or C to descend, F to land, Esc to exit.",
+    "orbitHint": "Drag to orbit, scroll or pinch to zoom, and right-drag or Shift-drag to pan. Select Walk for first-person controls.",
+    "walkDescription": "Explore on foot. Move with WASD or the arrow keys, hold Shift to run, or press F to toggle flight. Drag to look around. On touchscreens, use the joystick. Press Esc or select Walk again to return to the aerial view.",
+    "aerial": "Aerial view",
+    "aerialDescription": "Select a landmark in the navigation list to fly to it, or select Walk to explore on foot.",
+    "people": "People",
+    "peopleTip": "Show or hide visitors, crowds, and bullock carts.",
+    "overview": "Overview",
+    "overviewDescription": "Locations, orientations, and distances use OpenStreetMap coordinates at 1:1 scale and were cross-checked against Isha’s 2026 campus map. Buildings are modeled from official and visitor photographs. Adiyogi is to the southeast and faces south. The Velliangiri Hills are to the west. Use Cutaway to look inside buildings.",
+    "outsideHeading": "Outside Sarpa Vasal · Public area",
+    "insideHeading": "Inside Sarpa Vasal · Campus",
+    "all": "All",
+    "out": "Outside",
+    "in": "Inside",
+    "allTip": "Show all buildings.",
+    "outTip": "Show only the buildings outside Sarpa Vasal.",
+    "inTip": "Show only the buildings inside Sarpa Vasal.",
+    "navigation": "Locations"
+  },
+  "places": {
+    "adiyogi": {
+      "name": "Adiyogi statue",
+      "description": "A steel bust of Shiva, 34 meters tall and 45 meters wide, faces due south as Dakshinamurti. It stands about 840 meters southeast of the main campus. Inside the square pavilion in front, the silver Yogeshwar Linga sits in a dark circular basin. The pavilion has a terracotta roof and a six-pointed star inlaid in its floor."
+    },
+    "yogeshwar": {
+      "name": "Yogeshwar Linga",
+      "description": "The linga in front of Adiyogi represents five major chakras. Visitors can offer water and neem leaves and walk around it."
+    },
+    "kalabhairava": {
+      "name": "Kalabhairava Sthanam",
+      "description": "This square stone shrine stands to the west of Adi Yogi Isha Road, between Adiyogi and Malai Vasal. Its front has carved columns, a copper-toned fascia, and a dark figure of Kalabhairava above the entrance. A low stone wall and black iron railing border the paved forecourt."
+    },
+    "malai": {
+      "name": "Malai Vasal main entrance",
+      "description": "The main entrance sits on Adi Yogi Isha Road, about one kilometer south of Adiyogi. The road passes beneath a natural boulder that rests on two stone pillars and supports a small black linga. Inside the open wooden gates, a pond with frangipani trees lies to the west."
+    },
+    "sarpa": {
+      "name": "Sarpa Vasal gate",
+      "description": "This campus entrance on Narasipuram Road has stepped granite frames, red brick trim, a terracotta-colored arch, and a black cobra in the gateway. The Information Center is just inside. Stalls and Surya Vasal lie along the road to the northeast."
+    },
+    "moondram": {
+      "name": "Moondram Pirai Eatery",
+      "description": "The restaurant sits across the road south of Sarpa Vasal, next to an ATM. The model uses the site footprint from OpenStreetMap and visitor photographs for the interior. The exterior is an approximation. Use Cutaway to see inside."
+    },
+    "moondram-in": {
+      "name": "Restaurant interior",
+      "description": "The interior has white walls, white steel roof trusses, pale floor tiles, and four-seat iron tables. A Devi image hangs on the east wall. Visitor photographs show cone-shaped dosas and baby corn. The other food in the model is illustrative."
+    },
+    "unavagam": {
+      "name": "Velliangiri Unavagam",
+      "description": "A South Indian vegetarian restaurant southeast of Suryakund and just inside Surya Vasal. Stainless-steel serving windows line the mustard-yellow kitchen building behind an open shelter with rows of standing tables. The small Isha Life shop at the east end is shown in an approximate location."
+    },
+    "unavagam-in": {
+      "name": "Under the dining shelter",
+      "description": "Diners queue at the serving windows and eat at long standing tables under steel frames, a metal roof, and ceiling fans. A small Isha Life shop has a glass storefront at the east end."
+    },
+    "suryakund": {
+      "name": "Suryakund and Mandapam",
+      "description": "The men's bathing pool lies 22 feet below ground, surrounded by the columned Suryakund Mandapam. The 28 broad eastern steps lead to a pool 130 feet long and 40 feet wide. A 20-foot copper sun hangs beneath a brick arch. The steps are used for early morning Guru Pooja and practice. Use Cutaway to see inside."
+    },
+    "surya-in": {
+      "name": "Steps and pool",
+      "description": "From the landing by Naga Shrine, look down over the broad stone steps and practice mats. Two tall stone columns stand partway down. The bottom steps descend into the water, and a curtain of water runs down the opposite wall."
+    },
+    "naga": {
+      "name": "Naga Shrine",
+      "description": "At the head of the eastern Suryakund steps, intertwined cobras are carved into a single black stone. Brass lamps and vessels holding green leaves stand in front. Use Cutaway for a clearer view beneath the roof."
+    },
+    "ponds": {
+      "name": "Lotus ponds and arched bridge",
+      "description": "A white arched bridge crosses the narrow part of the gourd-shaped lotus ponds between Nandi and Suryakund. The bridge is on the walking route from Dhyanalinga to Suryakund."
+    },
+    "nandi": {
+      "name": "Nandi",
+      "description": "The reclining black bull, about 15 feet tall, faces Dhyanalinga. It has a raised head, a prominent shoulder hump, crescent-shaped horns, and a string of bronze bells. One folded foreleg rests on the ground as if the bull is about to rise."
+    },
+    "dhyanalinga": {
+      "name": "Dhyanalinga",
+      "description": "Completed in 1999, Dhyanalinga has an ochre brick dome 76 feet across and 33 feet high. The stone base has 28 triangular vents. From the east, visitors pass the Pillar of Religions, a stone gate, steps, reliefs, and the figures of Patanjali and Vanashree before entering through a stone archway."
+    },
+    "dhyana-in": {
+      "name": "Inside Dhyanalinga",
+      "description": "The black granite Dhyanalinga stands 13 feet 9 inches tall. Seven copper bands mark the seven chakras. Coiled serpents form its pedestal, surrounded by the square jalaseema pool. There are 28 meditation niches around the wall and a gold-plated copper hemisphere suspended overhead that drips water."
+    },
+    "bhairavi": {
+      "name": "Linga Bhairavi",
+      "description": "The Devi shrine, consecrated in 2010, stands southwest of Dhyanalinga. The walls form an inverted triangle symbolizing a womb, with a smaller triangular sanctum at the far end. The roof has a triangular skylight. Use Cutaway to see inside."
+    },
+    "lb-in": {
+      "name": "Devi and the trident",
+      "description": "A large trident stands at an angle in the hall. Four steps descend toward the sanctum, bordered by brass posts and red ropes. The eight-foot Devi has three eyes and ten arms and wears a red and gold sari. Carved white columns and oil lamps flank the shrine. The Devi Office and Ritual Office are next door on the ground floor of Sadhana Hall."
+    },
+    "sadhana": {
+      "name": "Sadhana Halls 1 and 2",
+      "description": "This two-story building west of Dhyanalinga has ground-floor rooms along a colonnade, including the Devi and Ritual offices at the south end. Upstairs, Hall 1 is to the north and hosts daily Darshan, Aumkar initiation, and early morning practices for women. Hall 2 is to the south. The ground-floor layout is approximate."
+    },
+    "chandrakund": {
+      "name": "Chandrakund",
+      "description": "The women's bathing pool sits just north of Dhyanalinga. Two stone turtles stand by the entrance, where a red-brick arch meets a steel canopy. Thirty-two stone steps descend about 30 feet to the pool and a Kerala-style mural depicting the Mahakumbha Mela."
+    },
+    "chandra-in": {
+      "name": "Steps down to the pool",
+      "description": "Thirty-two stone steps lead between boulder walls to the pool and its linga, about nine meters below ground. The vault overhead carries the Mahakumbha Mela mural."
+    },
+    "deposit": {
+      "name": "Deposit counter",
+      "description": "Visitors can leave phones and luggage here before entering the campus. The counter appears with a phone icon northeast of Chandrakund on the official map. The appearance of the building is approximate."
+    },
+    "ishalife": {
+      "name": "Isha Life and Peppervine Eatery",
+      "description": "Open-front Isha Life shops line the west side of the main road with shelves, display stands, and clothes racks. Their exteriors are approximate. To the northwest, Peppervine Eatery has carved stone columns, a steel-truss canopy, and stone water troughs with water lilies."
+    },
+    "welcome": {
+      "name": "Welcome Point",
+      "description": "Visitors register here, meet volunteers, and can access phones and internet. Shuttles and bullock carts depart from here. The carts go to Metal Bridge near Bhiksha Hall. Numbered registration counters sit behind bamboo screens under dark tiled roofs, and a covered pickup area stands by the road."
+    },
+    "spanda": {
+      "name": "Spanda Hall",
+      "description": "The roughly 64,000-square-foot hall hosts advanced programs such as Bhava Spandana. It has an ochre plinth, square stone columns, and a low metal roof with a skylight. The earthen-walled front garden has a large lawn, three pavilions, and a stone-edged lotus pond. Use Cutaway to see inside."
+    },
+    "spanda-in": {
+      "name": "Inside Spanda Hall",
+      "description": "The hall has white marble floors and a stepped coffered ceiling with rows of lights. The north wall holds a 140-by-12-foot Kerala-style mural of Adiyogi's life, painted with plant and mineral pigments. A stone dais stands in front of it."
+    },
+    "alayam": {
+      "name": "Adiyogi Alayam",
+      "description": "This roughly 82,000-square-foot hall just north of Suryakund has an open front, a low pale-pink arched roof, and stone columns carved with serpents. The main interior is column-free."
+    },
+    "nalanda": {
+      "name": "Nalanda",
+      "description": "To the north, Nalanda Stay is a white three-story lodging and conference building with an open hall beneath a curved roof between its wings. The large Nalanda Grounds to the south are used for evening games."
+    },
+    "bhiksha": {
+      "name": "Bhiksha Hall",
+      "description": "In the dining hall at the north of the campus, about two thousand people can sit in rows on the floor and eat in silence. The south side has an entrance porch and washbasins. The exterior model is simplified. Use Cutaway to see inside."
+    },
+    "metalbridge": {
+      "name": "Metal Bridge",
+      "description": "This steel-truss footbridge northeast of Bhiksha Hall crosses a mountain stream toward Velliangiri Prashala. It is the final stop on the bullock cart route from Welcome Point. Its location is approximate, and the model ends at the bridge."
+    },
+    "campus": {
+      "name": "Other campus buildings",
+      "description": ""
+    }
+  }
+}

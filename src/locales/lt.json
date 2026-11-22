@@ -1,0 +1,173 @@
+{
+  "ui": {
+    "pageTitle": "Isha Yoga centras · 3D virtuali vizualizmas",
+    "language": "Kalba",
+    "foothills": "Velliangiri kalnuose",
+    "subtitle": "Coimbatore · Velliangiri kalnuose · 1:1 skalas",
+    "credit": "Modelis: Claude",
+    "loading": "Sunkina 3D motoras...",
+    "engineError": "Negaliu įkrauti 3D motoro.",
+    "engineReady": "3D motoras ruošiamas",
+    "ready": "Laukiamės",
+    "textures": "Tekstūros ir materialo gamymas",
+    "sky": "Kūręs dangus ir drebes",
+    "terrain": "Velliangiri kalnuose statyti",
+    "roads": "Kelių ir kelių parinkimas",
+    "vegetation": "Medžių ir palminės sodymas",
+    "peopleStep": "Priėjo lankytojus ir bulk karus",
+    "lamps": "Rūdžių lemputės užsildymas",
+    "shaders": "Kompiliacijos šaderiai",
+    "dawn": "Aušra",
+    "dusk": "Sutemos",
+    "night": "Naktis",
+    "cutaway": "Rodyti vidų",
+    "cutawayTip": "Pasislapk stogus, kad pamatytum pastato viduje.",
+    "walk": "Eiti",
+    "walkTip": "WASD / ↑ ↓ ← → — Eiti · Shift — Bėgti · F — Skristi · Esc — Išeiti",
+    "walkHint": "WASD / ↑ ↓ ← → — Eiti · Shift — Bėgti · F — Skristi · Esc — Išeiti",
+    "flightHint": "WASD — Skristi · Space / E — Kilti · Q / C — Leistis · F — Nusileisti ant žemės · Esc — Išeiti",
+    "orbitHint": "Nuvaikskite, kad sukeltum, sukremptum, perspaudykite, kad apkrantum, traukite de štai arba traukite į šlapimą.",
+    "walkDescription": "Vaikstykis ant klaviatūros arba ant ant antrypo juostinės.",
+    "aerial": "Iš oro matymas",
+    "aerialDescription": "Pasirinkite aikštelės, į kurios norite skristi, arba pasirinkite \"Plaukite\", kad galintume aplankytis pėsčiu.",
+    "people": "Žmonės",
+    "peopleTip": "Parodyk ar pasislapk lankytojus, minias ir bulk karus.",
+    "overview": "Apžvalga",
+    "overviewDescription": "Ištirkime Iša jogos centrėlės Velliangiri kalnuose ir pasirinkime į ją skristi.",
+    "outsideHeading": "Už Sarpa Vasal · viešoji zona",
+    "insideHeading": "Sarpa Vasal · Campus viduje",
+    "all": "Visi",
+    "out": "Išorėje",
+    "in": "Viduje",
+    "allTip": "Parodykite visus pastatus.",
+    "outTip": "Parodyk tik pastatus už Sarpa Vasal.",
+    "inTip": "Parodyk tik pastatus Sarpa Vasal viduje.",
+    "navigation": "Vietos"
+  },
+  "places": {
+    "adiyogi": {
+      "name": "Adiyogi statula",
+      "description": "Šivos 34 m plieno bustas išsidžiaugo į pietu."
+    },
+    "yogeshwar": {
+      "name": "Yogeshwar Linga",
+      "description": "Ši linga yra penkis pagrindiniai chakras, o lankytojus jis atkeliavo su vandeniu ir neem lapiais."
+    },
+    "kalabhairava": {
+      "name": "Kalabhairava Sthanam",
+      "description": "Tarp Adiyogi ir Malai Vasal yra akmens šventykla su iškirstomis stulpomis."
+    },
+    "malai": {
+      "name": "Malai Vasal pagrindinis įėjimo centras",
+      "description": "Didžiausi į Adiyogi į širdis įvesta yra gamtos akmenys."
+    },
+    "sarpa": {
+      "name": "Sarpa Vasal vartos",
+      "description": "Tamsi kobra stovi šito granito campus gatvėje Narasipuramo kelio."
+    },
+    "moondram": {
+      "name": "Moondram Pirai Eatery",
+      "description": "Restuonas yra į pietu nuo Sarpa Vasal."
+    },
+    "moondram-in": {
+      "name": "Restuaro interjeras",
+      "description": "Valgymo kambaryje yra geležies stalai, balta stogo stoka ir Devi pavidalo."
+    },
+    "unavagam": {
+      "name": "Velliangiri Unavagam",
+      "description": "Juodosios Indijos vegetarianinis restoranai tik Surya Vasal viduje."
+    },
+    "unavagam-in": {
+      "name": "Palikite prieglobstėje.",
+      "description": "Valgijimai iš langinių išpildo maistas ir valgo prie stoviųjų lentynos."
+    },
+    "suryakund": {
+      "name": "Surjakundas ir Mandapamas",
+      "description": "Dvylikaolikos platūs akmens stebuklai nuvedia į vyriškųjų baseino ir jo susikeltos varninio saule."
+    },
+    "surya-in": {
+      "name": "Stebėmai ir baseinas",
+      "description": "Iš akmens į baseino nusileidžiamos akmeninės stuburo."
+    },
+    "naga": {
+      "name": "Naga šventykla",
+      "description": "Perplenktos kobros yra iškirstomos į vienas juodasis akmenis Suryakund kalčių viršaus."
+    },
+    "ponds": {
+      "name": "Lotosūs ir bokštinis tiltas",
+      "description": "Baltu boksu plotas pervažioja lotos baseinas tarp Nandi ir Surjakundo."
+    },
+    "nandi": {
+      "name": "Nandi",
+      "description": "Šitas nusileidęs juodasis bulis ištiko į Djanalingos ir užsidirbo bronzinių zvoninių."
+    },
+    "dhyanalinga": {
+      "name": "Dhyanalinga",
+      "description": "Netiekiami į meditacijos salės, kurios pusėje yra antdėlės, lankiniai įeina į šalia esančio akmens arkos."
+    },
+    "dhyana-in": {
+      "name": "Djanalinga viduje",
+      "description": "Juodo granito Dhyanalingą juosia septyni variniai žiedai. Palei sieną įrengtos 28 meditacijos nišos."
+    },
+    "bhairavi": {
+      "name": "Linga Bhairavi",
+      "description": "Ši Devi šventinė į šalia Djanalinga turi triangulinės šventyklos ir stoginio."
+    },
+    "lb-in": {
+      "name": "Devi ir tridentas",
+      "description": "Devi prieš save stovi miltus trijotas, kuris uždaro raudonosios ir aukso sari."
+    },
+    "sadhana": {
+      "name": "Sadhana salos 1 ir 2",
+      "description": "Šiomis dviem salomis į vakarus nuo Djanalinga yra darsas, Aumkar inicijacija ir pratimai."
+    },
+    "chandrakund": {
+      "name": "Chandrakund",
+      "description": "32 akmens stuburo nuleido į moterinių baseino po Kerala stilių mualo."
+    },
+    "chandra-in": {
+      "name": "Žengia į baseinę.",
+      "description": "Kalno listas vedia prie baseino ir jos linga po Mahakumbha Mela siena."
+    },
+    "deposit": {
+      "name": "Depozitinių sandorinių",
+      "description": "Nagi, lankytojus gali ten palikti savo telefonus ir bagažas prieš įeidant į kampus."
+    },
+    "ishalife": {
+      "name": "Isha Life and Peppervine Eatery",
+      "description": "Isha Life pardavimai yra prie pagrindinio kelio, prie akmeninių stulpinių Peppervine Eatery."
+    },
+    "welcome": {
+      "name": "Sveikinimas",
+      "description": "Nagi, štai kur lankytojus užregistruoja."
+    },
+    "spanda": {
+      "name": "Spanda Hall",
+      "description": "Šitame didele salėje yra pažangios programos, kaip Bhava Spandana."
+    },
+    "spanda-in": {
+      "name": "Spanda Hall viduje",
+      "description": "Šalies sienos ant sienos yra Keralas stiliui užrašytas Adiyogije."
+    },
+    "alayam": {
+      "name": "Adiyogi Alayam",
+      "description": "Šitame didele salėje yra blai rožiakalbiškai stovi stogas ir sloniai iškirstyti stulpai."
+    },
+    "nalanda": {
+      "name": "Nalanda",
+      "description": "Nalanda Stay yra buvimo ir konferencijos aikštelės."
+    },
+    "bhiksha": {
+      "name": "Bhiksha Hall",
+      "description": "Mažais du tygstybių žmonių gali sėsti ant lovo ir švilties valgius šitame valgyklos salėje."
+    },
+    "metalbridge": {
+      "name": "Metalo tiltas",
+      "description": "Šitas plieno pėsčio tiltas perplauka kalnuose, esančio bulk karuto kelio galvoje."
+    },
+    "campus": {
+      "name": "Kitos aikštės pastato",
+      "description": ""
+    }
+  }
+}

@@ -1,0 +1,173 @@
+{
+  "ui": {
+    "pageTitle": "Isha Jooga Keskus · 3D Virtuaalne Turne",
+    "language": "Keel",
+    "foothills": "Velliangiri jalgkonnad",
+    "subtitle": "Coimbatore · Velliangiri jalgkonnad · 1:1 skaala",
+    "credit": "Mudelit: Claude",
+    "loading": "Laadides 3D-mootorit...",
+    "engineError": "Ma ei saa 3D-mootorit laada.",
+    "engineReady": "3D-mootor on valm.",
+    "ready": "Valmis.",
+    "textures": "Tekstureid ja materjale",
+    "sky": "Looma taeva ja pilvi",
+    "terrain": "Velliangiri mägede ehtimine",
+    "roads": "Rööv tee ja tee",
+    "vegetation": "Puid ja palmi istutamine",
+    "peopleStep": "Lisada külastajad ja härjakarjad",
+    "lamps": "Ölilampide valgustamine",
+    "shaders": "Päriside kogamine",
+    "dawn": "Koit",
+    "dusk": "Videvik",
+    "night": "Öö",
+    "cutaway": "Vaata sisse",
+    "cutawayTip": "Peida katused, et näeksid hoone sisemust.",
+    "walk": "Kõnni",
+    "walkTip": "WASD / ↑ ↓ ← → — Kõnni · Shift — Jookse · F — Lenda · Esc — Välju",
+    "walkHint": "WASD / ↑ ↓ ← → — Kõnni · Shift — Jookse · F — Lenda · Esc — Välju",
+    "flightHint": "WASD — Lenda · Space / E — Tõuse · Q / C — Lasku · F — Maandu · Esc — Välju",
+    "orbitHint": "Röövi, keerata, röövi, kinkida, tõmmata, sõida parema käe või tõmmata.",
+    "walkDescription": "Käia klaviatoori või kosketusjoystikiga. Võtke oma vahele. Vaadake Esc või valige välja välja.",
+    "aerial": "Lennuvaade",
+    "aerialDescription": "Võtke välja lennataja või valige jalgsi läbi käia.",
+    "people": "Inimesed",
+    "peopleTip": "Näita või varjata külastajad, rahvahulgad ja härra kargid.",
+    "overview": "Ülevaade",
+    "overviewDescription": "Uuri Velliangiri mägede jaemale asuvat Isha Joga keskust ja valige selle jaoks ajemärk.",
+    "outsideHeading": "Sarpa Vasal väljal · avalik ala",
+    "insideHeading": "Sarpa Vasal · Campus",
+    "all": "Kõik",
+    "out": "Väljas",
+    "in": "Sees",
+    "allTip": "Näita kõik hoone.",
+    "outTip": "Näita ainult Sarpa Vasal'i väljas olevad hooneid.",
+    "inTip": "Näita ainult Sarpa Vasal'i siseruumides olevad hooneid.",
+    "navigation": "Kohad"
+  },
+  "places": {
+    "adiyogi": {
+      "name": "Adiyogi kivik",
+      "description": "See Shiva 34-meetrine terase busts on lõunasse suunatud."
+    },
+    "yogeshwar": {
+      "name": "Yogeshwar Linga",
+      "description": "See linga on viit peamist chakrat, kus külastajad pakuvad veega ja neemide lehed."
+    },
+    "kalabhairava": {
+      "name": "Kalabhairava Sthanam",
+      "description": "Adiyogi ja Malai Vasal'i vahele seisneb kivipeetud kolonnid."
+    },
+    "malai": {
+      "name": "Malai Vasal peastupide",
+      "description": "Adiyogi lõunaosel peasväraval on oma lintelist loomulik kivi."
+    },
+    "sarpa": {
+      "name": "Sarpa Vasal värav",
+      "description": "Tumedas koobra seisab selle graniitliku kampuse värav Narasipurami teele."
+    },
+    "moondram": {
+      "name": "Moondram Pirai Eatery",
+      "description": "See restaurant on Sarpa Vasal lõunas."
+    },
+    "moondram-in": {
+      "name": "Rauditoru sisekogus",
+      "description": "Sööjajas on raudlaudad, valged katustikad ja Devi pildi."
+    },
+    "unavagam": {
+      "name": "Velliangiri Unavagam",
+      "description": "Etel-Inde veegeteristoraat, kus on Surya Vasal."
+    },
+    "unavagam-in": {
+      "name": "- Ma ei tea.",
+      "description": "Majakeskused koguavad toitu ja söödakse varjupaika all seisvate laudade all."
+    },
+    "suryakund": {
+      "name": "Suryakund ja Mandapam",
+      "description": "Kahekümne kaheksakümne laial kivi trepp viivad mehi vannibasseini ja selle vasast päike."
+    },
+    "surya-in": {
+      "name": "Treppid ja bassein",
+      "description": "Kuuskelad langeb basseini ja vastupidise seina alla kuldab veekordin."
+    },
+    "naga": {
+      "name": "Naga-kogu",
+      "description": "Üheskoosse seotud kobrad on kaevatud Suryakundi trepide kohal üheks mustaks kivis."
+    },
+    "ponds": {
+      "name": "Lotusjärvad ja kaevatud sillad",
+      "description": "Valge kaugivilge silla ületab Nandi ja Suryakundi lotusjärve."
+    },
+    "nandi": {
+      "name": "Nandi",
+      "description": "See hingatud must härg kohtub Dhyanalinga ja kandis bronssikell."
+    },
+    "dhyanalinga": {
+      "name": "Dhyanalinga",
+      "description": "Käijad sisenevad tiikkupilga mediteeruhallisse läbi kivi arki ida pool."
+    },
+    "dhyana-in": {
+      "name": "Dhyanyalinga sisemuses",
+      "description": "Seitsme vasirööki ümbritsevad mustat graniti Dhyanalinga."
+    },
+    "bhairavi": {
+      "name": "Linga Bhairavi",
+      "description": "Selle Devi piires Dhyanaalinga lõunalööndil on kolmnurglik piires ja katus."
+    },
+    "lb-in": {
+      "name": "Devi ja trident",
+      "description": "Devi ees seisab suur kolmekümme, kes kandis punase ja kulase sari."
+    },
+    "sadhana": {
+      "name": "Sadhana hallid 1 ja 2",
+      "description": "Dhyalinga läänes asuvad need kahes hoolis osaleb Darshan, Aumkar algatus ja harjutus."
+    },
+    "chandrakund": {
+      "name": "Chandrakund",
+      "description": "Kolmkümmend kaks kivist astet viivad Kerala stiilis seinamaalingu all asuvasse naiste kümblusbasseini."
+    },
+    "chandra-in": {
+      "name": "- Ta astub basseini.",
+      "description": "Kivi trepp viib basseeni ja selle lingale Mahakumbha Mela seinapuu all."
+    },
+    "deposit": {
+      "name": "Depositikoht",
+      "description": "külastajad on siin oma telefonid ja pagasi, kui nad kampuse sisenevad."
+    },
+    "ishalife": {
+      "name": "Isha Life and Peppervine Eatery",
+      "description": "Isha Life kaupled on peamistee kõrvale, peeppervine'i söögikolonnade lähist."
+    },
+    "welcome": {
+      "name": "Tervitamispunkt",
+      "description": "Siit sõidavad külastajad ja härgakarjad."
+    },
+    "spanda": {
+      "name": "Spanda Hall",
+      "description": "Selle suures hoolis peitub kõrgkoosolekud, nagu Bhava Spandana."
+    },
+    "spanda-in": {
+      "name": "Spanda Hallis",
+      "description": "põhjamuril on Kerala stiilis seinapilt Adiyogi elu kohta."
+    },
+    "alayam": {
+      "name": "Adiyogi Alayam",
+      "description": "Selle suurel sallil on helepsa roosa arkuga katus ja käärmedest kaevatud kolonnid."
+    },
+    "nalanda": {
+      "name": "Nalanda",
+      "description": "Nalanda Stay on maja- ja konferentsiruum."
+    },
+    "bhiksha": {
+      "name": "Bhiksha Hall",
+      "description": "Selle söögisaalil võib istuma põrgal ja vaikselt söömine."
+    },
+    "metalbridge": {
+      "name": "Metalli silda",
+      "description": "See terase jalgpalg ületab mäe jõgi härgkarja ritte lõpus."
+    },
+    "campus": {
+      "name": "Muud kampuse hoone",
+      "description": ""
+    }
+  }
+}

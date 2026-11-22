@@ -1,0 +1,173 @@
+{
+  "ui": {
+    "pageTitle": "Isha Yoga Center · 3D Virtual Tour",
+    "language": "Wika",
+    "foothills": "Mga paanan ng Velliangiri",
+    "subtitle": "Coimbatore · Velliangiri foothills · 1:1 scale",
+    "credit": "Model ni Claude",
+    "loading": "Pag-load ng 3D engine...",
+    "engineError": "Hindi ko na nai-load ang 3D engine.",
+    "engineReady": "3D engine ready",
+    "ready": "Handa na",
+    "textures": "Paggagawa ng mga texture at materyo",
+    "sky": "Pagbubukod ng langit at dilaw",
+    "terrain": "Pagtayo ng mga Bukid ng Velliangiri",
+    "roads": "Paglalagay ng mga daanan at landas",
+    "vegetation": "Pagtanim ng mga puno at mga palma",
+    "peopleStep": "Pagdarasal ng mga bisita at mga karwahe ng baka",
+    "lamps": "Paglalagay ng mga lampara ng langis",
+    "shaders": "Pag-aari ng mga shader",
+    "dawn": "Bukang-liwayway",
+    "dusk": "Takipsilim",
+    "night": "Gabi",
+    "cutaway": "Tingnan ang loob",
+    "cutawayTip": "I-hide ang mga bubong upang makita ang loob ng mga gusali.",
+    "walk": "Maglakad",
+    "walkTip": "WASD / ↑ ↓ ← → — Maglakad · Shift — Tumakbo · F — Lumipad · Esc — Lumabas",
+    "walkHint": "WASD / ↑ ↓ ← → — Maglakad · Shift — Tumakbo · F — Lumipad · Esc — Lumabas",
+    "flightHint": "WASD — Lumipad · Space / E — Umakyat · Q / C — Bumaba · F — Lumapag · Esc — Lumabas",
+    "orbitHint": "I-drag upang i-rotate. Scroll o pinch upang zoom. Right-drag o Shift-drag upang pan.",
+    "walkDescription": "Maglalaki sa keyboard o touch joystick. I-drag upang tumingin sa likuran. I-press ang Esc o piliin ang Maglalaki muli upang mag-exit.",
+    "aerial": "Pagtingin sa Aerial",
+    "aerialDescription": "Piliin ang isang landmark na gusto mong lumipad, o piliin ang Walk upang ma-explore sa paa.",
+    "people": "Mga tao",
+    "peopleTip": "Ipakita o itago ang mga bisita, pulok, at mga karwahe ng baka.",
+    "overview": "Pangkalahatang tanawin",
+    "overviewDescription": "Mag-aral ka sa Isha Yoga Center sa paa ng Velliangiri Hills. Piliin ang isang landmark upang lumipad dito.",
+    "outsideHeading": "Sa paliparan ng Sarpa Vasal · Pamamalagiang lugar",
+    "insideHeading": "Sa loob ng Sarpa Vasal · Campus",
+    "all": "Lahat",
+    "out": "Sa labas",
+    "in": "Sa loob",
+    "allTip": "Ipakita ang lahat ng gusali.",
+    "outTip": "Ipakita lamang ang mga gusali sa loob ng Sarpa Vasal.",
+    "inTip": "Ipakita lamang ang mga gusali sa loob ng Sarpa Vasal.",
+    "navigation": "Mga lugar"
+  },
+  "places": {
+    "adiyogi": {
+      "name": "Patong ni Adiyogi",
+      "description": "Ang 34-metrong asero na busto ng Shiva na ito ay tumatakbo sa timog."
+    },
+    "yogeshwar": {
+      "name": "Yogeshwar Linga",
+      "description": "Ang linga na ito ay kumakatawan sa lima pangunahang chakra."
+    },
+    "kalabhairava": {
+      "name": "Kalabhairava Sthanam",
+      "description": "Ang isang bato na santuario na may mga nakikitikit na haligi ay nakatayo sa antad ng Adiyogi at Malai Vasal."
+    },
+    "malai": {
+      "name": "Pangunahing paon ng Malai Vasal",
+      "description": "Ang pangunang pinto sa timog ng Adiyogi ay may isang natural na bato para sa lintel nito."
+    },
+    "sarpa": {
+      "name": "Pinto ng Sarpa Vasal",
+      "description": "Ang isang madilim na cobra ay nakatayo sa loob ng granite na gate ng campus sa Narasipuram Road."
+    },
+    "moondram": {
+      "name": "Moondram Pirai Eatery",
+      "description": "Ang restawran na ito ay nasa timog ng Sarpa Vasal. Ang modelong paninda nito ay mga kaukulang."
+    },
+    "moondram-in": {
+      "name": "Mga interior ng restawran",
+      "description": "Ang silid-pinimanan ay may mga lamesa ng puthaw, puting mga truss sa bubong, at isang retratong ni Devi."
+    },
+    "unavagam": {
+      "name": "Velliangiri Unavagam",
+      "description": "Ang isang South Indian vegetarian restaurant sa loob lamang ng Surya Vasal."
+    },
+    "unavagam-in": {
+      "name": "Sa sirado ng restaurant",
+      "description": "Ang mga diner ay nag-aari ng mga kainan mula sa mga binduang nag-aari at nagsisinang nasa nakatayo na mga lamesa sa silong ng pabantahan."
+    },
+    "suryakund": {
+      "name": "Suryakund at Mandapam",
+      "description": "May 28 malawak na hagdan na bato na humarap sa pool ng mga lalaki at sa hanggang bakuran na araw nito."
+    },
+    "surya-in": {
+      "name": "Mga hagdan at pool",
+      "description": "Ang mga hagdan ng bato ay tumataas sa pool."
+    },
+    "naga": {
+      "name": "Nagas na Banal na Lugar",
+      "description": "Ang mga nakapasok na cobras ay nakikitang sa isang solong pilak na itinatak sa tuktok ng mga hagdan ng Suryakund."
+    },
+    "ponds": {
+      "name": "Mga tangke ng lotus at busay na tulay",
+      "description": "Ang isang puting busag na tulay ay lumilipas sa mga tangke ng lotus sa mga lugar na nasa Nandi at Suryakund."
+    },
+    "nandi": {
+      "name": "Nandi",
+      "description": "Ang nag-aari na ito ay nakatingin sa Dhyanalinga at nagsusuot ng isang string ng mga tunog ng bronse."
+    },
+    "dhyanalinga": {
+      "name": "Dhyanalinga",
+      "description": "Sumapit ang mga dumalo sa isang silid ng bato sa silangan ng tabi ng isang silid ng pag-aalaala na may mga bato."
+    },
+    "dhyana-in": {
+      "name": "Sa loob ng Dhyanalinga",
+      "description": "Pito na bronse band ang naglilibing sa madilim na granite na Dhyanalinga."
+    },
+    "bhairavi": {
+      "name": "Linga Bhairavi",
+      "description": "Ang santuario ng Devi na ito sa timog-kanluran ng Dhyanalinga ay may isang triangular na santuario at skylight."
+    },
+    "lb-in": {
+      "name": "Si Devi at ang trident",
+      "description": "Ang isang malalaki na tridente ay nakatayo sa tabi ni Devi, na nagsusuot ng isang pula at ginto na sari."
+    },
+    "sadhana": {
+      "name": "Sadhana Hall 1 at 2",
+      "description": "Ang mga hall na ito sa kanluran ng Dhyanalinga ay nag-uok ng Darshan, Aumkar initiation, at mga sesyon ng pagsasagawa."
+    },
+    "chandrakund": {
+      "name": "Chandrakund",
+      "description": "32 na bato na hagdan ang tumataas sa mga bayan sa pool sa silong ng isang mural na gaya ng Kerala."
+    },
+    "chandra-in": {
+      "name": "Lumabas sa pool",
+      "description": "Ang hagdan ng bato ay humarap sa pool at ang linga nito sa baba ng mural ng Mahakumbha Mela."
+    },
+    "deposit": {
+      "name": "Deposit counter",
+      "description": "Ang mga dumalo ay maaaring iwanan dito ang kanilang mga telepon at bagahe bago sumapit sa campus."
+    },
+    "ishalife": {
+      "name": "Isha Life and Peppervine Eatery",
+      "description": "Ang mga malalaking Isha Life ay nasa tabi ng pangunang karagatan, sa tabi ng mga bato na kolumnas na Peppervine Eatery."
+    },
+    "welcome": {
+      "name": "Pamamahay na Punto",
+      "description": "Ang mga bisita ay nag-register dito."
+    },
+    "spanda": {
+      "name": "Spanda Hall",
+      "description": "Ang malalaki na silid na ito ay may mga advanced na programa gaya ng Bhava Spandana."
+    },
+    "spanda-in": {
+      "name": "Sa loob ng Spanda Hall",
+      "description": "Ang hilagang pader ay may mural sa gaya ng Kerala tungkol sa buhay ni Adiyogi."
+    },
+    "alayam": {
+      "name": "Adiyogi Alayam",
+      "description": "Ang malalaki na silid na ito ay may isang mapal na rosas na buhang dahan at mga haligi na nakikitikitang mga ahas."
+    },
+    "nalanda": {
+      "name": "Nalanda",
+      "description": "Nagtataglay ang Nalanda Stay at may lugar para sa mga komperensyong pang-aari."
+    },
+    "bhiksha": {
+      "name": "Bhiksha Hall",
+      "description": "Maglagay sa isang libong tao ang maaaring umupo sa sahig at magkanin nang tahimik sa silid na ito."
+    },
+    "metalbridge": {
+      "name": "Mga Ponte ng Metal",
+      "description": "Ang isang asero na palay na ito ay lumilipas sa isang bukid sa dulo ng ruta ng bullock cart."
+    },
+    "campus": {
+      "name": "Ang iba pang mga gusali sa campus",
+      "description": ""
+    }
+  }
+}

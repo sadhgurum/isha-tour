@@ -1,0 +1,173 @@
+{
+  "ui": {
+    "pageTitle": "Isha Yoga Center · 3D Virtual Tour",
+    "language": "Lugha",
+    "foothills": "Mlima wa Velliangiri",
+    "subtitle": "Coimbatore · Velliangiri vilima · 1:1 ukubwa",
+    "credit": "Mchoro wa Claude",
+    "loading": "Kujaza motor 3D...",
+    "engineError": "Haikuweza kupaka motor ya 3D. Fresh ili ujaribie tena.",
+    "engineReady": "Injinia ya 3D iko Tayari",
+    "ready": "Tayari",
+    "textures": "Kufanya textures na nyenzo",
+    "sky": "Kuumba anga na ukungu.",
+    "terrain": "Kujengwa kwa Velliangiri Hills",
+    "roads": "Kuweka njia na njia",
+    "vegetation": "Kupanda miti na mitende",
+    "peopleStep": "Kuongezea wageni na makaloti ya ng'ombe",
+    "lamps": "Kuwaka taa za umeme",
+    "shaders": "Kuweka shaders",
+    "dawn": "Alfajiri",
+    "dusk": "Machweo",
+    "night": "Usiku",
+    "cutaway": "Ona ndani",
+    "cutawayTip": "Ficha paa ili uone ndani ya majengo.",
+    "walk": "Tembea",
+    "walkTip": "WASD / ↑ ↓ ← → — Tembea · Shift — Kimbia · F — Ruka · Esc — Ondoka",
+    "walkHint": "WASD / ↑ ↓ ← → — Tembea · Shift — Kimbia · F — Ruka · Esc — Ondoka",
+    "flightHint": "WASD — Ruka · Space / E — Panda · Q / C — Shuka · F — Tua · Esc — Ondoka",
+    "orbitHint": "Kugeuza kwa kugeuza, kuvinjari au kunyoosha kwa kupanua, kuvuta kwa kuume au kuvuta kwa kugeuza kwa pan.",
+    "walkDescription": "Tumia kibodi au joystick ya kugusa.",
+    "aerial": "Maono ya Anga",
+    "aerialDescription": "Chagua eneo kwenye orodha ili uruke hadi hapo, au chagua Tembea ili kuchunguza kwa miguu.",
+    "people": "Watu",
+    "peopleTip": "Onyesha au ufiche wageni, umati, na makari ya ng'ombe-dume.",
+    "overview": "Muhtasari",
+    "overviewDescription": "Chungulia kituo cha Isha Yoga kwenye mteremko wa milima ya Velliangiri. Chagua kilele cha kupaa.",
+    "outsideHeading": "nje ya Sarpa Vasal · Eneo la watu wote",
+    "insideHeading": "Katika Sarpa Vasal · Campus",
+    "all": "Yote",
+    "out": "Nje",
+    "in": "Ndani",
+    "allTip": "Onyesha majengo yote.",
+    "outTip": "Onyesha tu majengo ya nje ya Sarpa Vasal.",
+    "inTip": "Onyesha tu majengo ya ndani ya Sarpa Vasal.",
+    "navigation": "Maeneo"
+  },
+  "places": {
+    "adiyogi": {
+      "name": "Sanamu ya Adiyogi",
+      "description": "bustani hii ya metali ya 34 ya Shiva inaelekeza kwa kasoro. Yogeshwar Linga ni katika pavilion ya nje."
+    },
+    "yogeshwar": {
+      "name": "Yogeshwar Linga",
+      "description": "Linga hiyo inawakilisha chakra tano kuu, na wageni hutolea maji na majani ya neem."
+    },
+    "kalabhairava": {
+      "name": "Kalabhairava Sthanam",
+      "description": "Mahali pa Patagoni palipokuwa na nguzo za jiwe zilizosemwa ziko kati ya Adiyogi na Malai Vasal."
+    },
+    "malai": {
+      "name": "Malai Vasal kuu ya kuingilia",
+      "description": "Lango kuu la Adiyogi lina mwamba wa kifahari kwa umbo lake."
+    },
+    "sarpa": {
+      "name": "Lango la Sarpa Vasal",
+      "description": "Kobra ya kivuli iko ndani ya mlango huu wa chuo cha granite kwenye Barabara ya Narasipuram."
+    },
+    "moondram": {
+      "name": "Moondram Pirai Eatery",
+      "description": "Mkaho huu ni kasikoni mwa Sarpa Vasal."
+    },
+    "moondram-in": {
+      "name": "Mahali pa ndani pa mgawanyo",
+      "description": "Chumba cha kula kina mezani za vyuma, trusses nyeupe za paa, na sanamu ya Devi."
+    },
+    "unavagam": {
+      "name": "Velliangiri Unavagam",
+      "description": "Mkaho wa mboga wa India ya Kisiwa cha South tu ndani ya Surya Vasal."
+    },
+    "unavagam-in": {
+      "name": "Chini ya nyumba ya kula",
+      "description": "Wenye kula wanakusanya vyakula kutoka madirisha ya kuchezea na kula kwenye meza za kuegesha za kivuli."
+    },
+    "suryakund": {
+      "name": "Suryakund na Mandapam",
+      "description": "Hatua 28 za mwamba zinaelekeza kwenye bwawa la kuogelea la watu na jua lake la shaba."
+    },
+    "surya-in": {
+      "name": "Hatua na bwawa",
+      "description": "Hatua za jiwe huenda kwenye dimbwi."
+    },
+    "naga": {
+      "name": "Mtaala wa Naga",
+      "description": "Mawe ya cobras yenye kupatanishwa huchongwa katika jiwe moja nyeusi kwenye kilele cha ngazi za Suryakund."
+    },
+    "ponds": {
+      "name": "Vyakula vya lotus na madirisha ya umbo",
+      "description": "Mto mweupe wenye umbo la upinde unavuka ziwa la loti kati ya Nandi na Suryakund."
+    },
+    "nandi": {
+      "name": "Nandi",
+      "description": "Ng'ombe mweusi mwenye umbo la juu anaelekeza uso wake kwa Dhyanalinga na anavaa kengele za shaba."
+    },
+    "dhyanalinga": {
+      "name": "Dhyanalinga",
+      "description": "Waendeshi huingilia ukumbi wa kutafiti wenye matope kwa njia ya mto wa jiwe kwenye mto wa kasuko wa kasuko ya kasuko."
+    },
+    "dhyana-in": {
+      "name": "Katika Dhyanalinga",
+      "description": "Vipande saba vya shaba vinazunguka granite nyeusi Dhyanalinga."
+    },
+    "bhairavi": {
+      "name": "Linga Bhairavi",
+      "description": "Mahali pa Mungu pa kumbuka magereza ya magereza ya kasumba ya Devi, kasumba kama hii, kasumba ya Devi, kasumba ya magereza ya magereza ya kasumba ya dhyanalinga, kasumba ya kiume na ya kiume."
+    },
+    "lb-in": {
+      "name": "Devi na mlima wa tatu",
+      "description": "Mwili wa mvi mmoja wa tatu unamzunguka Devi, na anavaa sare nyekundu na ya zambarau."
+    },
+    "sadhana": {
+      "name": "Sala za Sadhana 1 na 2",
+      "description": "Kumbi hizi mbili upande wa magharibi wa Dhyanalinga hutumiwa kwa Darshan, kuanzishwa kwa Aumkar na vipindi vya mazoezi."
+    },
+    "chandrakund": {
+      "name": "Chandrakund",
+      "description": "Hatua 32 za jiwe hufika kwenye bwawa la kuogelea la wanamuke, kwenye ukuta wa Kerala."
+    },
+    "chandra-in": {
+      "name": "Hatua za kushuka kwa bwawa",
+      "description": "Ngazi ya jiwe inaelekeza kwenye bwawa na linga yake ya juu ya ukuta wa Mahakumbha Mela."
+    },
+    "deposit": {
+      "name": "Kiwanda cha Kuweka Amana",
+      "description": "wageni waweza kuuacha hapa na kuuacha mfuko wao wa kifaa cha kuchezea."
+    },
+    "ishalife": {
+      "name": "Isha Life and Peppervine Eatery",
+      "description": "Duka la Isha Life lipo kando ya barabara kuu, kando ya Peppervine Eatery yenye nguzo za jiwe."
+    },
+    "welcome": {
+      "name": "Sehemu ya Kuwakaribia",
+      "description": "Ziara hujiunga hapa. Shuttles na baa ya ng'ombe huanza kutoka hapa."
+    },
+    "spanda": {
+      "name": "Spanda Hall",
+      "description": "Jumba hilo kubwa linaonyesha maonyeshezi ya hali ya juu kama Bhava Spandana."
+    },
+    "spanda-in": {
+      "name": "Katika Jumba la Spanda",
+      "description": "Ukuta wa kasuko una ukuta wa aina ya Kerala kuhusu maisha ya Adiyogi."
+    },
+    "alayam": {
+      "name": "Adiyogi Alayam",
+      "description": "Jumba hilo kubwa lina paa la pembe nyeupe na nguzo zilizokatazwa kwa nyoka."
+    },
+    "nalanda": {
+      "name": "Nalanda",
+      "description": "Nalalanda Stay hutolea malazi na makusanyiko."
+    },
+    "bhiksha": {
+      "name": "Bhiksha Hall",
+      "description": "Takribani watu elfu moja waweza kuketi kwenye sakafu na kula kwa utupizi katika ukumbi huu wa kula."
+    },
+    "metalbridge": {
+      "name": "Mto wa Metali",
+      "description": "Jukwaa hilo la kutwaa watu kwa vyuma huvuka mto wa mlima mwembamba mwekari wa ng'ombe."
+    },
+    "campus": {
+      "name": "Majengo ya chuo",
+      "description": ""
+    }
+  }
+}

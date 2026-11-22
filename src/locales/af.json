@@ -1,0 +1,173 @@
+{
+  "ui": {
+    "pageTitle": "Isha Yoga Center · 3D Virtuele Toer",
+    "language": "Taal",
+    "foothills": "Velliangiri-voetstappe",
+    "subtitle": "Coimbatore · Velliangiri-voetstappe · 1: 1 skaal",
+    "credit": "Model deur Claude",
+    "loading": "Laai die 3D-enjin...",
+    "engineError": "Ek kon nie die 3D-enjin laai nie.",
+    "engineReady": "3D-enjin is op die punt",
+    "ready": "Bereid",
+    "textures": "Die skepping van tekste en materiële",
+    "sky": "Die skepping van die lug en mis",
+    "terrain": "Die bou van die Velliangiri-heuwels",
+    "roads": "Die uitleg van paaie en paaie",
+    "vegetation": "Plant bome en palms",
+    "peopleStep": "Voeg besoeker en bulwaankartjie by",
+    "lamps": "Die brand van die olielope",
+    "shaders": "Kompilasies van skakerings",
+    "dawn": "Dagbreek",
+    "dusk": "Skemer",
+    "night": "Nag",
+    "cutaway": "Kyk binne",
+    "cutawayTip": "Verberg dakke om die inwoning te sien.",
+    "walk": "Stap",
+    "walkTip": "WASD / ↑ ↓ ← → — Stap · Shift — Hardloop · F — Vlieg · Esc — Verlaat",
+    "walkHint": "WASD / ↑ ↓ ← → — Stap · Shift — Hardloop · F — Vlieg · Esc — Verlaat",
+    "flightHint": "WASD — Vlieg · Space / E — Styg · Q / C — Daal · F — Land · Esc — Verlaat",
+    "orbitHint": "Dra om te dra, blaai of prikkel om te zoom, dreig regs of dra om te rol.",
+    "walkDescription": "Loop met die toets- of klawertoets. Dra om om te sien. Druk Esc of kies Loop weer om uit te gaan.",
+    "aerial": "Vluchtoer",
+    "aerialDescription": "Kies 'n landmerke waarheen jy wil vlug, of stap om te stap.",
+    "people": "Mense",
+    "peopleTip": "Toon of verberg besoeke, skare en bulwagtjes.",
+    "overview": "Oorsig",
+    "overviewDescription": "Verken die Isha-yoga-sentrum aan die voete van die Velliangiri-heuwels. Kies 'n landmerke om daarheen te vlug.",
+    "outsideHeading": "Buiten Sarpa Vasal · Openbare area",
+    "insideHeading": "Binne Sarpa Vasal · Campus",
+    "all": "Alles",
+    "out": "Buite",
+    "in": "Binne",
+    "allTip": "Toon al die boue.",
+    "outTip": "Toon net die geboue wat by Sarpa Vasal is.",
+    "inTip": "Toon net die behuising in Sarpa Vasal.",
+    "navigation": "Plekke"
+  },
+  "places": {
+    "adiyogi": {
+      "name": "Adiyogi-beeld",
+      "description": "Hierdie 34 meter-staal-bust van Shiva is suidgeslaan."
+    },
+    "yogeshwar": {
+      "name": "Yogeshwar Linga",
+      "description": "Hierdie linga verteenwoordiger die 5 groot chakra's."
+    },
+    "kalabhairava": {
+      "name": "Kalabhairava Sthanam",
+      "description": "'n Stengehek met geskilde kolommen is tussen Adiyogi en Malai Vasal."
+    },
+    "malai": {
+      "name": "Malai Vasal hoof ingang",
+      "description": "Die hoofpoort suid van Adiyogi het 'n naturele rots vir sy lintel."
+    },
+    "sarpa": {
+      "name": "Sarpa Vasal poort",
+      "description": "'n Donker kobra sit in hierdie granit-kampioenskappoort op Narasipuram Road."
+    },
+    "moondram": {
+      "name": "Moondram Pirai Eatery",
+      "description": "Hierdie restaurant is suid van Sarpa Vasal."
+    },
+    "moondram-in": {
+      "name": "Innerlike restaurant",
+      "description": "Die eteskamer het ystertafels, wit dakkors en 'n foto van Devi."
+    },
+    "unavagam": {
+      "name": "Velliangiri Unavagam",
+      "description": "'n Suid-Indeese vegetariese restaurant net in Surya Vasal."
+    },
+    "unavagam-in": {
+      "name": "onder die kos skuiling",
+      "description": "Die etespers neem kos van die venster en gaan sit by die tafels onder die skuiling."
+    },
+    "suryakund": {
+      "name": "Suryakund en Mandapam",
+      "description": "28 breedste steenstappe lei na die mans se bad en sy hangende kopersonne."
+    },
+    "surya-in": {
+      "name": "Trepe en swembad",
+      "description": "'n Stene-trappe gaan in die swembad af. 'n Gordyn van water gaan deur die andermuur af."
+    },
+    "naga": {
+      "name": "Naga-godsbediening",
+      "description": "Verweefde kobra's word in 'n een swart steen op die top van die Suryakund-trappe gegrawe."
+    },
+    "ponds": {
+      "name": "Lotus-damme en boogbrug",
+      "description": "'n Wit boogbrug kruis die lotus-damme tussen Nandi en Suryakund."
+    },
+    "nandi": {
+      "name": "Nandi",
+      "description": "Hierdie lêende swart bul is gekyk na Dhyanalinga en dra 'n string van bronsklokke."
+    },
+    "dhyanalinga": {
+      "name": "Dhyanalinga",
+      "description": "Besoekers kom deur 'n stenen boog aan die oostelike kant in die bakstokke-gedomde meditasie-sal."
+    },
+    "dhyana-in": {
+      "name": "Binne Dhyanalinga",
+      "description": "Sewe koperdruppels omring die swart granit Dhyanalinga."
+    },
+    "bhairavi": {
+      "name": "Linga Bhairavi",
+      "description": "Hierdie Devi-heilerie suidwes van Dhyanalinga het 'n driehoekige santuarium en daklig."
+    },
+    "lb-in": {
+      "name": "Devi en die driehoek",
+      "description": "'n Grote driehoek is voor Devi, wat 'n rooi en goue sari dra."
+    },
+    "sadhana": {
+      "name": "Sadhana-salle 1 en 2",
+      "description": "Hierdie twee sale westelik van Dhyanalinga verteenwoordiger Darshan, Aumkar inisiasie, en praktyk sessies."
+    },
+    "chandrakund": {
+      "name": "Chandrakund",
+      "description": "Dertig en twee steenstappe daal na die damesbad onder 'n muursnit in Kerala-styl af."
+    },
+    "chandra-in": {
+      "name": "Trep af na die swembad",
+      "description": "Die steentrap lei na die swembad en sy linga onder die Mahakumbha Mela-muurbeeld."
+    },
+    "deposit": {
+      "name": "Deposito-teller",
+      "description": "Besoekers kan hulle selfone en bagasie hier laat voor hulle die kampus betree."
+    },
+    "ishalife": {
+      "name": "Isha Life and Peppervine Eatery",
+      "description": "Die Isha Life-winkels is aan die hoofweg, by die steenkolom gekapte Peppervine Eatery."
+    },
+    "welcome": {
+      "name": "Welkompunt",
+      "description": "Besoekers teken hier aan."
+    },
+    "spanda": {
+      "name": "Spanda Hall",
+      "description": "Hierdie groot hal huisves gevorderde programme soos Bhava Spandana."
+    },
+    "spanda-in": {
+      "name": "Binne Spanda-hall",
+      "description": "Die noordelike muur het 'n Muurbeeld in Kerala-styl oor Adiyogi se lewe."
+    },
+    "alayam": {
+      "name": "Adiyogi Alayam",
+      "description": "Hierdie groot hal het 'n bleekroosboogdak en kolommen wat met slange gegrawe is."
+    },
+    "nalanda": {
+      "name": "Nalanda",
+      "description": "Nalanda Stay het 'n verblyf- en konferensieruimte."
+    },
+    "bhiksha": {
+      "name": "Bhiksha Hall",
+      "description": "Sowat tweeduisend mense kan op die bodem sit en in stilte in hierdie etesaal kos."
+    },
+    "metalbridge": {
+      "name": "Metaalbrug",
+      "description": "Hierdie staalvoetbrug kruis 'n bergrug aan die end van die bulkkarroetroete."
+    },
+    "campus": {
+      "name": "ander kampusse",
+      "description": ""
+    }
+  }
+}

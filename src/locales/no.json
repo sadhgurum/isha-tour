@@ -1,0 +1,173 @@
+{
+  "ui": {
+    "pageTitle": "Isha Yoga Center · 3D Virtual Tur",
+    "language": "Språk",
+    "foothills": "Velliangiri-fouten",
+    "subtitle": "Coimbatore · Velliangiri foothills · 1:1 skal",
+    "credit": "Modell av Claude",
+    "loading": "Laden av 3D-enheten...",
+    "engineError": "Jeg kunne ikke laden 3D-enheten.",
+    "engineReady": "3D-maskin klar",
+    "ready": "- Jeg er klar.",
+    "textures": "Skape av texturer og materialer",
+    "sky": "Å lage himmel og dimme",
+    "terrain": "Byggingen av Velliangiri-bjerget",
+    "roads": "Å lagde veier og stier",
+    "vegetation": "Plantering av trær og palmer",
+    "peopleStep": "Tillegg av gjester og oksekars",
+    "lamps": "Å tynt oljelysene",
+    "shaders": "Samle shader",
+    "dawn": "Daggry",
+    "dusk": "Skumring",
+    "night": "Natt",
+    "cutaway": "Se innsiden",
+    "cutawayTip": "Skjold tak for å se inn i bygninger.",
+    "walk": "Gå",
+    "walkTip": "WASD / ↑ ↓ ← → — Gå · Shift — Løp · F — Fly · Esc — Avslutt",
+    "walkHint": "WASD / ↑ ↓ ← → — Gå · Shift — Løp · F — Fly · Esc — Avslutt",
+    "flightHint": "WASD — Fly · Space / E — Stig · Q / C — Synk · F — Land · Esc — Avslutt",
+    "orbitHint": "Dra til rotasjon, rulle eller klem til zoom, dra til rett eller dra til pann.",
+    "walkDescription": "Vekk med tangentknappen eller berøringsjoystick. Trekk for å se deg rundt. Trekk Esc eller velg Vekk igen for å gå ut.",
+    "aerial": "Vise fra fly",
+    "aerialDescription": "Vur en landemerke å fly til, eller velg Walk for å utforske til ferd.",
+    "people": "Folk",
+    "peopleTip": "Vis eller skjem gjester, folkemengder og oksekars.",
+    "overview": "Oversikt",
+    "overviewDescription": "Utforsell Isha Yoga Center ved foten av Velliangiri Hills.",
+    "outsideHeading": "Udenfor Sarpa Vasal · Publiske arealer",
+    "insideHeading": "Innenfor Sarpa Vasal · Campus",
+    "all": "Alle",
+    "out": "Utenfor",
+    "in": "Innenfor",
+    "allTip": "Vis alle bygninger.",
+    "outTip": "Vis bare bygningen utenfor Sarpa Vasal.",
+    "inTip": "Vis bare bygningen inne i Sarpa Vasal.",
+    "navigation": "Steder"
+  },
+  "places": {
+    "adiyogi": {
+      "name": "Adiyogi-statue",
+      "description": "Denne 34 meter stalen bust av Shiva ser mot søsten."
+    },
+    "yogeshwar": {
+      "name": "Yogeshwar Linga",
+      "description": "Denne lingaen representerer fem store chakraer."
+    },
+    "kalabhairava": {
+      "name": "Kalabhairava Sthanam",
+      "description": "Et steinhellig med utskilte kolonne står mellom Adiyogi og Malai Vasal."
+    },
+    "malai": {
+      "name": "Malai Vasal hovedinngang",
+      "description": "Hoveddoren til syde av Adiyogi har en naturlig stein til linten."
+    },
+    "sarpa": {
+      "name": "Sarpa Vasal-port",
+      "description": "En tynn kobra står inne i denne granitt campus gate på Narasipuram Road."
+    },
+    "moondram": {
+      "name": "Moondram Pirai Eatery",
+      "description": "Denne restauranten ligger til syde av Sarpa Vasal."
+    },
+    "moondram-in": {
+      "name": "Interiør i restauranten",
+      "description": "Spisesalen har jetsett bord, hvite takstruss og et foto av Devi."
+    },
+    "unavagam": {
+      "name": "Velliangiri Unavagam",
+      "description": "En vegetarian restaurant i det sudelige India rett inne i Surya Vasal."
+    },
+    "unavagam-in": {
+      "name": "Under matvarens hus",
+      "description": "Spiserne samler mat fra serveringsvinduene og spiser ved stente bord under skjulet."
+    },
+    "suryakund": {
+      "name": "Suryakund og Mandapam",
+      "description": "28 brede steintrinn går til mennens badebadd og dens kobber sol."
+    },
+    "surya-in": {
+      "name": "Trapp og basseng",
+      "description": "Steintrinn går ned i bassenget."
+    },
+    "naga": {
+      "name": "Naga-sankrym",
+      "description": "Kobraer er skissert i en enkelt sort stein på den ene siden av Suryakund trappen."
+    },
+    "ponds": {
+      "name": "Lotusdammer og bølgbro",
+      "description": "En hvit bogen bro krysser lotus dammen mellom Nandi og Suryakund."
+    },
+    "nandi": {
+      "name": "Nandi",
+      "description": "Denne ledige, sort tyren står mot Dhyanalinga og har på seg en serie bronse klokker."
+    },
+    "dhyanalinga": {
+      "name": "Dhyanalinga",
+      "description": "Besøkende kommer inn i den murstenedomede meditasjonssalen gjennom en steinbueg på den østsiden."
+    },
+    "dhyana-in": {
+      "name": "Innenfor Dhyanalinga",
+      "description": "Syv kobberband omgir den sort granitt Dhyanalinga."
+    },
+    "bhairavi": {
+      "name": "Linga Bhairavi",
+      "description": "Dette Devi-shrine i det vestlige av Dhyanalinga har et triangult helged og et taklys."
+    },
+    "lb-in": {
+      "name": "Devi og tridenten",
+      "description": "En stor trident står for Devi, som har på seg en rød og gyldent sari."
+    },
+    "sadhana": {
+      "name": "Sadhana-saler 1 og 2",
+      "description": "Disse to hallene vest for Dhyanalinga verter Darshan, Aumkar innvielse og øvingsøkster."
+    },
+    "chandrakund": {
+      "name": "Chandrakund",
+      "description": "32 steintrinn går ned til damebaddet under et mural i Kerala-styl."
+    },
+    "chandra-in": {
+      "name": "Trinn ned til bassenget",
+      "description": "Steintrinnene tar til bassenget og lingen under Mahakumbha Mela mural."
+    },
+    "deposit": {
+      "name": "Innskuddskontor",
+      "description": "Besøkende kan la telefoner og bagasje her før de går inn på campus."
+    },
+    "ishalife": {
+      "name": "Isha Life and Peppervine Eatery",
+      "description": "Isha Life-butikker er ved siden av hovedveien, nær den steinkolonneerte Peppervine Eatery."
+    },
+    "welcome": {
+      "name": "Et velkomne punkt",
+      "description": "Besøkere registrerer seg her."
+    },
+    "spanda": {
+      "name": "Spanda Hall",
+      "description": "Dette store hallen er vert for sentrelle program som Bhava Spandana."
+    },
+    "spanda-in": {
+      "name": "Innenfor Spanda Hall",
+      "description": "Den nordlige veggen har et mural i Kerala-stilen om Adiyogi liv."
+    },
+    "alayam": {
+      "name": "Adiyogi Alayam",
+      "description": "Denne store salen har et blekkrosket bågeak og kolonne som er utskjært med slanger."
+    },
+    "nalanda": {
+      "name": "Nalanda",
+      "description": "Nalanda Stay gir overnattings- og konferanseplass."
+    },
+    "bhiksha": {
+      "name": "Bhiksha Hall",
+      "description": "Om lag to tusind mennesker kan sitte på gulvet og spise i stillhet i denne spisesalen."
+    },
+    "metalbridge": {
+      "name": "Metallbro",
+      "description": "Denne stalen fotbroen krysser en fjelletrøm i enden av bullock karruten."
+    },
+    "campus": {
+      "name": "Andre campus- og lokalsamfunn",
+      "description": ""
+    }
+  }
+}

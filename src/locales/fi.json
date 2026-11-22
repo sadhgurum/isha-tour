@@ -1,0 +1,173 @@
+{
+  "ui": {
+    "pageTitle": "Isha-joga-keskus · Virtuaalikiertue",
+    "language": "Kieli",
+    "foothills": "Velliangirin jalkavuorot",
+    "subtitle": "Coimbatore · Velliangiri-jalka-ala · 1:1",
+    "credit": "Muodelli: Claude",
+    "loading": "Laadataan 3D-moottori...",
+    "engineError": "En voi ladata 3D-moottoria.",
+    "engineReady": "3D-moottori on nyt",
+    "ready": "- Valmis.",
+    "textures": "Teksturoiden ja materiaalien luomisesta",
+    "sky": "Luominen taivaa ja pilvea",
+    "terrain": "Velliangiri-vuorotrakennus",
+    "roads": "Tiet ja polut",
+    "vegetation": "Puiden ja palmujen istut",
+    "peopleStep": "Käyttäjien ja härkäkarjojen lisätys",
+    "lamps": "Öljylamput sytyttyä",
+    "shaders": "Kokeilijat",
+    "dawn": "Aamunkoitto",
+    "dusk": "Iltahämärä",
+    "night": "Yö",
+    "cutaway": "Näytä sisätilat",
+    "cutawayTip": "Piilottavat katot, että näkee rakenteiden sisimmässä.",
+    "walk": "Kävele",
+    "walkTip": "WASD / ↑ ↓ ← → — Kävele · Shift — Juokse · F — Lennä · Esc — Poistu",
+    "walkHint": "WASD / ↑ ↓ ← → — Kävele · Shift — Juokse · F — Lennä · Esc — Poistu",
+    "flightHint": "WASD — Lennä · Space / E — Nouse · Q / C — Laskeudu alemmas · F — Laskeudu maahan · Esc — Poistu",
+    "orbitHint": "Vedät käännettäviksi, käännät tai kytketät zoomiksi, vedät oikealle tai vedät panelle.",
+    "walkDescription": "Kävele näppärillä tai kosketusjoystickilla. Vedrä katsella. Paina Esc tai vaadi Kävele taas.",
+    "aerial": "Ilmatilanne",
+    "aerialDescription": "Valitse lentokenttä tai valikaa kävelymatka.",
+    "people": "Ihmiset",
+    "peopleTip": "Näyttää tai piilottaisi vieras, ihmisjoukko ja härkäkarot.",
+    "overview": "Yleisnäkymä",
+    "overviewDescription": "Tutki Isha-joga-keskus Velliangiri-vuoren nouseessa.",
+    "outsideHeading": "Sarpa Vasal -paikalla · julkisilla alueilla",
+    "insideHeading": "Sarpa Vasal - kampuksen sisimmässä",
+    "all": "Kaikki",
+    "out": "Ulkopuolella",
+    "in": "Sisäpuolella",
+    "allTip": "Näyttää kaikki taloja.",
+    "outTip": "Näyttää vain Sarpa Vasalin ulkosa-rakennukset.",
+    "inTip": "Näyttää vain Sarpa Vasalin sisämatrakennukset.",
+    "navigation": "Kohteet"
+  },
+  "places": {
+    "adiyogi": {
+      "name": "Adiyogi-patuaatti",
+      "description": "Tämä 34 metrin teräspuisto Shivan etelään."
+    },
+    "yogeshwar": {
+      "name": "Yogeshwar Linga",
+      "description": "Tämä linga edusttaa viittä päächakraa, ja vieraskunta tarjolla on viinaa ja neem-lehdet."
+    },
+    "kalabhairava": {
+      "name": "Kalabhairava Sthanam",
+      "description": "Adiyogi ja Malai Vasalin välissä on kivinen pyhäkki, joka on kaivettu piireillä."
+    },
+    "malai": {
+      "name": "Malai Vasal pääsisää",
+      "description": "Adiyogiin etelään pääportissa on luontainen kivi."
+    },
+    "sarpa": {
+      "name": "Sarpa Vasal -portti",
+      "description": "Pimeän kobraa on Narasipuramin tien granitiltori."
+    },
+    "moondram": {
+      "name": "Moondram Pirai Eatery",
+      "description": "Tämä ravintolo on Sarpa Vasalin etelään."
+    },
+    "moondram-in": {
+      "name": "Ruoka-aikan sisustus",
+      "description": "Ruoka-allas on rautastaulut, valkoiset katto- ja Devi-kuva."
+    },
+    "unavagam": {
+      "name": "Velliangiri Unavagam",
+      "description": "Etelän intiaaninen vegetarian ravintolo Surya Vasalissa."
+    },
+    "unavagam-in": {
+      "name": "Ruoka-aseman alla",
+      "description": "Ruokailijat keräävät ruoan palvelusikkista ja syödään suojan alla olevista seisovaa taulukkoa."
+    },
+    "suryakund": {
+      "name": "Suryakund ja Mandapam",
+      "description": "Kahdeksantoista leveää kiviista portaita vie miesten uima-altaalle ja sen vasten kupari auringolle."
+    },
+    "surya-in": {
+      "name": "Askeleet ja alta",
+      "description": "Kylvästapoja laskeutuvat uima-altaan ja verhot kulkevat päinvastoin seinää."
+    },
+    "naga": {
+      "name": "Naga-pyhäkki",
+      "description": "Kovaat ovat kaivettuja yhdeksi mustaan kiveen Suryakundin portaiden huipulla."
+    },
+    "ponds": {
+      "name": "Lotusjärven ja kaukopullan",
+      "description": "Nandi ja Suryakundin välissä on valkoinen kaukova silta."
+    },
+    "nandi": {
+      "name": "Nandi",
+      "description": "Tämä levätyn mustan härän kohtaa Dhyanalingaa ja kantaa kytkät."
+    },
+    "dhyanalinga": {
+      "name": "Dhyanalinga",
+      "description": "Vierailijat pääsivät tallilta kupoltaan muotettuun meditointihalle itärannalla olevan kiven kaaren välityksellä."
+    },
+    "dhyana-in": {
+      "name": "Dhyanalingaan sisimmässä",
+      "description": "Seitse kupari-vyöryjä kiertää mustaa granittia Dhyanalingaa."
+    },
+    "bhairavi": {
+      "name": "Linga Bhairavi",
+      "description": "Tämä Devi-pyhäkko on Dyanalingan lounais-etäällä kolmiosinen pyhäkki ja katokello."
+    },
+    "lb-in": {
+      "name": "Devi ja kolmikko",
+      "description": "Devi on valtava kolmikon kanssa, joka on punas ja kultainen sarissa."
+    },
+    "sadhana": {
+      "name": "Sadhana-saali 1 ja 2",
+      "description": "Näissä kahdessa halissa Dhyanalingaan lännessä on Darshan, Aumkarin aloitus ja harjoitus."
+    },
+    "chandrakund": {
+      "name": "Chandrakund",
+      "description": "Kärkälän kaltaisen muurilaitteen alla on 32 kiviaskelta naisten uima-altaalle."
+    },
+    "chandra-in": {
+      "name": "- Askeleita altaalle .",
+      "description": "Kylvä porta johtaa uima-altaan ja sen lingaan Mahakumbha Mela -kuvakirjan alla."
+    },
+    "deposit": {
+      "name": "Talletuspiste",
+      "description": "Vierailijat voi jätä puhelintonsa ja matkatavaransa ennen kuin he menevät kampukselle."
+    },
+    "ishalife": {
+      "name": "Isha Life and Peppervine Eatery",
+      "description": "Isha Life -kaupat ovat päätieen vieressä, kivipuolen Peppervine Eatery -kaupan lähelle."
+    },
+    "welcome": {
+      "name": "Tervetyspiste",
+      "description": "Sijailijat ovat tulossa."
+    },
+    "spanda": {
+      "name": "Spanda Hall",
+      "description": "Tämä iso salli on sieltä avaruus- ja keskisuurten järjestelyjen, kuten Bhava Spandana-alan, isännän."
+    },
+    "spanda-in": {
+      "name": "Spanda Hallin sisimmässä",
+      "description": "Adiyogiin elämää kuvaa Kerala-tyylinen seinamuuri."
+    },
+    "alayam": {
+      "name": "Adiyogi Alayam",
+      "description": "Tämä iso halli on vaaleanpunainen kaukova katto ja käärmeillä kaivettuja sarakkeita."
+    },
+    "nalanda": {
+      "name": "Nalanda",
+      "description": "Nalanda Stay on majoitus- ja konferenssipaikka."
+    },
+    "bhiksha": {
+      "name": "Bhiksha Hall",
+      "description": "Kaksi tuhatta voi istua lattialla ja syömään hiljaa."
+    },
+    "metalbridge": {
+      "name": "Metallisilta",
+      "description": "Tämä teräsjalka ylittävät vuoren virran härkäkorun reitin lopussa."
+    },
+    "campus": {
+      "name": "Muita kampuksenrakennuksia",
+      "description": ""
+    }
+  }
+}

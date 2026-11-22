@@ -1,0 +1,173 @@
+{
+  "ui": {
+    "pageTitle": "Isha Yoga Center · 3D-virtuelle Tour",
+    "language": "Sprache",
+    "foothills": "Velliangiri Fußen",
+    "subtitle": "Coimbatore · Velliangiri Fußen · 1:1 Skala",
+    "credit": "Modell von Claude",
+    "loading": "Ich laden den 3D-Motor...",
+    "engineError": "Ich kann die 3D-Motoren nicht laden.",
+    "engineReady": "3D-Motoren sind vorbereitet.",
+    "ready": "Bereit !",
+    "textures": "Erzeugung von Texte und Stoffen",
+    "sky": "Der Schieber des Himmels und des Nebels",
+    "terrain": "Die Velliangiri-Hügge errichtet",
+    "roads": "Die Strecken und Wege ausbauen",
+    "vegetation": "Baumpflanzen und Palmenpflanzen",
+    "peopleStep": "Beobachter und Stierkarren hinzufügen",
+    "lamps": "Anzündung der Öllumpen",
+    "shaders": "Kompilierung von Shadern",
+    "dawn": "Morgendämmerung",
+    "dusk": "Abenddämmerung",
+    "night": "Nacht",
+    "cutaway": "Innenräume zeigen",
+    "cutawayTip": "Verbergen Sie die Dämme, um das Innenum zu erblicken.",
+    "walk": "Gehen",
+    "walkTip": "WASD / ↑ ↓ ← → — Gehen · Shift — Laufen · F — Fliegen · Esc — Verlassen",
+    "walkHint": "WASD / ↑ ↓ ← → — Gehen · Shift — Laufen · F — Fliegen · Esc — Verlassen",
+    "flightHint": "WASD — Fliegen · Space / E — Steigen · Q / C — Sinken · F — Landen · Esc — Verlassen",
+    "orbitHint": "Ziehen zum Drehen. Mit dem Mausrad oder zwei Fingern zoomen. Zum Verschieben mit der rechten Maustaste oder gedrückter Shift-Taste ziehen.",
+    "walkDescription": "Lauf mit der Tastatur oder dem Taschenspiel. Schlepp umher, drück Esc oder wähle Lauf wieder aus.",
+    "aerial": "Flichter Blick",
+    "aerialDescription": "Wenden Sie sich an ein Wahrzeichnis, das Sie zu Fußen erproben möchten, oder wähle den Wanderungsort.",
+    "people": "Personen",
+    "peopleTip": "Visiten, Scharen und Stierkarren zu verbergen.",
+    "overview": "Übersicht",
+    "overviewDescription": "Erforsch das Isha Yoga Center am Fute der Velliangiri Hills und wähle ein Wahrzeichnis, um dorhin zu flogen.",
+    "outsideHeading": "Außen von Sarpa Vasal · Öffnungsgebiet",
+    "insideHeading": "Inneres des Sarpa Vasal · Campus",
+    "all": "Alle",
+    "out": "Außerhalb",
+    "in": "Innerhalb",
+    "allTip": "Zeigen Sie alle Bauten.",
+    "outTip": "Zeigen Sie nur die Bauten vor Sarpa Vasal.",
+    "inTip": "Zeigen Sie nur die Bauten in Sarpa Vasal.",
+    "navigation": "Orte"
+  },
+  "places": {
+    "adiyogi": {
+      "name": "Adiyogi-Statue",
+      "description": "Die 34 Meter hohe Stalbstätte von Shiva ist südlich ausgespürt."
+    },
+    "yogeshwar": {
+      "name": "Yogeshwar Linga",
+      "description": "Die Linga ist die Repräsentation von 5 Hauptschakren, die den Gast auf dem Land mit dem Blick auf das Wasserspiel und den Blüten von neem aufbieten."
+    },
+    "kalabhairava": {
+      "name": "Kalabhairava Sthanam",
+      "description": "Zwischen Adiyogi und Malai Vasal befindet sich ein Steinschreine mit geschnitzten Spitzen."
+    },
+    "malai": {
+      "name": "Malai Vasal Haupteingreise",
+      "description": "Das Haupttor südlich von Adiyogi hat einen natürlichen Fels für seine Linter."
+    },
+    "sarpa": {
+      "name": "Das Tor von Sarpa Vasal",
+      "description": "Ein Dunkler Cobra steckt in diesem Granit Campus-Tor auf der Narasipuram Road."
+    },
+    "moondram": {
+      "name": "Moondram Pirai Eatery",
+      "description": "Das Restaurant befindet sich südlich von Sarpa Vasal."
+    },
+    "moondram-in": {
+      "name": "Restaurantinnere",
+      "description": "Im Esszimmer sind eiserne Tische, weiße Dachen und ein Foto von Devi."
+    },
+    "unavagam": {
+      "name": "Velliangiri Unavagam",
+      "description": "Ein südindisches vegetarisches Restaurant in Surya Vasal."
+    },
+    "unavagam-in": {
+      "name": "Unter dem Speisezimmer",
+      "description": "Die Speisezimmer sammeln aus den Servierfenstern und essen an einem stehenden Tisch unter dem Schutzhütten."
+    },
+    "suryakund": {
+      "name": "Suryakund und Mandapam",
+      "description": "28 breite Steinschrittquellen leiten zum Bad der Männern und zur aufgehängten Kupfersonne."
+    },
+    "surya-in": {
+      "name": "Stufen und Schal",
+      "description": "Steinschritt steigen in den Becken."
+    },
+    "naga": {
+      "name": "Nagaschreine",
+      "description": "Verknüpfte Kobra werden in einem schwarzen Stein auf der Spitze der Suryakund-Leiter geschnitten."
+    },
+    "ponds": {
+      "name": "Lotus-Teich und bogene Brücken",
+      "description": "Die Lotus-Teich zwischen Nandi und Suryakund wird durch eine weiße Bogenbrückung überquert."
+    },
+    "nandi": {
+      "name": "Nandi",
+      "description": "Der schwarze Stier, der sich auf den Leinigen befindet, ist auf Dhyanalinga und tritt mit einer Kette von Bronzenglocken."
+    },
+    "dhyanalinga": {
+      "name": "Dhyanalinga",
+      "description": "Die Gastfreunde betritt die mit einem Stück Ziegel betonte Meditationshalle durch einen Steinkapfel auf der Ostside."
+    },
+    "dhyana-in": {
+      "name": "In Dhyalinga",
+      "description": "Sieben Kupferbanden umschließen den schwarzen Granit Dhyanalinga."
+    },
+    "bhairavi": {
+      "name": "Linga Bhairavi",
+      "description": "Der Devi-Schrein südwestlich von Dhyanalinga hat einen dreieckigen Heiligtum und einen Skylight."
+    },
+    "lb-in": {
+      "name": "Devi und der Drei-Fahrer",
+      "description": "Vor Devi ist ein gro?er Dreier, der einen roten und goldenen Saris anhat."
+    },
+    "sadhana": {
+      "name": "Sadhana-Halle 1 und 2",
+      "description": "In den 2 Hallen westlich von Dhyanalinga werden Darshan, Aumkar-Einweihung und Übungsstunden gehostet."
+    },
+    "chandrakund": {
+      "name": "Chandrakund",
+      "description": "32 Steinschritt steigen zum Bad der Damen unter einem Mauermal im Kerala-Stil ab."
+    },
+    "chandra-in": {
+      "name": "Schritt nach dem Schimmel.",
+      "description": "Die Steintreppe leitet zum Becken und seine Linga unter dem Mahakumbha Mela-Mural."
+    },
+    "deposit": {
+      "name": "Einlagenzähler",
+      "description": "Die Gastfreunde können ihr Handy und ihr Gepäck hier zurückschieben, wenn sie den Campus betritt."
+    },
+    "ishalife": {
+      "name": "Isha Life and Peppervine Eatery",
+      "description": "Die Isha Life-Laden sind am Haupthandweg, in der Nähe des Steinkolons Peppervine Eatery."
+    },
+    "welcome": {
+      "name": "Willkommungspunkt",
+      "description": "Die Shuttles und Bullockkarren fährt von hier aus."
+    },
+    "spanda": {
+      "name": "Spanda Hall",
+      "description": "In diesem großen Saal gibt es fortschrittliche Programmen wie Bhava Spandana."
+    },
+    "spanda-in": {
+      "name": "In der Spanda Hall",
+      "description": "Die Nordmauer hat ein Mural im Kerala-Stil über Adiyogi's Life."
+    },
+    "alayam": {
+      "name": "Adiyogi Alayam",
+      "description": "In dieser großen Halle ist ein blassröses Bogendach und mit Schlangen geschnitzten Spitzen gepflegt."
+    },
+    "nalanda": {
+      "name": "Nalanda",
+      "description": "Nalanda Stay bietet Unterkunft und Tagungsfläche."
+    },
+    "bhiksha": {
+      "name": "Bhiksha Hall",
+      "description": "Etwa 2.000 können auf dem Fußen sitzen und in dieser Speishalle still essen."
+    },
+    "metalbridge": {
+      "name": "Metallbrück",
+      "description": "Die Stall-Fußenbrück überquert einen Bergrass am ende der Rinderkarrenroute."
+    },
+    "campus": {
+      "name": "Weite Campusgebungen",
+      "description": ""
+    }
+  }
+}

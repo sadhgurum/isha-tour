@@ -1,0 +1,173 @@
+{
+  "ui": {
+    "pageTitle": "Isha Yoga Center · Ukuvakasha Okungokwezi-3D",
+    "language": "Ulimi",
+    "foothills": "Izintaba zeVelliangiri",
+    "subtitle": "Coimbatore · Izintaba zeVelliangiri · Isikali 1: 1",
+    "credit": "Umdwebi: uClaude",
+    "loading": "Ukulayisha injinini ye-3D...",
+    "engineError": "Angikwazanga ukufaka injinini ye-3D.",
+    "engineReady": "Injinji ye-3D ilungisiwe",
+    "ready": "Lilungile",
+    "textures": "Ukudala izimbobo nezinsimbi",
+    "sky": "Ukudala izulu nesihwala",
+    "terrain": "Ukwakhiwa Kweziqongo ZaseVelliangiri",
+    "roads": "Ukuhlelwa kwemigwaqo nezindlela",
+    "vegetation": "Ukuhlwanyela izihlahlana",
+    "peopleStep": "Ukufaka izihambeli kanye nezinqola zezinkunzi",
+    "lamps": "Ukukhanyiswa kwezimpawu zama-oyile",
+    "shaders": "Ukuqoqa ama-shaders",
+    "dawn": "Ukusa",
+    "dusk": "Ukuhlwa",
+    "night": "Ubusuku",
+    "cutaway": "Buka ngaphakathi",
+    "cutawayTip": "Faka ophahla ukuze ubone izakhungo.",
+    "walk": "Hamba ngezinyawo",
+    "walkTip": "WASD / ↑ ↓ ← → — Hamba ngezinyawo · Shift — Gijima · F — Ndiza · Esc — Phuma",
+    "walkHint": "WASD / ↑ ↓ ← → — Hamba ngezinyawo · Shift — Gijima · F — Ndiza · Esc — Phuma",
+    "flightHint": "WASD — Ndiza · Space / E — Khuphuka · Q / C — Yehla · F — Hlala phansi · Esc — Phuma",
+    "orbitHint": "Donsela ukuzungeza, donsela ukuzungeza, udonsele ngakwesokunene noma udonsele ukuzungeza.",
+    "walkDescription": "Hamba ngekhibhodi noma nge-joystick yokuzwakala. Donsa ukuze ubuke. Cindezela u-Esc noma ukhetha u-Hamba futhi ukuze usuke.",
+    "aerial": "Ukubuka okuvela esibhakabhakeni",
+    "aerialDescription": "Khetha iphawu ongalihamba ngezindiza, noma ukhetha u-Wake ukuze uhambisane nalo.",
+    "people": "Abantu",
+    "peopleTip": "Bonisa noma ucashe izivakashini, izixuku, izinqola zezinkunzi.",
+    "overview": "Ukubuka konke",
+    "overviewDescription": "Hamba uye e-Isha Yoga Center engaphansi kweVelliangiri Hills, bese ukhetha iphawu lokuya kulo.",
+    "outsideHeading": "Phansi kweSarpa Vasal · Izindawo zomuntu wonke",
+    "insideHeading": "Ngapha kweSarpa Vasal · Campus",
+    "all": "Konke",
+    "out": "Ngaphandle",
+    "in": "Ngaphakathi",
+    "allTip": "Bonisa zonke izikhungo.",
+    "outTip": "Bonisa izikhungo ngaphandle kweSarpa Vasal kuphela.",
+    "inTip": "Bonisa izikhungo eziseSarpa Vasal kuphela.",
+    "navigation": "Izindawo"
+  },
+  "places": {
+    "adiyogi": {
+      "name": "Isishwankathiso sika-Adiyogi",
+      "description": "Le bhusithi yensimbi eyi-34 m kaShiva ibhekene enxenyeni eseningizimu."
+    },
+    "yogeshwar": {
+      "name": "Yogeshwar Linga",
+      "description": "Le linga imelela ama-chakra ama-5 abalulekile."
+    },
+    "kalabhairava": {
+      "name": "Kalabhairava Sthanam",
+      "description": "Kuphakathi kuka-Adiyogi noMalai Vasal kunenkolo yetshe enezinsika eziqokiwe."
+    },
+    "malai": {
+      "name": "Umgwaqo oholayo weMalai Vasal",
+      "description": "Isango eliyisango elisenkabeni ye-Adiyogi linedwala lemvelo."
+    },
+    "sarpa": {
+      "name": "Isango laseSarapha Vasal",
+      "description": "Kumahholo we-Cobra emnyameni, ohlala phakathi kwamasango e-Granite Campus e-Narasipuram Road."
+    },
+    "moondram": {
+      "name": "Moondram Pirai Eatery",
+      "description": "Le ndlu yokudlela ithola imodeli yaseningizimu yeSarap Vasal."
+    },
+    "moondram-in": {
+      "name": "Izindawo zokudlela",
+      "description": "Esigodini sokudlela kunamatabula ensimbi, izigaxa ezibomvu ezihlanziwe, nesithombe sikaDevi."
+    },
+    "unavagam": {
+      "name": "Velliangiri Unavagam",
+      "description": "Kutholwa imifino engaphansi kweSuria Vasal."
+    },
+    "unavagam-in": {
+      "name": "Ngaphasi kwesiphepho sokudlela",
+      "description": "Abaqashi baqoqa isivuno emafasiteleni futhi badle etafuleni eliphambi kwesikhungo."
+    },
+    "suryakund": {
+      "name": "ISuryakund neMandapam",
+      "description": "Izinyatselo zamatshe eziyi - 28 eziphangalele ziholele echimeni labesanda kuqubuka lamaduna nelanga lalo elithe njo."
+    },
+    "surya-in": {
+      "name": "Izinyatselo ne-pool",
+      "description": "Izinyatselo zamatshe ziwela echwebeni."
+    },
+    "naga": {
+      "name": "Isikhungo Esingcwele SaseNaga",
+      "description": "Ama-cobra ahlanganiswe afakwe itshe elimbala amunye esigabeni esiqongo seSuryakund."
+    },
+    "ponds": {
+      "name": "Amachibi e-lotus kanye nebhuloho elinomthungo",
+      "description": "Ibhuloho elimsulwa elimsulwa liwela amachibi e-lotus phakathi kweNandi neSuryakund."
+    },
+    "nandi": {
+      "name": "Nandi",
+      "description": "Le nkunzi embala embala ibhekene noDhyyanalinga futhi igqoke ucingo lwethusi."
+    },
+    "dhyanalinga": {
+      "name": "Dhyanalinga",
+      "description": "Izivakashini zingena egunjini lokucamngca elinenqola yezitini ngophahla lwetshe ohlangothini lwasempuma."
+    },
+    "dhyana-in": {
+      "name": "Ngapha nangaphansi kweDhyyanalinga",
+      "description": "Amabhande omsizi ayisibalo esiyisibalo asibindi asizungeze i-granite embala ombala i-Dhyanyalinga."
+    },
+    "bhairavi": {
+      "name": "Linga Bhairavi",
+      "description": "Le ngcwele kaDevie enxenyeni eseningizimu-nshonalanga yeDhyanaalinga ine-triangular sanctuum ne-skylight."
+    },
+    "lb-in": {
+      "name": "UDevi noTri-Dent",
+      "description": "Kunomthunzi omkhulu emi emhlweni kaDevie, ogqoke isari ebovu negolide."
+    },
+    "sadhana": {
+      "name": "AmaHholo e-Sadhana 1 no-2",
+      "description": "La mahholo amabili asentshonalanga yeDyanalinga abamba iDarshan, i-Aumkar yokuqala, kanye nokuvivinya."
+    },
+    "chandrakund": {
+      "name": "Chandrakund",
+      "description": "Izinyatselo zamatshe ezingamatshumi amathathu nambili ziwela echimeni labesikade labesebancane elibhekwa ngezansi kwesitshalo somthunzi esiseKerala."
+    },
+    "chandra-in": {
+      "name": "Izinyatselo eziseceleni kwechibi",
+      "description": "Isitezi samatshe sihola echungechunge kanye ne- linga lalo ngezansi komdonga we- Mahakumbha Mela."
+    },
+    "deposit": {
+      "name": "Isikhwama semali",
+      "description": "Izihambeli zingashiya ama-smartphone nezithwalo zabo lapho zingakabi khona ekampus."
+    },
+    "ishalife": {
+      "name": "Isha Life and Peppervine Eatery",
+      "description": "Izitolo ze-Isha Life ziseceleni komgwaqo oholayo, eduzane nePeppervine Eatery enezinsika zamatshe."
+    },
+    "welcome": {
+      "name": "Iqiniso Lokwamukela",
+      "description": "Izivakashini ziqala ukubhalisa, futhi izikhukhula nezinkomo ziqala ngaleli phuzu."
+    },
+    "spanda": {
+      "name": "Spanda Hall",
+      "description": "Le ndlu emkhulu isingatha izinqubo ezivelele ezinjengeBhava Spandana."
+    },
+    "spanda-in": {
+      "name": "Ngapha nangaphansi kweSpanda Hall",
+      "description": "Udonga lwasenyakatfo lunomdonga wesitulo waseKerala okhuluma ngokuphila kuka-Adiyogi."
+    },
+    "alayam": {
+      "name": "Adiyogi Alayam",
+      "description": "Le ndlu emkhulu inophahla olucwebeziwe olunezinti ezibomvu futhi inezinsika eziqokiwe nezinyoka."
+    },
+    "nalanda": {
+      "name": "Nalanda",
+      "description": "INalanda Stay inikela ngamakhefu nezindawo zokuhlala nezingqungquthelo."
+    },
+    "bhiksha": {
+      "name": "Bhiksha Hall",
+      "description": "Abantu abacela ku - 2 000 bangahlala emgodini badle ethula kule ndlu yokudlela."
+    },
+    "metalbridge": {
+      "name": "Ibhuloho Lensimbi",
+      "description": "Le bhuloho yensimbi iwela umsele wezintaba esipheleni sendlela yenqola yenkunzi."
+    },
+    "campus": {
+      "name": "Izindawo zokungceceshela",
+      "description": ""
+    }
+  }
+}

@@ -1,0 +1,173 @@
+{
+  "ui": {
+    "pageTitle": "Isha Yoga Merkezi · 3D Sanal Tur",
+    "language": "Dil",
+    "foothills": "Velliangiri tepe",
+    "subtitle": "Coimbatore · Velliangiri tepe · 1:1 ölçeği",
+    "credit": "Model: Claude",
+    "loading": "3D motoru şarj ediyoruz...",
+    "engineError": "3D motorumuzu şarj edemiyorum.",
+    "engineReady": "3D motor hazır .",
+    "ready": "- Dolu.",
+    "textures": "Tasarım ve malzemeler",
+    "sky": "Yaratmak gökyüzünü ve sisini",
+    "terrain": "Velliangiri Tepelerinin İnşa edilmesi",
+    "roads": "Yolu ve yolları hazırlamak",
+    "vegetation": "Ağaca ve palmiye ekmek",
+    "peopleStep": "Ziyaretçi ve boğa arabasını ekleme",
+    "lamps": "Yağı lambasının yakılımı",
+    "shaders": "Şaderler toplamak",
+    "dawn": "Şafak",
+    "dusk": "Alacakaranlık",
+    "night": "Gece",
+    "cutaway": "İç mekânları göster",
+    "cutawayTip": "Binanın içini görmek için çatılar sakla.",
+    "walk": "Yürü",
+    "walkTip": "WASD / ↑ ↓ ← → — Yürü · Shift — Koş · F — Uç · Esc — Çık",
+    "walkHint": "WASD / ↑ ↓ ← → — Yürü · Shift — Koş · F — Uç · Esc — Çık",
+    "flightHint": "WASD — Uç · Space / E — Yüksel · Q / C — Alçal · F — İniş yap · Esc — Çık",
+    "orbitHint": "Dönüştürmek için sürükle, kaydırmak için kaydır, büyütmek için çak, sağ çekmek için çek, ya da çakmak için çek.",
+    "walkDescription": "Klavye veya dokunma joystick ile dolaş. Etrafına bakmak için sürükle. Esc'i basın veya çıkmak için Yeniden dolaş seçin.",
+    "aerial": "Uçağı görme",
+    "aerialDescription": "Uçacak bir yer seçin veya Yürüyüş'i seçin.",
+    "people": "İnsanlar",
+    "peopleTip": "Ziyaretçi, kalabalık ve boğa arabasını görüntülenebilir ya da gizletebilir.",
+    "overview": "Genel görünüm",
+    "overviewDescription": "Velliangiri Tepelerinin altındakileri olan Isha Yoga Merkezini ara ve ona uçacak bir yer seç.",
+    "outsideHeading": "Sarpa Vasal'ın ötesinde · Toplu alan",
+    "insideHeading": "Sarpa Vasal · kampüsün içi",
+    "all": "Tümü",
+    "out": "Dışarıda",
+    "in": "İçeride",
+    "allTip": "- Her binayı göstersin.",
+    "outTip": "Sarpa Vasal'ın ötesinde sadece binaları gösteren.",
+    "inTip": "Sarpa Vasal'ın içi binaları sadece göstersin.",
+    "navigation": "Yerler"
+  },
+  "places": {
+    "adiyogi": {
+      "name": "Adiyogi heykel",
+      "description": "Shiva'nın bu 34 metrekarelik çelik büstu güneyye bakıyor."
+    },
+    "yogeshwar": {
+      "name": "Yogeshwar Linga",
+      "description": "Bu linga, 5 büyük çakraydı ve konuklar ona su ve neem yaprakları sunar."
+    },
+    "kalabhairava": {
+      "name": "Kalabhairava Sthanam",
+      "description": "Adiyogi ve Malai Vasal arasında oyma direği olan bir taşa tapınak yer almıyor."
+    },
+    "malai": {
+      "name": "Malai Vasal ana girisinde",
+      "description": "Adiyogi'nin güneyinde ana kapının üst katında bir doğa kayası var."
+    },
+    "sarpa": {
+      "name": "Sarpa Vasal kapısı",
+      "description": "Narasipuram Caddesi'nde bir kobra."
+    },
+    "moondram": {
+      "name": "Moondram Pirai Eatery",
+      "description": "Bu lokanta Sarpa Vasal'ın güneyinde."
+    },
+    "moondram-in": {
+      "name": "Rastoran içi",
+      "description": "Yeme odasında demir masalar, beyaz çadırlar ve Devi'nin bir resmi var."
+    },
+    "unavagam": {
+      "name": "Velliangiri Unavagam",
+      "description": "Surya Vasal'ın hemen içinde bir güney Hint sebzeci restorana."
+    },
+    "unavagam-in": {
+      "name": "Yemeğin altından.",
+      "description": "Yemeği yiyenler, pencereye atılanlardan yiyeceğe toplanıp, barınak altındakilerden ayık masalarda yiyorlar."
+    },
+    "suryakund": {
+      "name": "Suryakund ve Mandapam",
+      "description": "28 büyük bir kaya merdiven, adamların yüzme havuzuna ve asılı bakır gününe yol açar."
+    },
+    "surya-in": {
+      "name": "Merdivenler ve havuz",
+      "description": "Taşa basıncaya inen merdivenler, karşı duvarın dibine bir su perdesini açıyor."
+    },
+    "naga": {
+      "name": "Naga Mezarlığı",
+      "description": "Birbiriyle örülüp dolaşan kobralar Suryakund merdiveninin tepesinde tek bir kara taşa oyandılar."
+    },
+    "ponds": {
+      "name": "Lotus havuzları ve arklı köprüleri",
+      "description": "Nandi ve Suryakund arasında olan lotus havuzlarını bir beyaz köpük geçiyor."
+    },
+    "nandi": {
+      "name": "Nandi",
+      "description": "Bu yaslı kara boğa Dhyanalinga'ya karşı yüzlü ve bronz çanlar bir dizisi giyiyor."
+    },
+    "dhyanalinga": {
+      "name": "Dhyanalinga",
+      "description": "Ziyaret edenler, dolaplı meditatör salonuyla doğu tarafında bir taşa arkadan girer."
+    },
+    "dhyana-in": {
+      "name": "Dyanalinga'nın içinde",
+      "description": "Siyah granit Dhyanalinga'nın 7 bakır bantla kaplı ve duvarın 28 meditatör yuvasının içinde."
+    },
+    "bhairavi": {
+      "name": "Linga Bhairavi",
+      "description": "Dhyanalinga'nın güneybatısında bu Devi tapınağı üçgen bir kutsal mekân ve bir damluğa sahipsin."
+    },
+    "lb-in": {
+      "name": "Devi ve üçgen",
+      "description": "Kırıl ve altınlı bir sari giyen Devi'nin önüne büyük bir üçgen durur."
+    },
+    "sadhana": {
+      "name": "Sadhana Salonu 1 ve 2",
+      "description": "Dyanalinga'nın batısında iki odada Darshan, Aumkar başlatma ve egzersiz oturucuları yer alıyor."
+    },
+    "chandrakund": {
+      "name": "Chandrakund",
+      "description": "Kerala tarzında bir duvar resminin altından, 32 taşa basamak, kadının yüzme havuzuna inir."
+    },
+    "chandra-in": {
+      "name": "Havuza doğru basamaklar.",
+      "description": "Taşı merdiven, havuz ve Mahakumbha Mela duvar resmini altındakileri ile linga'ya yol açar."
+    },
+    "deposit": {
+      "name": "Depolama saytı",
+      "description": "Ziyaretçiler kampüsüne girmezden önce telefonlarını ve bagajlarını burada bırakabilir."
+    },
+    "ishalife": {
+      "name": "Isha Life and Peppervine Eatery",
+      "description": "Isha Life dükkanları ana yolun kenarında, kaya kolumlu Peppervine Eatery'nin yakınındadır."
+    },
+    "welcome": {
+      "name": "Merhabalar",
+      "description": "Ziyaretçi burada kaydeder."
+    },
+    "spanda": {
+      "name": "Spanda Hall",
+      "description": "Bu büyük salonda Bhava Spandana gibi daha fazla programlar yer alıyor."
+    },
+    "spanda-in": {
+      "name": "Spanda Salonu'nun içi",
+      "description": "kuzey duvarında Adiyogi'nin hayatını anlatan bir Kerala tarzında duvar resmi yer alıyor."
+    },
+    "alayam": {
+      "name": "Adiyogi Alayam",
+      "description": "Bu büyük salonda soluk pembe bir yaylı dam ve yılanlar ile oyma sövgeler var."
+    },
+    "nalanda": {
+      "name": "Nalanda",
+      "description": "Nalanda Stay konaklama ve konferans alanları sunar."
+    },
+    "bhiksha": {
+      "name": "Bhiksha Hall",
+      "description": "Bu masa odasında iki bin kişi yerken sessizce yiyebilir."
+    },
+    "metalbridge": {
+      "name": "Metal Köprük",
+      "description": "Bu çelik yaya köprusu, boğa arabasının sonunda bir dağa akınını geçiyor."
+    },
+    "campus": {
+      "name": "diğer kampüs binaları",
+      "description": ""
+    }
+  }
+}

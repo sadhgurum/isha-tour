@@ -1,0 +1,173 @@
+{
+  "ui": {
+    "pageTitle": "Isha Yoga Center · 3D Tours Virtuales",
+    "language": "Ñe’ẽ",
+    "foothills": "Velliangiri yvate kuarahyreike",
+    "subtitle": "Coimbatore · Velliangiri rembe'y · 1:1",
+    "credit": "Modelo Claude",
+    "loading": "Aike motor 3D-pe...",
+    "engineError": "Ndaikatuicha'i ombojuru'a motor 3D.",
+    "engineReady": "Motor 3D oĩmava",
+    "ready": "Rekomenda",
+    "textures": "Ñemopeteirõi ha mba'e'okuaa",
+    "sky": "Omopu'ãmbavo yva ha mbyja",
+    "terrain": "Oiko Velliangiri Río-pe",
+    "roads": "Oipysóva tape ha tape",
+    "vegetation": "Ojerereko yva ha palma",
+    "peopleStep": "Oipuruve visitante ha carros de buey",
+    "lamps": "Ñembopyahu umi luz de óleo",
+    "shaders": "Ñemboguapy ñemboguapy",
+    "dawn": "Ko’ẽju",
+    "dusk": "Ka’aru pytũ",
+    "night": "Pyhare",
+    "cutaway": "Ehecha hyepy",
+    "cutawayTip": "Ejahe'a umi techapyrépe ikatu hagua jahecha umi mba'e oĩva'ekue umi itapyguasu.",
+    "walk": "Eguata",
+    "walkTip": "WASD / ↑ ↓ ← → — Eguata · Shift — Eñani · F — Eveve · Esc — Esẽ",
+    "walkHint": "WASD / ↑ ↓ ← → — Eguata · Shift — Eñani · F — Eveve · Esc — Esẽ",
+    "flightHint": "WASD — Eveve · Space / E — Ejupi · Q / C — Eguejy · F — Eguejy yvýpe · Esc — Esẽ",
+    "orbitHint": "Emongu’e ta’ãngamýi rehechávo jerére. Eipuru pe rueda térã mokõi kuã emboja hag̃ua.",
+    "walkDescription": "Eho hagua teclatera téramo touch joystick reheve. Eho ehecha hagua. Epu'aka Esc téramo eiporavo Eho jeytaha eho hagua.",
+    "aerial": "Ñemombe'u yvagapeguáva",
+    "aerialDescription": "Eiporavo peteĩ punto de repiahu reho hagua, téramo eiporavo Walk eike hagua.",
+    "people": "Tapichakuéra",
+    "peopleTip": "Ehechaukákena umi ou va'ekuépe, umi tapichápe ha umi karréra.",
+    "overview": "Jehecha guasu",
+    "overviewDescription": "Eikuaa Isha Yoga Center, oĩva Velliangiri yvyty guýpe. Eiporavo peteĩ tenda reho hag̃ua upépe.",
+    "outsideHeading": "Sarpa Vasal ykére · Ypykatu",
+    "insideHeading": "Sarpa Vasal · Campus-pe",
+    "all": "Opavave",
+    "out": "Okápe",
+    "in": "Hyepýpe",
+    "allTip": "Ehechaukákena opaite itapy.",
+    "outTip": "Ehechaukákena umi itajyrakuérare Sarpa Vasal ykére.",
+    "inTip": "Ehechaukákena umi itapy'a Sarpa Vasal-pe.",
+    "navigation": "Tendakuéra"
+  },
+  "places": {
+    "adiyogi": {
+      "name": "Adiyogi mba'ejeruréva",
+      "description": "Ko 34 métero yva'i ojehechava'ekue surpe."
+    },
+    "yogeshwar": {
+      "name": "Yogeshwar Linga",
+      "description": "Ko linga orrepresentáva cinco chakra guasuvéva."
+    },
+    "kalabhairava": {
+      "name": "Kalabhairava Sthanam",
+      "description": "peteĩ santuario de la piera ha umi columna ojejapava'ekue oĩ Adiyogi ha Malai Vasal mbytére."
+    },
+    "malai": {
+      "name": "Mái Vasal oikeha guasúva",
+      "description": "Pórte principal sur de Adiyogi-pe oĩ peteĩ ita natural ijyvate hagua."
+    },
+    "sarpa": {
+      "name": "Sarpa Vasal okytáva",
+      "description": "peteĩ cobra osyryva oĩva upe puerto campus granito-pe Narasipuram Road-pe."
+    },
+    "moondram": {
+      "name": "Moondram Pirai Eatery",
+      "description": "Ko'ápe oĩ ñembosarái Sarpa Vasal-gui."
+    },
+    "moondram-in": {
+      "name": "Tenda ñembosarái",
+      "description": "Pe koty'i koty'i oĩ mesa hierro, yvatekueve morotyrýva, ha peteĩ ta'anga devígui."
+    },
+    "unavagam": {
+      "name": "Velliangiri Unavagam",
+      "description": "peteĩ restaurante vegetariano sur indio Surya Vasal ykére."
+    },
+    "unavagam-in": {
+      "name": "Pe koty ypytũmby ypytũmby guasuhápe",
+      "description": "Okaru'úva ojesareko okápe ha ho'u mesa guasúva okápe."
+    },
+    "suryakund": {
+      "name": "Suryakund ha Mandapam",
+      "description": "28 escalón de pilar ipukúva oguahênte umi kuérpo de baña ha kuarahy pleno."
+    },
+    "surya-in": {
+      "name": "Mbeguata ha ypa'ũngue",
+      "description": "Umi escaléra itágui ojejapóva oguejy pe ype. Ambue ladope, y oguejy pe murálla rehe."
+    },
+    "naga": {
+      "name": "Sanedrín Naga-gua",
+      "description": "Ko'a ko'a oñehesa'yijo peteĩ ita hovy peteĩva Suryakund escalera yvatépe."
+    },
+    "ponds": {
+      "name": "Lotus y ha puente arcoado",
+      "description": "Puruhára arco-i moroténgo ohasáva ypa'ũngue lotos-pe Nandi ha Suryakund-pe."
+    },
+    "nandi": {
+      "name": "Nandi",
+      "description": "Ko tavy morotõi ipoguatáva ojere Dhyanalinga-pe ha ipire peteĩ campana bronce."
+    },
+    "dhyanalinga": {
+      "name": "Dhyanalinga",
+      "description": "Oguata umi visitante oikeva'ekue sala de meditación-pe peteĩ arco de pilar oĩva lado este-pe."
+    },
+    "dhyana-in": {
+      "name": "Dyanalinga ypytére",
+      "description": "Peteirete ysaja ombojere pe granito hovy Dhyanalinga."
+    },
+    "bhairavi": {
+      "name": "Linga Bhairavi",
+      "description": "Ko santuario de Devi, kuarahyreike-guasu Dhyanalinga-gui, oĩ peteĩ santuario triangular ha techapyrãngue."
+    },
+    "lb-in": {
+      "name": "Devi ha trídente",
+      "description": "peteĩ trídido ipukueteva'ekue oĩ Dévi renondépe, ha'e ipire ha óro ipire."
+    },
+    "sadhana": {
+      "name": "Sadhana sala 1 ha 2",
+      "description": "Ko'a mokôi sala kuarahyreike Dhyanalinga-gui omotenonde Darshan, Aumkar ñombo'e ha mbo'epy."
+    },
+    "chandrakund": {
+      "name": "Chandrakund",
+      "description": "32 escalón de pilar oguejyva'ekue kuña ñembosarái ykére peteĩ mural de Kerala-pe."
+    },
+    "chandra-in": {
+      "name": "Oguata y rembe'y rendápe",
+      "description": "Escalera de pilar oguejyva'ekue yguasu ha linga-pe, pe mural Mahakumbha Mela-pe."
+    },
+    "deposit": {
+      "name": "Cuenta de depono",
+      "description": "Ogueru va'erã umi mba'e oje'éva ha umi mba'e oje'éva."
+    },
+    "ishalife": {
+      "name": "Isha Life and Peppervine Eatery",
+      "description": "Isha Life mba'apohára oĩ tape guasúrupi, pe Peppervine Eatery itaguasu ykére."
+    },
+    "welcome": {
+      "name": "Pointe de bienvenida",
+      "description": "Ohasáva ojesareko ko'ápe."
+    },
+    "spanda": {
+      "name": "Spanda Hall",
+      "description": "Ko sala mbaretéva omoherakuãi programa avance-gua, taha'e Bhava Spandana."
+    },
+    "spanda-in": {
+      "name": "Spanda Salón-pe oĩ",
+      "description": "Mural del nórtepe ojejuhu peteĩ mural de Kerala-pe Adiyogi rekove rehe."
+    },
+    "alayam": {
+      "name": "Adiyogi Alayam",
+      "description": "Ko sala kakuaa oĩ peteĩ te'o arco-rroza hovy ha umi columna ojejapiva'ekue serpientes rehe."
+    },
+    "nalanda": {
+      "name": "Nalanda",
+      "description": "Nalanda Stay ome'e renda ha conferencia renda."
+    },
+    "bhiksha": {
+      "name": "Bhiksha Hall",
+      "description": "Oiméne dos mil tapichápe ikatu okapyha ykére ha ho'u py'aguapýva ko sala de comidas-pe."
+    },
+    "metalbridge": {
+      "name": "Puente de Metal",
+      "description": "Ko puente de acero ohasáva peteĩ arroyo montanhoso tapére tape carril de buey."
+    },
+    "campus": {
+      "name": "Oimeraéndi campus-pe",
+      "description": ""
+    }
+  }
+}

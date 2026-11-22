@@ -1,0 +1,173 @@
+{
+  "ui": {
+    "pageTitle": "Isha Yoga Center · Tur Virtual 3D",
+    "language": "Bahasa",
+    "foothills": "Tepi-tepi Velliangiri",
+    "subtitle": "Coimbatore · Pedalaman Velliangiri · Skala 1:1",
+    "credit": "Model oleh Claude",
+    "loading": "Mengisi mesin 3D...",
+    "engineError": "Tidak bisa mengisi mesin 3D.",
+    "engineReady": "mesin 3D siap",
+    "ready": "Sedia",
+    "textures": "Penciptaan struktur dan bahan",
+    "sky": "Yang membuat langit dan kabut",
+    "terrain": "Membangun Bukit Velliangiri",
+    "roads": "Membangun jalan dan jalan",
+    "vegetation": "Menanam buah dan tumit",
+    "peopleStep": "Menambahkan pengendara dan gerobak lembu",
+    "lamps": "Menyalakan lampunya",
+    "shaders": "Mengumpulasi shader",
+    "dawn": "Fajar",
+    "dusk": "Senja",
+    "night": "Malam",
+    "cutaway": "Lihat bagian dalam",
+    "cutawayTip": "Menyimpan bumbung untuk melihat di dalam rumah.",
+    "walk": "Berjalan",
+    "walkTip": "WASD / ↑ ↓ ← → — Berjalan · Shift — Berlari · F — Terbang · Esc — Keluar",
+    "walkHint": "WASD / ↑ ↓ ← → — Berjalan · Shift — Berlari · F — Terbang · Esc — Keluar",
+    "flightHint": "WASD — Terbang · Space / E — Naik · Q / C — Turun · F — Mendarat · Esc — Keluar",
+    "orbitHint": "Tarik untuk berbalik, gulung atau menyikat untuk memperketat, seret kanan atau seret Shift ke pan.",
+    "walkDescription": "Pegang keyboard atau touch joystick. Seret untuk melihat-lihat di sekitar. Tekan Esc atau memilih Pegang lagi untuk keluar.",
+    "aerial": "Pemandangan dari Udara",
+    "aerialDescription": "Tentukan tempat yang ingin Anda lalui, atau memilih Walk untuk menjelajahi dengan jalan kaki.",
+    "people": "Orang",
+    "peopleTip": "Tunjukkan atau menyembunyikan para pengendara, kerumunan, dan gerobak lembu.",
+    "overview": "Tampilan umum",
+    "overviewDescription": "Menjelajahi Isha Yoga Center di kaki Bukit Velliangiri.",
+    "outsideHeading": "Di luar Sarpa Vasal · area umum",
+    "insideHeading": "Di dalam Sarpa Vasal · Campus",
+    "all": "Semua",
+    "out": "Di luar",
+    "in": "Di dalam",
+    "allTip": "Tunjukkan semua rumah.",
+    "outTip": "Tunjukkan saja rumah di luar Sarpa Vasal.",
+    "inTip": "Tunjukkan saja rumah di dalam Sarpa Vasal.",
+    "navigation": "Lokasi"
+  },
+  "places": {
+    "adiyogi": {
+      "name": "Patung Adiyogi",
+      "description": "Bustasi Shiva yang bertingkat 34 meter ini berhadap ke tenggara."
+    },
+    "yogeshwar": {
+      "name": "Yogeshwar Linga",
+      "description": "Linga ini merupakan lima chakra utama."
+    },
+    "kalabhairava": {
+      "name": "Kalabhairava Sthanam",
+      "description": "sebuah tempat kudus batu dengan tiang- tiang yang di ukir berada di antara Adiyogi dan Malai Vasal."
+    },
+    "malai": {
+      "name": "Masuk utama Malai Vasal",
+      "description": "Gerbang utama di bagian tenggara Adiyogi memiliki batu alam untuk lintelnya."
+    },
+    "sarpa": {
+      "name": "Gerbang Sarpa Vasal",
+      "description": "Cobra yang petak berada di dalam gerbang campus granit ini di Narasipuram Road."
+    },
+    "moondram": {
+      "name": "Moondram Pirai Eatery",
+      "description": "Resto ini berada di bagian tenggara Sarpa Vasal."
+    },
+    "moondram-in": {
+      "name": "Ruang dalam dari sebuah restaurant",
+      "description": "Ruang makan memiliki tables besaran, trusses langit-langit yang berambut bodas, dan gambar Devi."
+    },
+    "unavagam": {
+      "name": "Velliangiri Unavagam",
+      "description": "sebuah restaurant vegetarian India bagian tenggara tepat di dalam Surya Vasal."
+    },
+    "unavagam-in": {
+      "name": "Di bawah tempat makan",
+      "description": "Para pemberi makan mengambil makanan dari tingkap pelayanan dan makan di atas tabung yang menegak di bawah tempat beristira."
+    },
+    "suryakund": {
+      "name": "Suryakund dan Mandapam",
+      "description": "Dua belasan dan dalapan tingkatan batu yang panjang membawa ke baskom laki-laki dan matahari tembaga yang tersusun."
+    },
+    "surya-in": {
+      "name": "Lomba dan renang",
+      "description": "Tangga batu menuruni ke dalam baskom."
+    },
+    "naga": {
+      "name": "Candi Naga",
+      "description": "Kobra yang terjalin di atas di ukir menjadi satu batu ireng di atas tahapan Suryakund."
+    },
+    "ponds": {
+      "name": "Kolam lotus dan jembatan lengkung",
+      "description": "Jembatan busur berbuih yang melintasi waduk lotus antara Nandi dan Suryakund."
+    },
+    "nandi": {
+      "name": "Nandi",
+      "description": "Burung Hitam berdekatan ini berhadapan dengan Dhyanalinga dan menggunakan seret loncatan perunggu."
+    },
+    "dhyanalinga": {
+      "name": "Dhyanalinga",
+      "description": "Pengendara masuk ke kamar meditas berkulam bata melalui lengkungan batu di sisi tenggara."
+    },
+    "dhyana-in": {
+      "name": "Di dalam Dhyanalinga",
+      "description": "Tujuh band tembaga mengelilingi granit Hitam Dhyanalinga."
+    },
+    "bhairavi": {
+      "name": "Linga Bhairavi",
+      "description": "Kuil Devi ini di tenggara-keuh Dhyanalinga memiliki tempat kudus segitiga dan langit-langit."
+    },
+    "lb-in": {
+      "name": "Devi dan Trident",
+      "description": "Trio besar berada di depan Devi, yang berpakai sari warna emas dan warna-warni."
+    },
+    "sadhana": {
+      "name": "Sadhana Hall 1 dan 2",
+      "description": "Dua hall ini di bagian kebelaharian Dhyanalinga menjadi tempat Darshan, Aumkar, dan sesi praktisi."
+    },
+    "chandrakund": {
+      "name": "Chandrakund",
+      "description": "32 tahapan batu mendarat ke kamar renang wanita di bawah sebuah mural gaya Kerala."
+    },
+    "chandra-in": {
+      "name": "Turun ke dalam air",
+      "description": "Tangga batu menunjuk ke pool dan linga di bawah mural Mahakumbha Mela."
+    },
+    "deposit": {
+      "name": "Tanda Deposit",
+      "description": "Pengendara bisa meninggalkannya di sini sebelum masuk ke kampus."
+    },
+    "ishalife": {
+      "name": "Isha Life and Peppervine Eatery",
+      "description": "toko Isha Life berada di pinggir jalan utama, di sekitar Peppervine Eatery yang berkolom batu."
+    },
+    "welcome": {
+      "name": "Pintu sambutan",
+      "description": "Pengendara terdeteksi di sini."
+    },
+    "spanda": {
+      "name": "Spanda Hall",
+      "description": "Aula besar ini menjadi tempat program-program yang lebih lanjut seperti Bhava Spandana."
+    },
+    "spanda-in": {
+      "name": "Di dalam Spanda Hall",
+      "description": "Dinda bagian lor menampakan sebuah mural gaya Kerala tentang kehidupan Adiyogi."
+    },
+    "alayam": {
+      "name": "Adiyogi Alayam",
+      "description": "Aula besar ini memiliki langit-langit busur pink pucat dan tiang- tiang yang diuk dengan ular."
+    },
+    "nalanda": {
+      "name": "Nalanda",
+      "description": "Nalanda Stay memberikan tempat tinggal dan tempat konferensi."
+    },
+    "bhiksha": {
+      "name": "Bhiksha Hall",
+      "description": "Sebanyak dua rebu orang bisa beristiraat di tanah dan makan dalam keduhangan ini."
+    },
+    "metalbridge": {
+      "name": "Jembatan Metal",
+      "description": "Jembatan kaki keluli ini melintasi bukit di akhir jalan gerobak lembu."
+    },
+    "campus": {
+      "name": "Bangunan-bangunan kampus lainnya",
+      "description": ""
+    }
+  }
+}

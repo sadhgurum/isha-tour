@@ -332,7 +332,11 @@ export function createWalker(
   }
   // 输入
   addEventListener('keydown', (e) => {
-    if (!w.on || e.target instanceof HTMLInputElement) return;
+    if (
+      !w.on ||
+      (e.target instanceof HTMLElement && e.target.closest('input, select'))
+    )
+      return;
     if (e.code === 'Escape') {
       w.onExit?.();
       return;

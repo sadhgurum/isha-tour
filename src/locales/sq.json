@@ -1,0 +1,173 @@
+{
+  "ui": {
+    "pageTitle": "Qendër i Yoga-s Isha · Tur 3D Virtual",
+    "language": "Gjuha",
+    "foothills": "Shpinat e Velliangiri",
+    "subtitle": "Koimbatore · Velliangiri foothills · shkallës 1:1",
+    "credit": "Modelli i Claude",
+    "loading": "Ngarkimi i motorit 3D...",
+    "engineError": "Nuk mund të ngarkojë motorin 3D.",
+    "engineReady": "Motori 3D i gatshëm",
+    "ready": "Gati",
+    "textures": "Përdorimi i teksteve dhe materiave",
+    "sky": "krijimin e qiellit dhe mjegullës",
+    "terrain": "Rritja e kodrave Velliangiri",
+    "roads": "Të hapin drita dhe shtigje",
+    "vegetation": "Plakimi i pemëve dhe palmëve",
+    "peopleStep": "Shtimi i vizituesit dhe karrocat e tyre",
+    "lamps": "Drejtimi i lampadave të vajit",
+    "shaders": "Kompilimi i shaderëve",
+    "dawn": "Agim",
+    "dusk": "Muzg",
+    "night": "Natë",
+    "cutaway": "Shiko brenda",
+    "cutawayTip": "Mbulojë çata për të parë ndërtesat.",
+    "walk": "Ec",
+    "walkTip": "WASD / ↑ ↓ ← → — Ec · Shift — Vrapo · F — Fluturo · Esc — Dil",
+    "walkHint": "WASD / ↑ ↓ ← → — Ec · Shift — Vrapo · F — Fluturo · Esc — Dil",
+    "flightHint": "WASD — Fluturo · Space / E — Ngjitu · Q / C — Zbrit · F — Ulu · Esc — Dil",
+    "orbitHint": "Vështroni për të rrotulluar, rrotuloni ose zmbërthni për të zulumuar, vështroni për të djathtë ose vështroni për të shkark.",
+    "walkDescription": "Shko me klaviaturën ose xhoistikun prekës. Shko për të parë përreth. Presi Esc ose për të dalur, për të dalur.",
+    "aerial": "Pamje ajrore",
+    "aerialDescription": "Zgjidhni një vend të cilës do të fluturoni, ose për të eksploruar me pyes, zgjidhni \"Shëtitje\".",
+    "people": "Njerëz",
+    "peopleTip": "Shikoni ose mbani të fshihet vizitat, turmat dhe karrocat e tyre.",
+    "overview": "Pamje e përgjithshme",
+    "overviewDescription": "Eksploroni Qendrin e Jogës Isha në fund të kodrave Velliangiri.",
+    "outsideHeading": "Jeta e Sarpa Vasal · Zona e publikut",
+    "insideHeading": "Në kampusin e Sarpa Vasal",
+    "all": "Të gjitha",
+    "out": "Jashtë",
+    "in": "Brenda",
+    "allTip": "Shikoni të gjitha ndërtesat.",
+    "outTip": "Shikoni vetëm ndërtesat që janë përreth Sarpa Vasal.",
+    "inTip": "Shikoni vetëm ndërtesat e Sërpës Vasal.",
+    "navigation": "Vendet"
+  },
+  "places": {
+    "adiyogi": {
+      "name": "Statua Adiyogi",
+      "description": "Ky 34-metër bust i çelikut të Shivave është i përsuar në jug."
+    },
+    "yogeshwar": {
+      "name": "Yogeshwar Linga",
+      "description": "Ky linga përbën 5 çakra të mëdhenj."
+    },
+    "kalabhairava": {
+      "name": "Kalabhairava Sthanam",
+      "description": "Një shpend i gurit me kolona të gdhendur është në mes të Adiyogi dhe Malai Vasal."
+    },
+    "malai": {
+      "name": "Hyrja e Madhe e Vasal",
+      "description": "Portia e parë në jug të Adiyogi ka një gur të natyrshëm për linterin e saj."
+    },
+    "sarpa": {
+      "name": "Porta e Sarpa Vasal",
+      "description": "Një kobra e errët është në këtë portën e granitit në Narasipuram Road."
+    },
+    "moondram": {
+      "name": "Moondram Pirai Eatery",
+      "description": "Ky restaurant është jug të Sarpa Vasal."
+    },
+    "moondram-in": {
+      "name": "Intereri i restorantit",
+      "description": "Dhoma e mutit ka tavolina hekuri, truse të bardha në çati dhe një foto të Devi."
+    },
+    "unavagam": {
+      "name": "Velliangiri Unavagam",
+      "description": "Një restaurant vegjetarist në jug të Indisë, vetëm në Surya Vasal."
+    },
+    "unavagam-in": {
+      "name": "Nën strehimin e banesës",
+      "description": "Ushqimet mblidhen nga dritaret e serverimit dhe hanin në tavolina të palët nën strehim."
+    },
+    "suryakund": {
+      "name": "Suryakund dhe Mandapam",
+      "description": "28 shkallët e gjata prej gurës çojnë në pishinë e banimit të burrit dhe në diell të saj të ngrirur prej bakrit."
+    },
+    "surya-in": {
+      "name": "Shkallat dhe pishina",
+      "description": "Një kurdan e ujit bie në murin e anët."
+    },
+    "naga": {
+      "name": "Shënjritje Naga",
+      "description": "Kobra të ndërlidhur janë gërmatur në një gur të zi në majë të shkallëve Suryakund."
+    },
+    "ponds": {
+      "name": "Lodhët e lotos dhe ura e arku",
+      "description": "Një urës e bardha me shkurtër ka ndërprerë liqenet e lotosit mes Nandi dhe Suryakund."
+    },
+    "nandi": {
+      "name": "Nandi",
+      "description": "Ky bik i zi i shtrihur i përqafohet Dhyanalinga dhe ka një sërë të çelës prej bronze."
+    },
+    "dhyanalinga": {
+      "name": "Dhyanalinga",
+      "description": "Të vizituarit hyjnë në salonin e meditimit me kupull me argjër, duke hënë në një arkë prej gurës në anën e tij të estit."
+    },
+    "dhyana-in": {
+      "name": "Në Dhyanalinga",
+      "description": "Dhyanalinga është rrethuar nga 7 shirita bakri, dhe në mur janë 28 niçe meditimesh."
+    },
+    "bhairavi": {
+      "name": "Linga Bhairavi",
+      "description": "Ky shtriun i Devi në jugperëndim të Dhyanalinga ka një santuar tratujor dhe një qiell."
+    },
+    "lb-in": {
+      "name": "Devi dhe tridentit",
+      "description": "Një trident i madh është në depër të Devi, e cila vishte një sari të kuqe dhe të artë."
+    },
+    "sadhana": {
+      "name": "Sadhana Hall 1 dhe 2",
+      "description": "Dy sillët në Perëndim të Dhyanalinga të strehojnë Darshan, Aumkar fillimin, dhe sesione të stërvitjes."
+    },
+    "chandrakund": {
+      "name": "Chandrakund",
+      "description": "32 shkallët e gurit zbresin në pishinë e banimit të gruas nën një mural në stilin e Kerales."
+    },
+    "chandra-in": {
+      "name": "Shkojmë në pishinë.",
+      "description": "Shkallat e gurit çojnë në pishinë dhe linga e saj nën muralin e Mahakumbha Mela."
+    },
+    "deposit": {
+      "name": "Kontri i depositave",
+      "description": "Fasuesit mund të lajnë telefonat dhe bagazhet e tyre para se të hyjnë në kampus."
+    },
+    "ishalife": {
+      "name": "Isha Life and Peppervine Eatery",
+      "description": "Dyqane Isha Life janë në shtepin e rrugeve të mëdhenj, në mesin e Peppervine Eatery me kulme gurësh."
+    },
+    "welcome": {
+      "name": "Pika e mirëseardhjes",
+      "description": "Shuttlet dhe karrocat e tyre nisin nga ky vend."
+    },
+    "spanda": {
+      "name": "Spanda Hall",
+      "description": "Kjo sill e madh ka programet e përhershme si Bhava Spandana."
+    },
+    "spanda-in": {
+      "name": "Në Spanda Hall",
+      "description": "Muri verior ka një mural në stilin e Kerala për të jetën e Adiyogi."
+    },
+    "alayam": {
+      "name": "Adiyogi Alayam",
+      "description": "Ky sill i madh ka një çati të bollshëm rozësh dhe kolona të gdhendur me gjarpër."
+    },
+    "nalanda": {
+      "name": "Nalanda",
+      "description": "Nalanda Stay siguron vendbanim dhe konferencat."
+    },
+    "bhiksha": {
+      "name": "Bhiksha Hall",
+      "description": "Në këtë salla të drekës mund të ulin në dymijë njerëz në dysheme dhe të hanin në heshtje."
+    },
+    "metalbridge": {
+      "name": "Udhërmetal",
+      "description": "Ky urëshi prej çelik kaloi një lumen malore në fund të rretës së karrosheve të bikëve."
+    },
+    "campus": {
+      "name": "ndërtesa të tëra të kamput",
+      "description": ""
+    }
+  }
+}

@@ -1,0 +1,173 @@
+{
+  "ui": {
+    "pageTitle": "Isha Yoga Center · 3D Virtualni Tur",
+    "language": "Jezik",
+    "foothills": "Velliangiri podgrađe",
+    "subtitle": "Coimbatore · Velliangiri podmorski · 1:1 razina",
+    "credit": "Model Claude",
+    "loading": "Napraviti 3D motor...",
+    "engineError": "Ne mogu učiti 3D motor.",
+    "engineReady": "3D motor spreman",
+    "ready": "Spremni.",
+    "textures": "Izrada struktura i materijala",
+    "sky": "Stvoriti nebo i maglu",
+    "terrain": "Izgradnja Velliangiri Hills",
+    "roads": "Izlagavanje putev i putev",
+    "vegetation": "Sastanje drveća i palmi",
+    "peopleStep": "Dodavanje posjetilaca i kolica",
+    "lamps": "Pripalivanje uljevih lampi",
+    "shaders": "Sastavovanje shadera",
+    "dawn": "Zora",
+    "dusk": "Sumrak",
+    "night": "Noć",
+    "cutaway": "Pogled iznutra",
+    "cutawayTip": "Sakrijte krove da bi se videlo u zgradivima.",
+    "walk": "Hodanje",
+    "walkTip": "WASD / ↑ ↓ ← → — Hodanje · Shift — Trči · F — Leti · Esc — Izađi",
+    "walkHint": "WASD / ↑ ↓ ← → — Hodanje · Shift — Trči · F — Leti · Esc — Izađi",
+    "flightHint": "WASD — Leti · Space / E — Podigni se · Q / C — Spusti se · F — Sleti · Esc — Izađi",
+    "orbitHint": "Vodi se za okretanje, prevrti ili stiskaj za povezivanje, povlači desno ili povlači na traku.",
+    "walkDescription": "Pretraži klavijaturu ili dodirnu žicu. Vodi se da bi se oko sebe promatrao.",
+    "aerial": "Zrakopisa",
+    "aerialDescription": "Izaberite znamenicu u koju se letite ili izaberite Putujte za pješačke isiskovanje.",
+    "people": "Ljudi",
+    "peopleTip": "Uprkos tome, pokaži ili sakrij posjetitelje, gomilu ljudi i kolete.",
+    "overview": "Pregled",
+    "overviewDescription": "Istraži centar za isha jogu u podnoži Velliangiri Hills.",
+    "outsideHeading": "Izvan Sarpe Vasa · javna zona",
+    "insideHeading": "U unutrašnjosti kampusa Sarpa Vasal ·",
+    "all": "Sve",
+    "out": "Izvan",
+    "in": "Unutar",
+    "allTip": "-Pokaži sve zaduženosti.",
+    "outTip": "Samo pokaži zaduženosti van Sarpe Vasale.",
+    "inTip": "Samo pokaži zaduženosti u Sarpa Vasal.",
+    "navigation": "Lokacije"
+  },
+  "places": {
+    "adiyogi": {
+      "name": "Adiyogi kip",
+      "description": "Ovo 34 metara čelikost bust Shive se obraća na jug."
+    },
+    "yogeshwar": {
+      "name": "Yogeshwar Linga",
+      "description": "Ta linga zasniva pet čaka, a posjetitelji im pružaju vod i liście neem."
+    },
+    "kalabhairava": {
+      "name": "Kalabhairava Sthanam",
+      "description": "Kameni svetište s ukrašenim kolumnama se kreće u blizini Adiyogija i Malai Vasal."
+    },
+    "malai": {
+      "name": "Uhod u Malai Vasal",
+      "description": "Gornji ulaz južno od Adiyogi ima priroda u stijeni."
+    },
+    "sarpa": {
+      "name": "Vrata Sarpa Vasal",
+      "description": "Tamna kobra je u tom granitnom ulazu na Narasipuram Road."
+    },
+    "moondram": {
+      "name": "Moondram Pirai Eatery",
+      "description": "Ovo je u jugu od Sarpe Vasale."
+    },
+    "moondram-in": {
+      "name": "U unutrašnjosti restorana",
+      "description": "U jedionici su gvozdeni stolovi, bijela krova i slika Devi."
+    },
+    "unavagam": {
+      "name": "Velliangiri Unavagam",
+      "description": "Južnoindijski vegetarijan restaurant u Surya Vasal."
+    },
+    "unavagam-in": {
+      "name": "Pod stanicom za goste",
+      "description": "Vlasnici skupljaju hulu s prozorova i jedu na stalne stole pod sklonom."
+    },
+    "suryakund": {
+      "name": "Suryakund i Mandapam",
+      "description": "Dvadeset osmi kamenih stuba koje dovode do muškog bazena i njezina ugasnjenog bakrenog sunca."
+    },
+    "surya-in": {
+      "name": "Stepi i bazena",
+      "description": "Kameni stubici se spustiju u bazén."
+    },
+    "naga": {
+      "name": "Naga svetište",
+      "description": "Priklenjene kobre su izrezane u jedan crni kamen na vrhu stuba u Suryakundu."
+    },
+    "ponds": {
+      "name": "Lotusove jezera i lukovni most",
+      "description": "Bijeli lukov most pređe lotosne jezera u blizini Nandija i Surjakunda."
+    },
+    "nandi": {
+      "name": "Nandi",
+      "description": "Ovo ležavo crno bik se suočava sa Dhyanalinga i nosila je nizu bronzenih zvona."
+    },
+    "dhyanalinga": {
+      "name": "Dhyanalinga",
+      "description": "Posjetitelji ulaze u meditaciono haljinu sa gume na istočnoj strani."
+    },
+    "dhyana-in": {
+      "name": "U Dhyanalingau",
+      "description": "Sedam bakrenih pruga okružuje crni granit Dhyanalinga."
+    },
+    "bhairavi": {
+      "name": "Linga Bhairavi",
+      "description": "Ovo Devijevo svetište jugozavremeno od Dhyanalinga ima tr kutužno svetište i plafon."
+    },
+    "lb-in": {
+      "name": "Devi i trident",
+      "description": "Pred Devi staje veliko trident, koji je obučen u crvenom i zlatnom sariju."
+    },
+    "sadhana": {
+      "name": "Sadhana salone 1 i 2",
+      "description": "Ti dva sala na zapadu od Dhyanalingaju domaćuju daršan, inicijaciju Aumkar i treninge."
+    },
+    "chandrakund": {
+      "name": "Chandrakund",
+      "description": "32 kamena stubišta padaju do ženskih bazena pod muralim u stilu Kerala."
+    },
+    "chandra-in": {
+      "name": "Šetnja do bazena",
+      "description": "Kameni stubišta dovode do bazena i njenu linga pod zidu Mahakumbha Mela."
+    },
+    "deposit": {
+      "name": "Razdvojni računar",
+      "description": "Posjetitelji mogu ostaviti svoje telefone i prtljagu ovdje prije ulaza u kampus."
+    },
+    "ishalife": {
+      "name": "Isha Life and Peppervine Eatery",
+      "description": "Izha Life prodavnice su uz hlavnu ulicu, u blizini Peppervine Eatery."
+    },
+    "welcome": {
+      "name": "Poziv dobrodošlice",
+      "description": "Posjetitelji se registriraju ovdje."
+    },
+    "spanda": {
+      "name": "Spanda Hall",
+      "description": "U tom velikoj sali se nalaze i razvitakovi programa kao što su Bhava Spandana."
+    },
+    "spanda-in": {
+      "name": "U Španskoj sali",
+      "description": "Na severnom zidu je murala u Keraliskom stilu o Adiyogijevom života."
+    },
+    "alayam": {
+      "name": "Adiyogi Alayam",
+      "description": "U tom velikoj sali ima bjelko ružičasto lukovo stak i kolone izrezane zmijama."
+    },
+    "nalanda": {
+      "name": "Nalanda",
+      "description": "Nalanda Stay pruža smještaj i sastanak."
+    },
+    "bhiksha": {
+      "name": "Bhiksha Hall",
+      "description": "U tej jedionici oko dva hilja ljudi mogu sjesti na podu i tiho jezi."
+    },
+    "metalbridge": {
+      "name": "Metalični most",
+      "description": "Ovo čelik most pređe planinskim potokom na krajem putovanja veša."
+    },
+    "campus": {
+      "name": "S druge gradnje kampusa",
+      "description": ""
+    }
+  }
+}

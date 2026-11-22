@@ -1,0 +1,173 @@
+{
+  "ui": {
+    "pageTitle": "イシャヨガ中心 3D仮想ツア",
+    "language": "言語",
+    "foothills": "ベリアンギリの丘陵",
+    "subtitle": "コインバトア · ベリアンギリ山岳 · 1:1スケア",
+    "credit": "コラドによるモデル",
+    "loading": "3Dエンジンを充電する",
+    "engineError": "3Dエンジンを充電できませんでした 再度やってみる",
+    "engineReady": "3Dエンジンが準備中",
+    "ready": "- やった",
+    "textures": "メタゴンの製造",
+    "sky": "天と霧を創造する",
+    "terrain": "ベリアンギリ山脈 の建設",
+    "roads": "道と道を敷き上げること",
+    "vegetation": "木とパム の植え付け",
+    "peopleStep": "お客様と牛のカギを追加する",
+    "lamps": "オイルランプの照明",
+    "shaders": "スキャダを編成する",
+    "dawn": "夜明け",
+    "dusk": "夕暮れ",
+    "night": "夜",
+    "cutaway": "内部を見る",
+    "cutawayTip": "ビルの内部を見るために屋根を隠す.",
+    "walk": "歩く",
+    "walkTip": "WASD / ↑ ↓ ← → — 歩く · Shift — 走る · F — 飛ぶ · Esc — 終了",
+    "walkHint": "WASD / ↑ ↓ ← → — 歩く · Shift — 走る · F — 飛ぶ · Esc — 終了",
+    "flightHint": "WASD — 飛ぶ · Space / E — 上昇 · Q / C — 下降 · F — 着地 · Esc — 終了",
+    "orbitHint": "ドラッグで視点を回転し、スクロールまたはピンチで拡大・縮小します。右ボタンまたは Shift キーを押しながらドラッグすると視点を平行移動できます。",
+    "walkDescription": "キボタイヤまたはタッチジョイスティックを使って歩いてください.周りをスラグして見てください. Esc を押すか,また歩いて出口を選択してください.",
+    "aerial": "空からの視野",
+    "aerialDescription": "空を飛ぶ地標を選択するか,歩行で探検するウォックを選択してください.",
+    "people": "人々",
+    "peopleTip": "見知らぬ人や群衆や牛のカカワトンを 見せたり隠したりする",
+    "overview": "全景",
+    "overviewDescription": "ベリアンギリ山脈の足元にあるイシャヨガ中心を探り出し,その場所へ飛ぶ場所を選択してください.",
+    "outsideHeading": "サルパヴァサルの外で · 公営エリア",
+    "insideHeading": "サルパヴァサルのキャンパス内",
+    "all": "すべて",
+    "out": "門の外",
+    "in": "門の内",
+    "allTip": "全ての建物を見せろ",
+    "outTip": "サルパヴァサルの外にある建物だけを見せてください",
+    "inTip": "サルパヴァサルの内にある建物だけを見せてください",
+    "navigation": "場所"
+  },
+  "places": {
+    "adiyogi": {
+      "name": "アディオギの像",
+      "description": "この34mの鋼鉄のシヴァのバストは南向きです ヨゲシュワルリンガは前側のパビリオンです"
+    },
+    "yogeshwar": {
+      "name": "Yogeshwar Linga",
+      "description": "このリンガ は 5 つの主要なチャクラ を 表わす.訪問 者 は 水 と ニム の葉 を もたらす."
+    },
+    "kalabhairava": {
+      "name": "Kalabhairava Sthanam",
+      "description": "アディオギとマライバサルの間には彫刻の柱を持つ石の聖所があります."
+    },
+    "malai": {
+      "name": "マライバサルの主要入口",
+      "description": "アディオギの南にある主要門には,自然的な岩が敷かれている."
+    },
+    "sarpa": {
+      "name": "サルパヴァサルゲイト",
+      "description": "ナラシ浦ラム路にあるこのグランイトキャンパスゲイトの中に暗いコブラが立っています"
+    },
+    "moondram": {
+      "name": "Moondram Pirai Eatery",
+      "description": "このレストランはサルパヴァサルの南にあります.そのモデル外はほぼです."
+    },
+    "moondram-in": {
+      "name": "レストラン内",
+      "description": "食堂には鉄の卓と白色の屋根のトランスとデヴィの写真があります"
+    },
+    "unavagam": {
+      "name": "Velliangiri Unavagam",
+      "description": "南インド系ベジタリアンレストランです"
+    },
+    "unavagam-in": {
+      "name": "食堂の棚の下",
+      "description": "ディネアは窓から食べ物を集め,避難所の下のスタンドメジで食べます."
+    },
+    "suryakund": {
+      "name": "スリヤクンドとマンダパム",
+      "description": "28つの広大な石の階段が 男の泳池とその懸垂銅の太陽へと導きます"
+    },
+    "surya-in": {
+      "name": "スケジュルとプッシュ",
+      "description": "水槽に石の階段が降りてきます 水の幕が反対の壁を下ります"
+    },
+    "naga": {
+      "name": "ナガ神社",
+      "description": "スライクンデの階段の頂上に,コブラが交互に絡み合っている."
+    },
+    "ponds": {
+      "name": "ロトス池と弧形橋",
+      "description": "南ディと太陽光の間にある蓮の池を白い弧形橋が横断する."
+    },
+    "nandi": {
+      "name": "Nandi",
+      "description": "この横たわった黒い牛は,ディヤリンガに向き合って,銅の鐘を連帯している."
+    },
+    "dhyanalinga": {
+      "name": "Dhyanalinga",
+      "description": "東側にある石の弓道を通って,訪問者はレンガドラムの瞑想堂に入ります."
+    },
+    "dhyana-in": {
+      "name": "ディヤンリンガ内",
+      "description": "7つの銅帯が黒いグランイトのダヤリンガを囲む 28つの瞑想のニッチが壁を横たわっています"
+    },
+    "bhairavi": {
+      "name": "Linga Bhairavi",
+      "description": "このデヴィの聖所は,ジヤンリンガの西南に三角形聖所と天井があります."
+    },
+    "lb-in": {
+      "name": "デビと三角形",
+      "description": "デビの前に大きな三角形が立っています 彼女は赤と金色のサリを着ています"
+    },
+    "sadhana": {
+      "name": "サダナサラ1と2",
+      "description": "この2つのホルは,Dyanalinga西にダサンを,オウムカルの初心会,練習会を開催します."
+    },
+    "chandrakund": {
+      "name": "Chandrakund",
+      "description": "32つの石の階段が,ケララ風の壁画の下にある女性の浴池まで下ります."
+    },
+    "chandra-in": {
+      "name": "水泳池まで",
+      "description": "この石階段は,マハクンバメラ壁画の下にある池とリングに繋がります."
+    },
+    "deposit": {
+      "name": "入金カウンタ",
+      "description": "ここへ入る前に携帯や荷物を置いて行きます"
+    },
+    "ishalife": {
+      "name": "Isha Life and Peppervine Eatery",
+      "description": "イシャライフの店は,大道横にある."
+    },
+    "welcome": {
+      "name": "お待たせしました",
+      "description": "ここからシャトルと牛カワが出発する"
+    },
+    "spanda": {
+      "name": "Spanda Hall",
+      "description": "この大きな館ではババスパンドナのような高度なプログラムが開催されています"
+    },
+    "spanda-in": {
+      "name": "スパンダホルの内",
+      "description": "北壁には,アディオギの生活についてケララ風の壁画が描かれています."
+    },
+    "alayam": {
+      "name": "Adiyogi Alayam",
+      "description": "この大きな会場には白いピンク色の弓形屋上があり,蛇で彫られた柱があります."
+    },
+    "nalanda": {
+      "name": "Nalanda",
+      "description": "ナランドステイは宿泊と会議場を提供している. スピル場は南にあります."
+    },
+    "bhiksha": {
+      "name": "Bhiksha Hall",
+      "description": "このダイニングホルの2千人ほどの人が床に座って静かに食べることができます"
+    },
+    "metalbridge": {
+      "name": "メタルブリッジ",
+      "description": "この鉄筋の歩行橋は,牛カギの道の終わりに山の川を渡ります."
+    },
+    "campus": {
+      "name": "他のキャンパスビル",
+      "description": ""
+    }
+  }
+}

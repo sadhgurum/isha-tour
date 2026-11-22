@@ -1,0 +1,173 @@
+{
+  "ui": {
+    "pageTitle": "Isha Yoga Center · 3D Virtual Tour",
+    "language": "ພາສາ",
+    "foothills": "ພື້ນພູ Velliangiri",
+    "subtitle": "Coimbatore · Velliangiri foothills · scale 1:1",
+    "credit": "ຮູບແບບໂດຍ Claude",
+    "loading": "ການໂຫຼດເຄື່ອງຈັກ 3D...",
+    "engineError": "ບໍ່ສາມາດໂຫຼດເຄື່ອງຈັກ 3D ໄດ້. ໃຫ້ປັບປຸງເພື່ອທົດລອງອີກຄັ້ງ.",
+    "engineReady": "ເຄື່ອງຈັກ 3D ພ້ອມແລ້ວ",
+    "ready": "ພ້ອມແລ້ວ",
+    "textures": "ການສ້າງເນື້ອແລະວັດສະດຸກະດິດ",
+    "sky": "ສ້າງຟ້າ ແລະເມົາ",
+    "terrain": "ສ້າງພູເຂົາ Velliangiri",
+    "roads": "ການວາງຖະຫນົນ ແລະ ເສັ້ນທາງ",
+    "vegetation": "ປູກຕົ້ນໄມ້ ແລະ ປູກໄມ້ປ່າ",
+    "peopleStep": "ການເພີ່ມແຂກແລະລົດກະບະ",
+    "lamps": "ໄຟໄຟໄຟນ້ ໍາ ມັນ",
+    "shaders": "ການສະສົມ shaders",
+    "dawn": "ຮຸ່ງເຊົ້າ",
+    "dusk": "ຍາມແລງ",
+    "night": "ກາງຄືນ",
+    "cutaway": "ເບິ່ງຂ້າງໃນ",
+    "cutawayTip": "ເຊື່ອງຫ້ວຍເຮືອນ ເພື່ອເບິ່ງໃນອາຄານ.",
+    "walk": "ຍ່າງ",
+    "walkTip": "WASD / ↑ ↓ ← → — ຍ່າງ · Shift — ແລ່ນ · F — ບິນ · Esc — ອອກ",
+    "walkHint": "WASD / ↑ ↓ ← → — ຍ່າງ · Shift — ແລ່ນ · F — ບິນ · Esc — ອອກ",
+    "flightHint": "WASD — ບິນ · Space / E — ຂຶ້ນ · Q / C — ລົງ · F — ລົງຈອດ · Esc — ອອກ",
+    "orbitHint": "ດຶງເພື່ອຫມູນວຽນ ລອກຫຼືຄັດເພື່ອຂະຫນານດຶງຂວາ ຫຼື Shift-ດຶງເພື່ອ pan",
+    "walkDescription": "ຍ່າງດ້ວຍຄີບອດ ຫຼື touch joystick. Drag ເພື່ອເບິ່ງຢູ່ອ້ອມ. ກົດ Esc ຫຼືເລືອກຍ່າງອີກຄັ້ງເພື່ອອອກ.",
+    "aerial": "ການເບິ່ງຈາກທາງອາວຸດ",
+    "aerialDescription": "ເລືອກຈຸດຫມາຍທີ່ຄວນບິນໄປ, ຫຼືເລືອກ Walk ເພື່ອສໍາຫຼວດດ້ວຍຍ່າງ.",
+    "people": "ຜູ້ຄົນ",
+    "peopleTip": "ສະແດງ ຫຼື ເຊື່ອງແຂກ, ຝູງຊົນ, ແລະລົດກະບະ bull.",
+    "overview": "ພາບລວມ",
+    "overviewDescription": "ຄົ້ນຫາສູນ Isha Yoga ທີ່ຢູ່ລຸ່ມພູ Velliangiri. ເລືອກຈຸດຫມາຍທີ່ຄວນບິນໄປຫາມັນ.",
+    "outsideHeading": "ຢອກ Sarpa Vasal · ບໍລິເວນສາທາລະນະ",
+    "insideHeading": "ພາຍໃນ Sarpa Vasal · ສູນກາງ",
+    "all": "ທັງໝົດ",
+    "out": "ຂ້າງນອກ",
+    "in": "ຂ້າງໃນ",
+    "allTip": "ສະແດງໃຫ້ເຫັນອາຄານທັງຫມົດ.",
+    "outTip": "ສະແດງໃຫ້ເຫັນພຽງແຕ່ອາຄານຕ່າງໆຢູ່ນອກ Sarpa Vasal.",
+    "inTip": "ສະແດງໃຫ້ເຫັນພຽງແຕ່ອາຄານຕ່າງໆໃນ Sarpa Vasal.",
+    "navigation": "ສະຖານທີ່"
+  },
+  "places": {
+    "adiyogi": {
+      "name": "ຮູບປັ້ນ Adiyogi",
+      "description": "ຮູບປັ້ນເຫຼັກ 34 ແມັດຂອງ Shiva ມຸມທາງທິດໃຕ້ Yogeshwar Linga ແມ່ນຢູ່ໃນ pavilion ຕໍ່ຫນ້າ."
+    },
+    "yogeshwar": {
+      "name": "Yogeshwar Linga",
+      "description": "ລິງກາ ນີ້ ເປັນ ຕົວ ແທນ ຂອງ 5 ຫົວ ໃຈ ທີ່ ສໍາຄັນ."
+    },
+    "kalabhairava": {
+      "name": "Kalabhairava Sthanam",
+      "description": "ຫີນຫາດສະ ຫນາ ມີເສົາທີ່ຕັດຕັ້ງຢູ່ລະຫວ່າງ Adiyogi ແລະ Malai Vasal."
+    },
+    "malai": {
+      "name": "ທາງເຂົ້າທາງໃຫຍ່ Malai Vasal",
+      "description": "ປະຕູປະຕູໃຫຍ່ທາງໃຕ້ຂອງ Adiyogi ມີຫີນ ທໍາ ມະຊາດ ສໍາ ລັບ lintel ຂອງມັນ."
+    },
+    "sarpa": {
+      "name": "ປະຕູ Sarpa Vasal",
+      "description": "Cobra ມືດຢືນຢູ່ພາຍໃຕ້ປະຕູວິຊາການ granite ນີ້ໃນ Narasipuram Road."
+    },
+    "moondram": {
+      "name": "Moondram Pirai Eatery",
+      "description": "ຮ້ານອາຫານນີ້ຕັ້ງຢູ່ໃຕ້ເມືອງ Sarpa Vasal. ຮູບແບບດ້ານນອກຂອງມັນແມ່ນປະມານ."
+    },
+    "moondram-in": {
+      "name": "ພາຍໃນຮ້ານອາຫານ",
+      "description": "ຮ້ານກິນດື່ມມີໂຕະເຫຼັກ, ຕຶກຂາວ, ແລະຮູບຂອງ Devi."
+    },
+    "unavagam": {
+      "name": "Velliangiri Unavagam",
+      "description": "ຮ້ານອາຫານຜັກກ້າຂອງອິນເດຍໃຕ້ ຢູ່ໃກ້ໆກັບເມືອງ Surya Vasal."
+    },
+    "unavagam-in": {
+      "name": "ຢູ່ພາຍໃຕ້ບ່ອນພັກອາໄສ",
+      "description": "ພວກຮັບແຂກຮັບອາຫານຈາກຮ້ານຮັບໃຊ້ ແລະກິນຢູ່ໂຕະທີ່ຢືນຢູ່ພາຍໃຕ້ບ່ອນພັກເຊົາ."
+    },
+    "suryakund": {
+      "name": "Suryakund ແລະ Mandapam",
+      "description": "ຕີນ 28 ຕີນກວ້າງ ນໍາໄປຫາສະລອຍນ້ ໍາ ຂອງຊາຍແລະແສງແດດທອງແດງທີ່ຖືກ suspended."
+    },
+    "surya-in": {
+      "name": "ລະດັບແລະສະລອຍນ້ ໍາ",
+      "description": "ບັນດາບາດກ້າວຫີນລົງໄປສູ່ສະລອຍນ້ ໍາ."
+    },
+    "naga": {
+      "name": "ສະຫວັນ Naga",
+      "description": "ໂຄບຣາທີ່ຕິດກັນກັນແມ່ນຖືກຕັດເປັນຫີນ ດໍາ ດຽວໃນດ້ານສູງສຸດຂອງລໍາດັບ Suryakund."
+    },
+    "ponds": {
+      "name": "ຖໍ້າ Lotus ແລະຂົວ arched",
+      "description": "ຂົວຂາວທີ່ມີທໍ່ອ້ອມຂ້າມຫ້ວຍນ້ ໍາ ຫອມ lotus ໃນລະຫວ່າງ Nandi ແລະ Suryakund."
+    },
+    "nandi": {
+      "name": "Nandi",
+      "description": "ໂຕເຖົ້າສີ ດໍາ ທີ່ນັ່ງລົງນີ້ ແມ່ນມິດກັບ Dhyanalinga ແລະໃສ່ສາຍແອວຂອງທອງແດງ."
+    },
+    "dhyanalinga": {
+      "name": "Dhyanalinga",
+      "description": "ຜູ້ມາຢ້ຽມ ຢາມ ເຂົ້າ ໄປ ໃນ ຮ້ານ ສອນ ສອນ ທີ່ ມີ ກ້ອນ ຫີນ ມາ ຜ່ານ ທາງ ຫີນ ທາງ ພາກ ຕາ ເວັນ ອອກ."
+    },
+    "dhyana-in": {
+      "name": "ພາຍໃນ Dhyanalinga",
+      "description": "7 ແຜ່ນທອງແດງອ້ອມຮອບທາດເຫຼັກສີ ດໍາ Dhyanalinga. 28 ນິ້ວການສນອງລວງຄົບຮອບກໍາແພງ."
+    },
+    "bhairavi": {
+      "name": "Linga Bhairavi",
+      "description": "ສັກສິດ Devi ນີ້ຢູ່ທາງທິດໃຕ້ຂອງ Dhyanalinga ມີສັກສິດສາມຫຼ່ຽມແລະແສງສະຫວ່າງ."
+    },
+    "lb-in": {
+      "name": "Devi ແລະ triident",
+      "description": "ມີສາມໂຕໃຫຍ່ຢືນຢູ່ຕໍ່ຫນ້າ Devi, ຜູ້ທີ່ໃສ່ sari ສີແດງແລະຄໍາ."
+    },
+    "sadhana": {
+      "name": "Sadhana Halls 1 ແລະ 2",
+      "description": "ສອງຫ້າງນີ້ທາງທິດຕາ ເວັນຕົກຂອງ Dhyanalinga ເປັນເຈົ້າພາບ Darshan, Aumkar initiation, ແລະການປະຕິບັດກອງປະຊຸມ."
+    },
+    "chandrakund": {
+      "name": "Chandrakund",
+      "description": "ຕີນ 32 ຕີນລົງໄປຫາສະລອຍນ້ ໍາ ແມ່ຍິງພາຍໃຕ້ຮູບ mural ແບບ Kerala."
+    },
+    "chandra-in": {
+      "name": "ລົງໄປຫາສະລອຍນ້ ໍາ",
+      "description": "ລະຕັບຫີນ ນໍາ ໄປຫາສະລອຍນ້ ໍາ ແລະ linga ຂອງມັນພາຍໃຕ້ຮູບ mural Mahakumbha Mela."
+    },
+    "deposit": {
+      "name": "ເຄື່ອງຄວບຄຸມເງິນຝາກ",
+      "description": "ຜູ້ມາຢ້ຽມ ຢາມສາມາດປະໄວ້ ໂທລະສັບ ແລະ ກະເປົາຂອງພວກເຂົາໄດ້ກ່ອນທີ່ຈະເຂົ້າໄປໃນມະຫາວາວະສົບ."
+    },
+    "ishalife": {
+      "name": "Isha Life and Peppervine Eatery",
+      "description": "ຮ້ານຄ້າ Isha Life ແມ່ນຢູ່ແຄມຖະຫນົນໃຫຍ່, ໃກ້ກັບຮ້ານ Peppervine Eatery ທີ່ມີໂຄມຖ້ໍາຫີນ."
+    },
+    "welcome": {
+      "name": "ສະພາບການຕ້ອນຮັບ",
+      "description": "ຜູ້ມາຢ້ຽມ ຢາມ ໄດ້ລົງທະບຽນຢູ່ບ່ອນນີ້. ເຮືອ ບິນ ແລະລົດບັນທຸກບົວຈະອອກຈາກຈຸດນີ້."
+    },
+    "spanda": {
+      "name": "Spanda Hall",
+      "description": "ຮານໃຫຍ່ນີ້ ເປັນບ່ອນຈັດຕັ້ງບັນດາລາຍການທີ່ກ້າວ ຫນ້າ ເຊັ່ນ Bhava Spandana."
+    },
+    "spanda-in": {
+      "name": "ໃນໂຮງງານ Spanda Hall",
+      "description": "ຝາທາງພາກສຽງໃຕ້ມີຮູບພາບ mural ແບບ Kerala ກ່ຽວກັບຊີວິດຂອງ Adiyogi."
+    },
+    "alayam": {
+      "name": "Adiyogi Alayam",
+      "description": "ຮານໃຫຍ່ນີ້ມີຫລັງສີແດງສີຂຽວ ແລະມີເສົາທີ່ມີດອກດ້ວຍຊ້າງ."
+    },
+    "nalanda": {
+      "name": "Nalanda",
+      "description": "Nalanda Stay ແມ່ນສະຫນາມພັກອາໄສແລະບ່ອນປະຊຸມ."
+    },
+    "bhiksha": {
+      "name": "Bhiksha Hall",
+      "description": "ມີປະມານສອງພັນຄົນສາມາດນັ່ງຢູ່ພື້ນ ແລະກິນເຂົ້າຢ່າງງຽບສະຫງົບໃນຮ້ານອາຫານນີ້."
+    },
+    "metalbridge": {
+      "name": "ຂົວໂລຫະ",
+      "description": "ຂົວຍ່າງເຫຼັກນີ້ຂ້າມສາຍພູໃນຕອນທ້າຍຂອງທາງລົດກະບະ."
+    },
+    "campus": {
+      "name": "ອາຄານອື່ນໆໃນຄະນະວິຊາການ",
+      "description": ""
+    }
+  }
+}

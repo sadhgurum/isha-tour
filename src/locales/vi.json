@@ -1,0 +1,173 @@
+{
+  "ui": {
+    "pageTitle": "Trung tâm Yoga Isha · 3D Tour Virtual",
+    "language": "Ngôn ngữ",
+    "foothills": "Đào địa Velliangiri",
+    "subtitle": "Coimbatore · Velliangiri dãy · Skala 1:1",
+    "credit": "Mô hình của Claude",
+    "loading": "Lắp động cơ 3D...",
+    "engineError": "Không thể lắp động cơ 3D.",
+    "engineReady": "Máy động 3D đã được thiết lập",
+    "ready": "- Đưa ra.",
+    "textures": "Tạo ra các kết hợp và vật liệu",
+    "sky": "Tạo ra cái sầu và sương mù",
+    "terrain": "Xây dựng những đồi Velliangiri",
+    "roads": "Đường và đường đi",
+    "vegetation": "Cây và cối dưa",
+    "peopleStep": "Thêm khách truyện và xe bò",
+    "lamps": "Đèn các tia sáng",
+    "shaders": "Chuyển tập các shader",
+    "dawn": "Bình minh",
+    "dusk": "Hoàng hôn",
+    "night": "Đêm",
+    "cutaway": "Xem bên trong",
+    "cutawayTip": "Cẩn bị những cái trần để nhìn thấy bên trong các công trình.",
+    "walk": "Đi bộ",
+    "walkTip": "WASD / ↑ ↓ ← → — Đi bộ · Shift — Chạy · F — Bay · Esc — Thoát",
+    "walkHint": "WASD / ↑ ↓ ← → — Đi bộ · Shift — Chạy · F — Bay · Esc — Thoát",
+    "flightHint": "WASD — Bay · Space / E — Bay lên · Q / C — Hạ độ cao · F — Hạ cánh · Esc — Thoát",
+    "orbitHint": "Kích để xoay, cuồng hoặc nhấp để zoom, cắm phải hoặc cắm chuyển sang trục.",
+    "walkDescription": "Đi bộ với phím phím hoặc đệm cảm ứng. Chạy để nhìn chung. Nhấn Esc hoặc chọn Đi lại để ra khỏi.",
+    "aerial": "Khán hình trên không",
+    "aerialDescription": "Chọn một địa điểm để bay đến, hoặc chọn Walk để tìm hiểu bằng đường bộ.",
+    "people": "Mọi người",
+    "peopleTip": "Cho thấy hoặc che đậy khách, người dân và xe bò.",
+    "overview": "Toàn cảnh",
+    "overviewDescription": "Khám phá Trung tâm Yoga Isha ở dưới đồi Velliangiri.",
+    "outsideHeading": "Ra ngoài Sarpa Vasal · Vùng công",
+    "insideHeading": "Trong Sarpa Vasal · Campus",
+    "all": "Tất cả",
+    "out": "Bên ngoài",
+    "in": "Bên trong",
+    "allTip": "Cho thấy tất cả các công trình.",
+    "outTip": "chỉ cho thấy các công trình bên ngoài Sarpa Vasal.",
+    "inTip": "chỉ cho thấy các công trình bên trong Sarpa Vasal.",
+    "navigation": "Địa điểm"
+  },
+  "places": {
+    "adiyogi": {
+      "name": "Ngôi tượng Adiyogi",
+      "description": "Bức tượng thép 34m của Shiva hướng về phía nam."
+    },
+    "yogeshwar": {
+      "name": "Yogeshwar Linga",
+      "description": "Linga này đại lý cho năm chakra chính."
+    },
+    "kalabhairava": {
+      "name": "Kalabhairava Sthanam",
+      "description": "Một địa ngục bằng viên gạch với cột được gạch dựng giữa Adiyogi và Malai Vasal."
+    },
+    "malai": {
+      "name": "Khối vào chính Malai Vasal",
+      "description": "Cổng chính phía nam của Adiyogi có một viên sỏi tự nhiên cho trần nhà của nó."
+    },
+    "sarpa": {
+      "name": "Cổng Sarpa Vasal",
+      "description": "Một con cobra da tăm đang ở bên trong cổng đại học bằng cúp granite trên đường Narasipuram."
+    },
+    "moondram": {
+      "name": "Moondram Pirai Eatery",
+      "description": "Nơi đây là phía nam Sarpa Vasal."
+    },
+    "moondram-in": {
+      "name": "Lượng nhà hàng",
+      "description": "Phòng ăn có những chiếc trạm bằng thép, những chiếc trục trên trần da da và một hình ảnh của Devi."
+    },
+    "unavagam": {
+      "name": "Velliangiri Unavagam",
+      "description": "Một nhà hàng ăn chay Nam Hữu chỉ bên trong Surya Vasal."
+    },
+    "unavagam-in": {
+      "name": "Dưới nhà bồi thường",
+      "description": "Các nhà ăn trưa thu được thức ăn từ các hồng phục và ăn tại những chiếc táng ở dưới nơi trú ngục."
+    },
+    "suryakund": {
+      "name": "Suryakund và Mandapam",
+      "description": "28 cầu treo bằng cỏi mở dẫn đến bơi bơi của nam giới và mặt nắng đồng treo."
+    },
+    "surya-in": {
+      "name": "Bước và bơi",
+      "description": "Bước bằng viên ngọc đi vào bồn bơi."
+    },
+    "naga": {
+      "name": "Đền Tượng Naga",
+      "description": "Các cobras được đan vào nhau được gạch thành một viên sỏi da hồng ở trên cùng của cầu treo Suryakund."
+    },
+    "ponds": {
+      "name": "Hầm bơi và cầu sập",
+      "description": "Một cầu sơn lồng da mực lồng giữa Nandi và Suryakund."
+    },
+    "nandi": {
+      "name": "Nandi",
+      "description": "Con bò đực đậm này đang ngửa mặt vào Dhyanalinga và đeo một cái chuông đồng."
+    },
+    "dhyanalinga": {
+      "name": "Dhyanalinga",
+      "description": "Du khách đi qua vòm đá ở phía đông để vào thiền đường có mái vòm bằng gạch."
+    },
+    "dhyana-in": {
+      "name": "Trong nhà Dhyanalinga",
+      "description": "Bảy dải đồng bao vây cột granite Đha Lan Đia Lăng."
+    },
+    "bhairavi": {
+      "name": "Linga Bhairavi",
+      "description": "Đền thiêng liêng Devi này phía nam-quận Đảo Làng có một địa ngục hình ba và trần nhà."
+    },
+    "lb-in": {
+      "name": "Devi và cái ba",
+      "description": "Một con ba vị trí lớn đang ở trước Devi, người đang đeo một chiếc sari da và da và da."
+    },
+    "sadhana": {
+      "name": "Phòng Sadhana 1 và 2",
+      "description": "Hai phòng này phía phía nam của Dhyanalinga tổ chức Darshan, Aumkar bắt đầu, và các cuộc tập."
+    },
+    "chandrakund": {
+      "name": "Chandrakund",
+      "description": "32 cầu treo bằng viên ngọc đi đến bồn tắm phụ nữ dưới một tranh tranh theo cách Kerala."
+    },
+    "chandra-in": {
+      "name": "Bước đi dưới bơi",
+      "description": "Bước cầu bằng gạch dẫn đến bơi và linga của nó dưới mural Mahakumbha Mela."
+    },
+    "deposit": {
+      "name": "Trình ghi tiền",
+      "description": "Du khách có thể bỏ điện tử và hành lý của họ ở đây trước khi vào trường."
+    },
+    "ishalife": {
+      "name": "Isha Life and Peppervine Eatery",
+      "description": "Các nhà hàng của Isha Life ở bên đường chính, gần nhà hàng Peppervine có cột bằng viên."
+    },
+    "welcome": {
+      "name": "Điểm Chào Mừng",
+      "description": "Các khách đến đây, các xe chác và xe bò bắt đầu từ đây."
+    },
+    "spanda": {
+      "name": "Spanda Hall",
+      "description": "Phòng lớn này tổ chức các chương trình tiên tiến như Bhava Spandana."
+    },
+    "spanda-in": {
+      "name": "Trong phòng Spanda",
+      "description": "Bức tranh phía nam có một tranh tranh theo cách Kerala về cuộc sống của Adiyogi."
+    },
+    "alayam": {
+      "name": "Adiyogi Alayam",
+      "description": "Phòng lớn này có một sầu sầu hoa hồng mầu và những cột được gạch bằng rắn."
+    },
+    "nalanda": {
+      "name": "Nalanda",
+      "description": "Nalanda Stay cung cấp không gian nhà ở và hội đồng."
+    },
+    "bhiksha": {
+      "name": "Bhiksha Hall",
+      "description": "Có khoảng hai chục người có thể ăn trong yên bình trên mặt đất trong phòng ăn này."
+    },
+    "metalbridge": {
+      "name": "Cầu kim loại",
+      "description": "Cầu cầu bằng thép này đi qua một con đường dãy dãy ở cuối đường xe bò."
+    },
+    "campus": {
+      "name": "Các công trình khác của trường",
+      "description": ""
+    }
+  }
+}

@@ -13,7 +13,7 @@
  *                        createSpandaHall / createBhikshaHall / createIshaLife / createDepositCounter / createWelcomePoint /
  *                        createNalanda / createSarpaVasal / createMoondramPirai / createUnavagam / createMetalBridge / createCampus /
  *                        createMalaiVasal / createKalabhairava
- *    [6] 组件注册表      COMPONENTS —— 位置（实测坐标）、朝向、镜头、说明都在这里，改一行即可挪动建筑
+ *    [6] 组件注册表      COMPONENTS —— 位置（实测坐标）、朝向、镜头都在这里，改一行即可挪动建筑
  *    [7] 渲染器、阴影跟随 fitShadow、轨道相机 createControls、漫步模式 createWalker、时段切换、界面、加载流程与主循环
  *
  *  位置数据来自 OpenStreetMap，按 1:1 比例摆放，并对照 Isha 官方 2026 园区地图；建筑内外参照 Isha 官网、Wikimedia Commons 与访客照片建模。
@@ -23,9 +23,27 @@
  * ===================================================================================== */
 
 import { clamp, lerp } from './math';
+import {
+  bindMessage,
+  initializeLanguage,
+  message,
+  onLanguageChange,
+  placeText,
+} from './i18n';
 
 // ───────────────────────────── [1] 引擎加载 ─────────────────────────────
 const $ = (s) => document.querySelector(s);
+bindMessage($('#foothills'), 'foothills');
+bindMessage($('#subtitle'), 'subtitle');
+bindMessage($('#credit'), 'credit');
+bindMessage($('#language-label'), 'language');
+bindMessage($('#navBtn'), 'navigation');
+onLanguageChange(() => {
+  document.title = message('pageTitle');
+  $('#nav').setAttribute('aria-label', message('navigation'));
+});
+await initializeLanguage($('#language'), $('#language-code'));
+$('#step').textContent = message('loading');
 const setProgress = (p, label) => {
   $('#bar i').style.width = Math.round(p * 100) + '%';
   if (label) $('#step').textContent = label;
@@ -43,10 +61,10 @@ try {
     import('./camera-controls'),
   ]);
 } catch (error) {
-  $('#step').textContent = '无法加载 three.js，请刷新页面重试';
+  $('#step').textContent = message('engineError');
   throw error;
 }
-setProgress(0.06, '引擎就绪');
+setProgress(0.06, message('engineReady'));
 
 const V3 = THREE.Vector3,
   Color = THREE.Color;
@@ -60,7 +78,6 @@ const smooth = (a, b, x) => {
 const deg = Math.PI / 180;
 const MOODS = {
   dawn: {
-    name: '晨曦',
     el: 24 * deg,
     az: 28 * deg,
     sunCol: new Color(0xffc48a),
@@ -77,7 +94,6 @@ const MOODS = {
     stars: 0,
   },
   dusk: {
-    name: '黄昏',
     el: 9 * deg,
     az: 168 * deg,
     sunCol: new Color(0xff8348),
@@ -94,7 +110,6 @@ const MOODS = {
     stars: 0.25,
   },
   night: {
-    name: '夜晚',
     el: 42 * deg,
     az: 205 * deg,
     sunCol: new Color(0x8ea6ff),
@@ -7799,7 +7814,6 @@ const COMPONENTS = [
   {
     id: 'adiyogi',
     zone: 'out',
-    label: 'Adiyogi 像',
     create: createAdiyogi,
     at: [562, -629],
     rotY: face(0, -1),
@@ -7809,21 +7823,18 @@ const COMPONENTS = [
       [0, 60, 78],
       [0, 110, 70],
     ],
-    desc: '高 34 米、宽 45 米的钢制湿婆半身像，面朝正南（Dakshinamurti），位于主园区东南约 840 米处。像四周一圈黑色铁栏杆；像前的方亭里是 Yogeshwar Linga：黑色环形水盘中一座刻满经文的银色穹形林伽，地面嵌着六芒星圆盘，亭顶是赤陶色攒尖顶。',
   },
   {
     id: 'yogeshwar',
     zone: 'out',
-    label: '　· Yogeshwar Linga',
+    detail: true,
     at: [562, -662],
     rotY: face(0, -1),
     view: { d: 11, yaw: 0.5, ph: 1.44, h: 1.4 },
-    desc: 'Adiyogi 像前的 Yogeshwar Linga：代表五个主要脉轮，信众可以向它献水和苦楝叶，并绕行一周。',
   },
   {
     id: 'kalabhairava',
     zone: 'out',
-    label: 'Kalabhairava Sthanam',
     create: createKalabhairava,
     at: [683, -1539],
     rotY: face(1, 0.12),
@@ -7832,12 +7843,10 @@ const COMPONENTS = [
       [0, 0, 22],
       [0, 18, 10],
     ],
-    desc: '蛇门外、从 Adiyogi 继续往 Malai Vasal 走，在 Adi Yogi Isha Rd 西侧（坐标取自 Google 地图）。灰色的方正殿身，正面一对雕花石柱门廊、铜色檐板，檐上是黑色的 Kalabhairava 像，殿顶后部一座深色灯亭。前面是灰色铺石的前庭和白色栏杆围墙，路边是黑色铁艺花栏（参照 Wikimedia Commons 照片与 2026 年 8 月的街景）。',
   },
   {
     id: 'malai',
     zone: 'out',
-    label: 'Malai Vasal 主入口',
     create: createMalaiVasal,
     at: [747, -1653],
     rotY: 0,
@@ -7846,12 +7855,10 @@ const COMPONENTS = [
       [0, 0, 16],
       [-40, -36, 34],
     ],
-    desc: '园区的主入口，在 Adiyogi 以南约 1 公里的 Adi Yogi Isha Rd 上，道路直接从门洞穿过（位置取自 Google 地图，造型对照 2026 年 8 月的街景）：两侧是叠砌的巨石门柱，门楣是一块天然巨石，石顶一个金色小林伽；门洞里是两扇敞开的深棕色木格大门；两侧墙下段是巨石、上段是红砖。门内西侧是一方池塘，池边种着一排鸡蛋花树。',
   },
   {
     id: 'sarpa',
     zone: 'out',
-    label: 'Sarpa Vasal 蛇门',
     create: createSarpaVasal,
     at: [190, -175],
     rotY: face(0.677, -0.736),
@@ -7860,12 +7867,10 @@ const COMPONENTS = [
       [0, 6, 24],
       [-14, -9, 8],
     ],
-    desc: 'Narasipuram Road 边的园区入口：层层内收的花岗岩门框、红砖镶边、赤陶色筒拱，门洞正中立着黑色眼镜蛇。门内是 Information Center，沿路向东北是一排摊位和 Surya Vasal。',
   },
   {
     id: 'moondram',
     zone: 'out',
-    label: 'Moondram Pirai Eatery',
     create: createMoondramPirai,
     at: [195, -228],
     rotY: face(-0.29, 0.956),
@@ -7875,20 +7880,17 @@ const COMPONENTS = [
       [9, 0, 16],
       [23, 8, 5],
     ],
-    desc: 'Sarpa Vasal 南侧、路对面的餐厅（位置与占地取自 OpenStreetMap），旁边有 ATM。室内参照访客照片；外观没有找到照片，是推测。点「剖视」掀开屋顶看室内。',
   },
   {
     id: 'moondram-in',
     zone: 'out',
-    label: '　· 餐厅室内',
+    detail: true,
     at: [195, -228],
     rotY: face(-0.29, 0.956),
     view: { d: 13, yaw: 0.35, ph: 1.32, h: 1.6, tz: -3 },
-    desc: '白墙、白色钢桁架顶、浅色地砖、黑色铁艺四人桌；靠里是自助取餐台和收银台，桌上是招牌的锥形 dosa 和不锈钢杯，东墙挂着 Devi 像。照片里能确认的吃食是锥形 dosa 和 baby corn，取餐台上其余菜色是示意。',
   },
   {
     id: 'unavagam',
-    label: 'Velliangiri Unavagam',
     create: createUnavagam,
     at: [241, -85],
     rotY: face(-0.14, -0.99),
@@ -7898,20 +7900,17 @@ const COMPONENTS = [
       [10, 0, 17],
       [0, 15, 8],
     ],
-    desc: 'Suryakund 东南、Surya Vasal 内侧的南印度素食餐厅（Google 地图定位；造型参照 Google 地图上的访客照片）。后面是芥末黄的厨房楼，一排不锈钢取餐窗口；前面是敞开的大钢棚，深色石材地坪上一排排木面站食长桌，窗口前是排队栏杆。招牌是椰子面包和 dosa。厨房楼东头有一间小 Isha Life 店（位置是推测）。',
   },
   {
     id: 'unavagam-in',
-    label: '　· 钢棚下',
+    detail: true,
     at: [241, -85],
     rotY: face(-0.14, -0.99),
     view: { d: 14, yaw: 0.35, ph: 1.4, h: 1.7, tz: -3 },
-    desc: '取餐窗口前排队、端到长桌边站着吃：钢门架、金属屋面、吊扇，东头玻璃门面的是小 Isha Life 店。',
   },
 
   {
     id: 'suryakund',
-    label: 'Suryakund 与 Mandapam',
     create: createSuryakund,
     at: [185, -25],
     rotY: AX + Math.PI,
@@ -7924,29 +7923,24 @@ const COMPONENTS = [
       [0, 42, 12],
     ],
     pit: [0, 0, 21, 19.5],
-    desc: '男众净身池。列柱大殿 Suryakund Mandapam 环绕着沉在地下 22 英尺的池坑：东侧是 28 级又宽又深的大台阶，清晨男众坐在台阶上做 Guru Pooja 和练习；台阶尽头是 130×40 英尺的水池，三面巨石墙，砖拱下悬着 20 英尺的铜日。点「剖视」可掀开屋顶。',
   },
   {
     id: 'surya-in',
-    label: '　· 大台阶与水池',
+    detail: true,
     at: [185, -25],
     rotY: AX + Math.PI,
     view: { d: 23, yaw: Math.PI - 0.45, ph: 1.37, h: -2.6, tz: -3 },
-    desc: '从台阶顶上（Naga Shrine 一侧）往下看：每级近一米深的大台阶上铺着练习垫，坐着做练习的人；台阶中段两根通高石柱，最下面几级没在水里，对面石墙上挂着水幕。',
   },
   {
     id: 'naga',
-    label: 'Naga Shrine',
     create: createNagaShrine,
     at: [209.8, -28.2],
     rotY: AX + Math.PI,
     view: { d: 13, yaw: 0.5, ph: 1.32, h: 2.4 },
     clear: [],
-    desc: 'Suryakund 东侧台阶顶上的蛇龛：一整块黑色巨石，石面雕着相缠的眼镜蛇，前面供着铜灯和盛满绿叶的铜盆。在屋顶下面，点「剖视」看得更清楚。',
   },
   {
     id: 'ponds',
-    label: '莲池与拱桥',
     create: createLotusPonds,
     at: [112, -14],
     rotY: 0,
@@ -7957,21 +7951,17 @@ const COMPONENTS = [
       [0, -60, 22],
       [-9, 0, 9],
     ],
-    desc: 'Nandi 与 Suryakund 之间的葫芦形莲池（轮廓取自 OpenStreetMap），腰部横跨一座白色拱桥，是从 Dhyanalinga 走向 Suryakund 的路。',
   },
   {
     id: 'nandi',
-    label: 'Nandi',
     create: createNandi,
     at: [76, -10],
     rotY: AX + Math.PI,
     view: { d: 22, yaw: 0.75, ph: 1.38, h: 2.4 },
     clear: [[0, 0, 9.5]],
-    desc: '约 15 英尺高的黑色公牛，面向 Dhyanalinga 卧着：头颈高昂、肩上有峰、一对新月形的角，一条前腿屈膝踏地，似随时准备起身；颈间一串铜铃垂到胸前。',
   },
   {
     id: 'dhyanalinga',
-    label: 'Dhyanalinga',
     create: createDhyanalinga,
     at: [0, -1],
     rotY: AX,
@@ -7984,19 +7974,16 @@ const COMPONENTS = [
       [0, 50, 10],
       [-7, -20, 6],
     ],
-    desc: '1999 年落成。赭红泥灰的砖穹顶直径 76 英尺、高 33 英尺，坐在 6 英尺高的石鼓墙上，墙头一圈 28 个三角通风口。入口朝东：万教柱、石门、三级高台阶、内绕行廊（左 Patanjali、右 Vanashree、六块浮雕），最后穿过石拱隧道入殿。',
   },
   {
     id: 'dhyana-in',
-    label: '　· 殿内：七脉轮林伽',
+    detail: true,
     at: [0, -1],
     rotY: AX,
     view: { d: 9.6, yaw: 0.25, ph: 1.36, h: 2.9 },
-    desc: '殿内的 Dhyanalinga 高 13 英尺 9 英寸，黑色花岗岩，周身七道铜环对应七个脉轮；底座 avudaiyar 是七圈盘蛇，蛇头朝向入口。四周是方形水池 jalaseema，墙脚 28 个打坐壁龛，头顶悬着滴水的镀金铜半球。',
   },
   {
     id: 'bhairavi',
-    label: 'Linga Bhairavi',
     create: createLingaBhairavi,
     at: [-43, -33],
     rotY: face(0.82, 0.57),
@@ -8007,19 +7994,16 @@ const COMPONENTS = [
       [0, 20, 6],
     ],
     pit: [0, -13.6, 2.8, 2.5],
-    desc: '2010 年启灵的女神殿，在 Dhyanalinga 西南。殿墙围成倒三角（象征子宫），尽端的小三角是神龛；前面是平顶前殿。屋顶中央是镂空的三角天窗，点「剖视」可看殿内。',
   },
   {
     id: 'lb-in',
-    label: '　· 殿内：Devi 与三叉戟',
+    detail: true,
     at: [-43, -33],
     rotY: face(0.82, 0.57),
     view: { d: 9.5, yaw: 0.12, ph: 1.36, h: 1.6, tz: -11 },
-    desc: '殿中央斜立着一柄大三叉戟；Devi 前面是往下走的四级台阶和一个下沉的小坑，坑边围着黄铜立柱和红绳；约八英尺高、林伽形的 Devi 立在坑底的神龛里：三只眼、十臂，裹着红金纱丽，两侧是白色镂空雕花石柱和整面墙的油灯。左右墙上挂着红、绿纱丽幔。Devi Office 和 Ritual Office 在隔壁 Sadhana Hall 楼的一楼。',
   },
   {
     id: 'sadhana',
-    label: 'Sadhana Hall 1 / 2',
     create: createSadhanaHalls,
     at: [-55, 9],
     rotY: AX,
@@ -8029,11 +8013,9 @@ const COMPONENTS = [
       [0, 0, 15],
       [20, 0, 15],
     ],
-    desc: 'Dhyanalinga 西侧一栋连体的两层长楼。一楼沿柱廊是一排房间，南头是 Linga Bhairavi 的 Devi Office 和 Ritual Office；二楼南边是 Sadhana Hall 2、北边是 Sadhana Hall 1（每天的 Darshan、Aumkar 启蒙和女众清晨练习），屋顶是一排横向的小筒拱。一楼房间排布是推测。点「剖视」看二楼。',
   },
   {
     id: 'chandrakund',
-    label: 'Chandrakund 月池',
     create: createChandrakund,
     at: [10, 44],
     rotY: AX,
@@ -8045,29 +8027,24 @@ const COMPONENTS = [
       [16, 15, 8],
     ],
     pit: [0, -2, 6, 15],
-    desc: '女众净身池，紧邻 Dhyanalinga 北侧。入口是红砖拱丘和钢格栅平顶棚，柱脚两只石龟；沿 32 级巨石台阶下到地下 30 英尺，池上是 Kerala 风格的 Mahakumbha Mela 壁画。点下面「· 沿台阶下到池边」可以走进去。',
   },
   {
     id: 'chandra-in',
-    label: '　· 沿台阶下到池边',
+    detail: true,
     at: [10, 44],
     rotY: AX,
     view: { d: 7, yaw: Math.PI - 0.1, ph: 1.45, h: -6.6, tz: -9 },
-    desc: '沿 32 级巨石台阶下到地下约 9 米：两侧巨石墙，前方是水池和池中的林伽，头顶是 Mahakumbha Mela 壁画拱顶。',
   },
   {
     id: 'deposit',
-    label: 'Deposit Counter 寄存处',
     create: createDepositCounter,
     at: [27, 63],
     rotY: AX,
     view: { d: 34, yaw: -0.5, ph: 1.2, h: 2 },
     clear: [[0, 2, 11]],
-    desc: '园区内不许使用手机，访客在这里寄存手机和行李（官方地图上标着手机图标，在 Chandrakund 东北）。外观没有找到照片，造型是推测。',
   },
   {
     id: 'ishalife',
-    label: 'Isha Life 与 Peppervine',
     create: createIshaLife,
     at: [57, 52],
     rotY: AX,
@@ -8077,11 +8054,9 @@ const COMPONENTS = [
       [8, 2, 12],
       [22, -16, 16],
     ],
-    desc: 'Isha Life 商店沿主路西侧一字排开，敞开的店面里是货架、展示台和衣架（外观为推测）；它西北侧的 Peppervine Eatery 是分节雕花石柱托着钢桁架顶棚的大敞棚，棚前有养睡莲的石水槽（参照 Wikimedia Commons 的照片）。',
   },
   {
     id: 'welcome',
-    label: 'Welcome Point',
     create: createWelcomePoint,
     at: [100, 125],
     rotY: face(-0.987, 0.16),
@@ -8090,12 +8065,10 @@ const COMPONENTS = [
       [0, 0, 18],
       [4, 11, 9],
     ],
-    desc: '访客登记、志愿者接待、电话与上网，也是班车和牛车的起点（牛车开往 Bhiksha Hall 附近的 Metal Bridge）。位置取自 Google 地图上的 “Welcome Point - Isha Cottages”，在南北主路东侧；造型参照访客照片：几座深灰瓦四坡顶的低矮柜台棚，竹篾屏风墙，黄墙里是带编号的登记窗口，后面是赭橙色的两层楼，棚前一根雕人面的石柱，路边是木条吊顶的上下客雨棚。',
   },
 
   {
     id: 'spanda',
-    label: 'Spanda Hall',
     create: createSpandaHall,
     at: [174, 205],
     rotY: face(-0.83, -0.56),
@@ -8107,20 +8080,17 @@ const COMPONENTS = [
       [22, 44, 24],
       [0, 50, 18],
     ],
-    desc: '约 64,000 平方英尺的课程大厅，Bhava Spandana 等进阶课程在这里进行（参照官网图库）。赭红台基、一圈方石柱外廊、浅灰色低坡四坡金属屋顶，屋脊上一座天窗。前面是赭色夯土墙围起的花园：大草坪、三座石柱小亭、石砌岸的莲池，入口一块巨石。点「剖视」看室内。',
   },
   {
     id: 'spanda-in',
-    label: '　· 大厅室内',
+    detail: true,
     at: [174, 205],
     rotY: face(-0.83, -0.56),
     view: { d: 20, yaw: 0.05, ph: 1.42, h: 2.5, tz: -8 },
-    desc: '白色大理石地面，白色藻井天花一圈圈内收、框线上排着灯；正对着的北墙是 140×12 英尺的 Kerala 风格壁画，画的是 Adiyogi（湿婆）的一生，只用植物染料和矿物颜料，号称同类中最大；壁画前是岩石讲座。',
   },
 
   {
     id: 'alayam',
-    label: 'Adiyogi Alayam',
     create: createAdiyogiAlayam,
     at: [250, 62],
     rotY: face(1, 0) - 0.15,
@@ -8132,11 +8102,9 @@ const COMPONENTS = [
       [26, 24, 42],
       [0, 58, 24],
     ],
-    desc: '约 82,000 平方英尺的无柱大厅，紧挨 Suryakund 北侧。浅粉色的低拱屋顶，正面敞开，立着雕蛇纹的石柱。',
   },
   {
     id: 'nalanda',
-    label: 'Nalanda',
     create: createNalanda,
     at: [3, 396],
     rotY: face(0, -1),
@@ -8161,11 +8129,9 @@ const COMPONENTS = [
       [0, 168, 42],
       [44, 168, 42],
     ],
-    desc: '北侧是 Nalanda Stay：白色三层住宿与会议楼，翼楼之间是弧形屋面罩着的敞厅；南面的大操场 Nalanda Grounds 傍晚用来做游戏。',
   },
   {
     id: 'bhiksha',
-    label: 'Bhiksha Hall',
     create: createBhikshaHall,
     at: [222, 353],
     rotY: face(0, -1) - 0.1,
@@ -8177,11 +8143,9 @@ const COMPONENTS = [
       [17, 10, 30],
       [0, 34, 12],
     ],
-    desc: '斋堂，在园区北部。约两千人席地成排而坐，在静默中用餐；南面是入口门廊和洗手槽。照片只找到室内的，外观是简化建模。点「剖视」看室内。',
   },
   {
     id: 'metalbridge',
-    label: 'Metal Bridge',
     create: createMetalBridge,
     at: [372, 356],
     rotY: 0.161,
@@ -8191,12 +8155,10 @@ const COMPONENTS = [
       [0, -22, 9],
       [0, 22, 9],
     ],
-    desc: 'Bhiksha Hall 东北的钢桁架步行桥，跨过山溪通向 Velliangiri Prashala，也是 Welcome Point 牛车线的终点。位置按官方地图估计，桥的样子没有找到照片。桥以外的区域暂未建模。',
   },
   {
     id: 'campus',
     nav: false,
-    label: '园区其余建筑',
     create: createCampus,
     at: [0, 0],
     rotY: 0,
@@ -8221,7 +8183,6 @@ const COMPONENTS = [
       [338, -76, 7],
       [340, -106, 7],
     ],
-    desc: '',
   },
 ];
 for (const c of COMPONENTS) {
@@ -8413,22 +8374,34 @@ function setPeople(on) {
 }
 
 // —— 界面 ——
-function showInfo(title, desc) {
-  $('#info h2').textContent = title;
-  $('#info p').textContent = desc;
+let activeInfo = () => ({
+  name: message('overview'),
+  description: message('overviewDescription'),
+});
+function renderInfo() {
+  const { name, description } = activeInfo();
+  $('#info h2').textContent = name;
+  $('#info p').textContent = description;
 }
+function showInfo(readInfo) {
+  activeInfo = readInfo;
+  renderInfo();
+}
+onLanguageChange(renderInfo);
+
 function buildUI() {
+  $('#language').disabled = false;
   for (const k in MOODS) {
     const b = document.createElement('button');
-    b.textContent = MOODS[k].name;
+    bindMessage(b, k);
     b.dataset.k = k;
     b.onclick = () => setMood(k);
     if (k === 'dawn') b.classList.add('on');
     $('#moods').append(b);
   }
   const cut = document.createElement('button');
-  cut.textContent = '剖视';
-  cut.title = '隐藏屋顶，查看室内';
+  bindMessage(cut, 'cutaway');
+  bindMessage(cut, 'cutawayTip', 'title');
   cut.onclick = () => {
     setRoofs(!roofsHidden);
     cut.classList.toggle('on', roofsHidden);
@@ -8436,15 +8409,17 @@ function buildUI() {
   $('#moods').append(cut);
   // 漫步：从当前视点前方落地，以第一人称走动
   const walk = document.createElement('button');
-  walk.textContent = '漫步';
-  walk.title =
-    '第一人称漫步：WASD / 方向键走，拖动看四周，Shift 跑，F 飞行，Esc 退出';
-  const hint0 = $('#hint').textContent;
+  bindMessage(walk, 'walk');
+  bindMessage(walk, 'walkTip', 'title');
   const walkHint = () => {
-    $('#hint').textContent = walker.fly
-      ? '飞行中 · WASD 移动 · Space / E 升 · Q / C 降 · F 回到地面 · Esc 退出'
-      : 'WASD / 方向键 走 · 拖动看四周 · Shift 跑 · F 飞行 · Esc 退出';
+    const key = walker.on
+      ? walker.fly
+        ? 'flightHint'
+        : 'walkHint'
+      : 'orbitHint';
+    $('#hint').textContent = message(key);
   };
+  onLanguageChange(walkHint);
   const startWalk = () => {
     const back = Math.min(controls.radius * 0.5, 14),
       th = controls.theta;
@@ -8456,10 +8431,10 @@ function buildUI() {
     );
     walk.classList.add('on');
     walkHint();
-    showInfo(
-      '漫步',
-      '像走在园区里一样四处看看。键盘：WASD 或方向键走，Shift 跑，F 切换飞行；鼠标或手指拖动看四周；触屏用左下角的摇杆。按 Esc 或再点「漫步」回到俯瞰。',
-    );
+    showInfo(() => ({
+      name: message('walk'),
+      description: message('walkDescription'),
+    }));
   };
   const stopWalk = () => {
     if (!walker.on) return;
@@ -8469,17 +8444,17 @@ function buildUI() {
     walker.exit();
     controls.enabled = true;
     walk.classList.remove('on');
-    $('#hint').textContent = hint0;
+    walkHint();
     controls.jump({
       t: [p.x - sy * 12, p.y + 1.5, p.z - cy * 12],
       th: walker.yaw,
       ph: 1.32,
       r: 26,
     });
-    showInfo(
-      '俯瞰',
-      '已回到俯瞰视角。点左下角的地点可以飞过去，或者再点「漫步」走走看。',
-    );
+    showInfo(() => ({
+      name: message('aerial'),
+      description: message('aerialDescription'),
+    }));
   };
   walker.onExit = stopWalk;
   walker.onMode = walkHint;
@@ -8487,8 +8462,8 @@ function buildUI() {
   $('#moods').append(walk);
   // 行人：显示 / 隐藏园区里的人群和牛车（会记住上次的选择）
   const ppl = document.createElement('button');
-  ppl.textContent = '行人';
-  ppl.title = '显示 / 隐藏园区里的行人、人群和牛车';
+  bindMessage(ppl, 'people');
+  bindMessage(ppl, 'peopleTip', 'title');
   let saved = null;
   try {
     saved = localStorage.getItem('isha.people');
@@ -8502,14 +8477,17 @@ function buildUI() {
     ppl.classList.toggle('on', peopleOn);
   };
   $('#moods').append(ppl);
-  const add = (label, view, desc) => {
+  const add = (readInfo, view, detail = false) => {
     const b = document.createElement('button');
-    b.textContent = label;
+    if (detail) b.classList.add('nav-detail');
+    onLanguageChange(() => {
+      b.textContent = readInfo().name;
+    });
     b.onclick = () => {
       stopWalk();
       document.body.classList.remove('navOpen');
       controls.flyTo(view);
-      showInfo(label, desc);
+      showInfo(readInfo);
       document
         .querySelectorAll('#nav button')
         .forEach((x) => x.classList.toggle('on', x === b));
@@ -8517,35 +8495,31 @@ function buildUI() {
     $('#nav').append(b);
     return b;
   };
-  const ov =
-    '位置、朝向与间距按 OpenStreetMap 实测坐标 1:1 摆放，并对照 Isha 官方 2026 园区地图核对；建筑内外参照官网与访客照片建模。Adiyogi 在东南、面朝正南；韦灵吉里群山在西侧。点右上角「剖视」可掀开屋顶看室内。';
-  add('全景', OVERVIEW, ov).classList.add('on');
+  add(activeInfo, OVERVIEW).classList.add('on');
   // 分区：蛇门外（公开区域，资料来自公开照片与地图）/ 蛇门内（园区，只依据已公开的照片）
-  const head = (t) => {
+  for (const [zone, heading] of [
+    ['out', 'outsideHeading'],
+    ['in', 'insideHeading'],
+  ]) {
     const h = document.createElement('div');
     h.className = 'navh';
-    h.textContent = t;
+    bindMessage(h, heading);
     $('#nav').append(h);
-  };
-  head('蛇门外 · 公开区域');
-  for (const c of COMPONENTS)
-    if (c.nav !== false && c.zone === 'out') add(c.label, c.cam, c.desc);
-  head('蛇门内 · 园区');
-  for (const c of COMPONENTS)
-    if (c.nav !== false && c.zone !== 'out') add(c.label, c.cam, c.desc);
+    for (const c of COMPONENTS) {
+      if (c.nav !== false && (c.zone === 'out') === (zone === 'out')) {
+        add(() => placeText(c.id), c.cam, c.detail);
+      }
+    }
+  }
   const ZV = {
     out: { t: [300, 0, 820], th: 0.35, ph: 0.95, r: 1100 },
     in: { t: [-150, 0, -260], th: 0.62, ph: 1.05, r: 520 },
   };
   const zb = {};
-  [
-    ['all', '全部'],
-    ['out', '蛇门外'],
-    ['in', '蛇门内'],
-  ].forEach(([k, t]) => {
+  ['all', 'out', 'in'].forEach((k) => {
     const b = document.createElement('button');
-    b.textContent = t;
-    b.title = k === 'all' ? '显示全部' : '只显示' + t + '的建筑';
+    bindMessage(b, k);
+    bindMessage(b, `${k}Tip`, 'title');
     zb[k] = b;
     b.onclick = () => {
       for (const c of COMPONENTS)
@@ -8556,11 +8530,9 @@ function buildUI() {
       renderer.shadowMap.needsUpdate = true;
       if (ZV[k] && !walker.on) controls.flyTo(ZV[k]);
     };
-    $('#moods').prepend(b);
   });
   zb.all.classList.add('on');
-  $('#moods').prepend(zb.all, zb.out, zb.in);
-  showInfo('全景', ov);
+  $('#moods').prepend($('#language-picker'), zb.all, zb.out, zb.in);
   $('#navBtn').onclick = () => document.body.classList.toggle('navOpen');
 }
 
@@ -8573,7 +8545,7 @@ const addToScene = (o) => {
 };
 const steps = [
   [
-    '生成贴图与材质',
+    message('textures'),
     () => {
       buildTextures();
       buildMaterials();
@@ -8581,17 +8553,17 @@ const steps = [
     },
   ],
   [
-    '天空与雾气',
+    message('sky'),
     () => {
       sky = addToScene(createSky());
       sky.add(sky.userData.mist);
       applyMood();
     },
   ],
-  ['韦灵吉里群山', () => addToScene(createTerrain())],
-  ['铺设道路', () => addToScene(createPaths())],
+  [message('terrain'), () => addToScene(createTerrain())],
+  [message('roads'), () => addToScene(createPaths())],
   ...COMPONENTS.filter((c) => c.create).map((c) => [
-    c.label,
+    placeText(c.id).name,
     () => {
       const g = c.create();
       g.name = c.id;
@@ -8600,17 +8572,17 @@ const steps = [
       c.object = addToScene(g);
     },
   ]),
-  ['种下椰林与树木', () => addToScene(createVegetation())],
-  ['行人与牛车', () => addToScene(createPeople())],
+  [message('vegetation'), () => addToScene(createVegetation())],
+  [message('peopleStep'), () => addToScene(createPeople())],
   [
-    '点亮油灯',
+    message('lamps'),
     () => {
       addToScene(createLamps());
       addToScene(createDust());
     },
   ],
   [
-    '编译着色器',
+    message('shaders'),
     () => {
       applyMood();
       controls.update(0);
@@ -8626,7 +8598,7 @@ for (let i = 0; i < steps.length; i++) {
   await nextFrame();
   steps[i][1]();
 }
-setProgress(1, '完成');
+setProgress(1, message('ready'));
 buildUI();
 window.ISHA = {
   THREE,

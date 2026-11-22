@@ -13,9 +13,10 @@
     "preview": "vite preview",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
+    "check:locales": "node scripts/check-locales.mjs",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "check": "npm run format:check && npm run lint && npm run typecheck && npm run build"
+    "check": "npm run format:check && npm run lint && npm run typecheck && npm run check:locales && npm run build"
   },
   "dependencies": {
     "three": "0.160.0"

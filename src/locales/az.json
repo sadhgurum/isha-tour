@@ -1,0 +1,173 @@
+{
+  "ui": {
+    "pageTitle": "Isha Yoga Center · 3D Virtual Tur",
+    "language": "Dil",
+    "foothills": "Velliangiri təpələrində",
+    "subtitle": "Coimbatore · Velliangiri təpələr · 1:1 miqyasında",
+    "credit": "Modeldən Claude",
+    "loading": "3D mühiti şarj edir...",
+    "engineError": "3D motorunu şarj edə bildim. Yeniləmək üçün yeniləyin.",
+    "engineReady": "3D mühətər hazırdır",
+    "ready": "Dərman hazırdır.",
+    "textures": "Təsvir və materialların hazırlanması",
+    "sky": "Səmayi və sis yaratmaq",
+    "terrain": "Velliangiri Tepələrinin tikintisi",
+    "roads": "Yolu və yolları qurmaq",
+    "vegetation": "Ağaca və palma əkmək",
+    "peopleStep": "Ziyarətçi və buzağı arabasının qoydulması",
+    "lamps": "Yağı işıqlarının işıqlandığı",
+    "shaders": "Şaderlərin yığılması",
+    "dawn": "Sübh",
+    "dusk": "Alatoranlıq",
+    "night": "Gecə",
+    "cutaway": "İçəriyə bax",
+    "cutawayTip": "Binanın içərisini görmək üçün damları gizlədəyin.",
+    "walk": "Gəzinti",
+    "walkTip": "WASD / ↑ ↓ ← → — Gəzinti · Shift — Qaç · F — Uç · Esc — Çıx",
+    "walkHint": "WASD / ↑ ↓ ← → — Gəzinti · Shift — Qaç · F — Uç · Esc — Çıx",
+    "flightHint": "WASD — Uç · Space / E — Yüksəl · Q / C — Alçal · F — Yerə en · Esc — Çıx",
+    "orbitHint": "Düzəltmək üçün sürüklə, sürüklə və ya çimləmək üçün sürüklə, sağ sürüklə və ya pan üçün sürüklə.",
+    "walkDescription": "Tətbiqi və ya tutma joysticklə gəzin. Ətrafına baxmaq üçün sürükləyin. Esc basın və ya Çıqış üçün Yenilə gəzin seçin.",
+    "aerial": "Havadan görünüş",
+    "aerialDescription": "Uçacaq bir əlamət seçin və ya gəzmək seçin.",
+    "people": "İnsanlar",
+    "peopleTip": "Ziyarətçiləri, qrupları və buzağı arabaslarını görüntülət və ya gizlədirin.",
+    "overview": "Ümumi görünüş",
+    "overviewDescription": "Velliangiri Tepələrinin altındakılar arasında olan İsha Yoga Merkezini araşa və ona uçacaq bir əlamət seçin.",
+    "outsideHeading": "Sarpa Vasalın xətti · İctimai sahələr",
+    "insideHeading": "Sarpa Vasal · Campus-un içi",
+    "all": "Hamısı",
+    "out": "Çöldə",
+    "in": "İçəridə",
+    "allTip": "Hamını göstərəcək.",
+    "outTip": "Sarpa Vasalın xaricəsi olan binaları yalnız göstərəcək.",
+    "inTip": "Sarpa Vasalın içərisindəki binaları yalnız göstərəcək.",
+    "navigation": "Məkanlar"
+  },
+  "places": {
+    "adiyogi": {
+      "name": "Adiyogi heykəl",
+      "description": "Bu 34 metrlik çelik Sivanın süd üzlü bustası."
+    },
+    "yogeshwar": {
+      "name": "Yogeshwar Linga",
+      "description": "Bu linga 5 ən önəmli çakranın təmsilini edir."
+    },
+    "kalabhairava": {
+      "name": "Kalabhairava Sthanam",
+      "description": "Adiyogi və Malai Vasal arasında oyma ustalıqları olan bir daşı məbəd durur."
+    },
+    "malai": {
+      "name": "Malai Vasalın ana girisidir.",
+      "description": "Adiyogi-nin cənubunda baş darvaza onun üst hissəsindən təbii bir qayalıq var."
+    },
+    "sarpa": {
+      "name": "Sarpa Vasal Qapısı",
+      "description": "Narasipuram yolunun üstündeki granit campusun darvazasında qara bir kobra durur."
+    },
+    "moondram": {
+      "name": "Moondram Pirai Eatery",
+      "description": "Bu restorana Sarpa Vasalın cənubunda yer var."
+    },
+    "moondram-in": {
+      "name": "Restaurant içi",
+      "description": "Yemexdə dəmir masalar, ağ dam çadırları və Devin rəsmi var."
+    },
+    "unavagam": {
+      "name": "Velliangiri Unavagam",
+      "description": "Surya Vasalın içərisində bir cənub hindistanlı vegetarian restorana."
+    },
+    "unavagam-in": {
+      "name": "Qoruyucu yerin altındadır.",
+      "description": "Qonaqlar pərdədən yemək toplayır və sığorta altındakılar arasında yeməklə yanaşı, ayaqda oturan masalarda yeyirlər."
+    },
+    "suryakund": {
+      "name": "Suryakund və Mandapam",
+      "description": "İyirmi səkkiz ədəd, uzun, daşağıdan aşan merdivenlər, kişilərin yuyuğu hovuzuna və onun asılı mis güncəyə aparır."
+    },
+    "surya-in": {
+      "name": "Dərslər və hovuz",
+      "description": "Qazanın üstündən bir dəri su ilə keçib."
+    },
+    "naga": {
+      "name": "Naga məbədi",
+      "description": "Bir-biri ilə qarışmış kobralar Suryakund dərəcələrinin üstündək bir qara dağa oyalanır."
+    },
+    "ponds": {
+      "name": "Lotus gölləri və əksli körpülər",
+      "description": "Nandi və Suryakund arasında lotus gölləri keçən ağ əkilirək körpül."
+    },
+    "nandi": {
+      "name": "Nandi",
+      "description": "Bu qara buğa Dyanalinga qarşısını alıb və bir silsilə tunc çanları geyinir."
+    },
+    "dhyanalinga": {
+      "name": "Dhyanalinga",
+      "description": "Qonaqlar isə şərq hissəsindən bir daşağı arqadan girincə, tütün qumba ilə qurulan meditatsiya zalına girir."
+    },
+    "dhyana-in": {
+      "name": "Dyanalinga içi",
+      "description": "Dyanalinga qara granitini yeddən7 mis zolağı əhatələyir."
+    },
+    "bhairavi": {
+      "name": "Linga Bhairavi",
+      "description": "Dhyalinga-nın cənub-qərbindəki bu Devi məbədində üçbucaqlı məbəd və damışdır."
+    },
+    "lb-in": {
+      "name": "Devi və üçbaşa",
+      "description": "Qırıl və altın sarisi geyinən Devi qarşısında bir çox üçbaşa durur."
+    },
+    "sadhana": {
+      "name": "Sadhana zalları 1 və 2",
+      "description": "Dhyalinga-nın batısındakılar Darshan, Aumkar və təlim-məsəratları keçirilir."
+    },
+    "chandrakund": {
+      "name": "Chandrakund",
+      "description": "Kərəla üslubunda bir divar rəsminin altındaymış, qadının hamam hovuzuna 32 daşa basqın atır."
+    },
+    "chandra-in": {
+      "name": "Havuzda qalxır.",
+      "description": "Daşı merdivenlər hovuzuna və Mahakumbha Mela divar rəsminin altındakına aparır."
+    },
+    "deposit": {
+      "name": "Əmanət əmanətləri",
+      "description": "Ziyarətçilər kampusa girmədən önce telefonlarını və çantalarını burada qoya bilərlər."
+    },
+    "ishalife": {
+      "name": "Isha Life and Peppervine Eatery",
+      "description": "İsha Life mağazaları, baş yolun yanındadır, Taxt ustalığı olan Peppervine Eatery-nin yanındadır."
+    },
+    "welcome": {
+      "name": "Qışqınlıq nöqtəsidir",
+      "description": "Bu yerdən şutlar və buğa arabasları gedib."
+    },
+    "spanda": {
+      "name": "Spanda Hall",
+      "description": "Bu çoxlu zalda Bhava Spandana kimi qabaqcıl proqramlar yer alıb."
+    },
+    "spanda-in": {
+      "name": "Spanda Hallın içi",
+      "description": "Şimal divarında Adiyogi'nin hayatını əhatələyan Kerala üslubunda bir divar rəsmi var."
+    },
+    "alayam": {
+      "name": "Adiyogi Alayam",
+      "description": "Bu iri zalda palpavi pemiz qapağı və yılanlar ilə oyulmuş sütünlər var."
+    },
+    "nalanda": {
+      "name": "Nalanda",
+      "description": "Nalanda Stay yerində yer və konqres yerləri var."
+    },
+    "bhiksha": {
+      "name": "Bhiksha Hall",
+      "description": "Bu səhnədə iki min nəfərə qədər insan yeriməklə sakitcə yeyə bilər."
+    },
+    "metalbridge": {
+      "name": "Metallıq körpüs",
+      "description": "Bu poladlı piyada yolun sonunda bir dağa axını keçir."
+    },
+    "campus": {
+      "name": "Kampaniya binaları",
+      "description": ""
+    }
+  }
+}

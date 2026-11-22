@@ -1,0 +1,173 @@
+{
+  "ui": {
+    "pageTitle": "Isha Yoga Center · 3D Virtuálne Tour",
+    "language": "Jazyk",
+    "foothills": "Velliangiri úpatia",
+    "subtitle": "Coimbatore · Velliangiri úpatia · 1:1 škála",
+    "credit": "Model: Claude",
+    "loading": "Nabitie 3D motora...",
+    "engineError": "Neudalo sa načítat 3D motor.",
+    "engineReady": "3D motor je hotový",
+    "ready": "Pripravili sme sa .",
+    "textures": "Vytváranie textur a materiál",
+    "sky": "Stvorenie oblohy a hmly",
+    "terrain": "Budovanie vrchov Velliangiri",
+    "roads": "Vytváranie ciest a ciest",
+    "vegetation": "Sadzba drevín a palmiek",
+    "peopleStep": "Pridanie hospodajných a vozovkov z velieci",
+    "lamps": "Osvetlovanie olejných svetelín",
+    "shaders": "Kompilačné shadery",
+    "dawn": "Svitanie",
+    "dusk": "Súmrak",
+    "night": "Noc",
+    "cutaway": "Zobraziť interiéry",
+    "cutawayTip": "Ukryjte strechy, aby ste vidia interiér budov.",
+    "walk": "Chôdza",
+    "walkTip": "WASD / ↑ ↓ ← → — Chôdza · Shift — Beh · F — Let · Esc — Ukončiť",
+    "walkHint": "WASD / ↑ ↓ ← → — Chôdza · Shift — Beh · F — Let · Esc — Ukončiť",
+    "flightHint": "WASD — Let · Space / E — Stúpať · Q / C — Klesať · F — Pristáť · Esc — Ukončiť",
+    "orbitHint": "Vytiahni sa, prevrátni sa, prevrátni sa, stlači sa, aby si zoomoval, ťahaj pravou alebo ťahaj na pan.",
+    "walkDescription": "Prejdite klavírou alebo dotykový joystick. Vytiahnete sa, aby ste sa pozrovali. Stlačiť Esc alebo vyberte Prejdite, aby ste sa vydali.",
+    "aerial": "Východné výzery",
+    "aerialDescription": "Vyberte pamiatku, ku ktorému sa chystáš letiec, alebo vyberte Prechádzu, ktorý sa chystáš prehnúť pešo.",
+    "people": "Ľudia",
+    "peopleTip": "Ukážte alebo schovávajte hostie, davy a kolená.",
+    "overview": "Prehľad",
+    "overviewDescription": "Prejdite do centra Isha Yoga u úpätia kopcov Velliangiri a vyberte si na to pôdu.",
+    "outsideHeading": "Vnútri Sarpa Vasal · Občianske prostory",
+    "insideHeading": "Vnútri kampusu Sarpa Vasal ·",
+    "all": "Všetko",
+    "out": "Vonku",
+    "in": "Vnútri",
+    "allTip": "Ukážte všetky budovy.",
+    "outTip": "Ukážte len budovy v okoli Sarpa Vasal.",
+    "inTip": "Ukážte len budovy v Sarpe Vasal.",
+    "navigation": "Miesta"
+  },
+  "places": {
+    "adiyogi": {
+      "name": "Socha Adiyogi",
+      "description": "34-metrovný ocelový bust Šivy smeruje na juh."
+    },
+    "yogeshwar": {
+      "name": "Yogeshwar Linga",
+      "description": "Toto linga je piatimi hlavnými čakrámi, ktoré sa odohrávajú a ktoré sa odohrávajú vodou a listmi neem."
+    },
+    "kalabhairava": {
+      "name": "Kalabhairava Sthanam",
+      "description": "Medzi Adiyogi a Malai Vasal je kamenného svátorného budovy s vyrezanými stolenami."
+    },
+    "malai": {
+      "name": "Malai Vasal hlavný vchod",
+      "description": "V hlavnej bráne južne od Adiyogi tvorí preklad nad priechodom prírodný balvan."
+    },
+    "sarpa": {
+      "name": "Brána Sarpa Vasal",
+      "description": "Temná kobra je v tejto granitnej bránke na Narasipuram Road."
+    },
+    "moondram": {
+      "name": "Moondram Pirai Eatery",
+      "description": "Toto reštaurácia je južno od Sarpa Vasal."
+    },
+    "moondram-in": {
+      "name": "Interiér reštaurácie",
+      "description": "V jedálni sa nachádzajú aj železnými stoly, bielymi strechami a fotka Devi."
+    },
+    "unavagam": {
+      "name": "Velliangiri Unavagam",
+      "description": "Juhoindiánska vegetariánska reštaurácia v okoli Surya Vasal."
+    },
+    "unavagam-in": {
+      "name": "Pod prístreší",
+      "description": "Dinery zbernú jedlo z okna a jedia na stojacom stolu pod útulkom."
+    },
+    "suryakund": {
+      "name": "Suryakund a Mandapam",
+      "description": "28 šírokých kamenných schodov vede k menskému bazénu a jeho pozostalému medenému slnku."
+    },
+    "surya-in": {
+      "name": "Krok a bazén",
+      "description": "Kamennými schodmi sa k bazénu klesnú a na opačné múrne sa prebehne vodná záves."
+    },
+    "naga": {
+      "name": "Svätné osud Naga",
+      "description": "Zmesené kobry sú vyrezané do jedného čierného kamena na vrchole schodov Suryakund."
+    },
+    "ponds": {
+      "name": "Lotusové jazdy a oblúkový most",
+      "description": "Biely oblúkový most prechádza lotosové jazere medzi Nandi a Suryakund."
+    },
+    "nandi": {
+      "name": "Nandi",
+      "description": "Ten ležiaci čierny byk čelíme Dhyanalinga a nosíme hromadu bronzových zvonov."
+    },
+    "dhyanalinga": {
+      "name": "Dhyanalinga",
+      "description": "Návštevajúci vchodia do meditačného sálu s tehlou kuplou kamenným oblohom na isto."
+    },
+    "dhyana-in": {
+      "name": "Vnútri Dhyanalinga",
+      "description": "Sedem medzených pásky obklopuje čierny granit Dhyanalinga."
+    },
+    "bhairavi": {
+      "name": "Linga Bhairavi",
+      "description": "Toto obydlie Devi na juhozápade od Dhyanalinga má trojuholcovou svátostvom a strechu."
+    },
+    "lb-in": {
+      "name": "Devi a trident",
+      "description": "Pred Devi stoja veľká tridentka, ktorá nosila ružu a zlata."
+    },
+    "sadhana": {
+      "name": "Sadhana sály 1 a 2",
+      "description": "V tých dve halách na juh od Dhyanalinga sa konajú darší, iniciácie a prax."
+    },
+    "chandrakund": {
+      "name": "Chandrakund",
+      "description": "32 kamenných schodov klesnú do basény pre ženy pod múrarom v štýle Kerala."
+    },
+    "chandra-in": {
+      "name": "Štampa k bazénu",
+      "description": "Kamenným schodom sa vede k bazénu a jeho linga pod múralom Mahakumbha Mela."
+    },
+    "deposit": {
+      "name": "Rezervačné styk",
+      "description": "Návštevní môžu tu zostavovať svoje telefony a batohy pred vchodom do kampusu."
+    },
+    "ishalife": {
+      "name": "Isha Life and Peppervine Eatery",
+      "description": "Obchody Isha Life sú vedľa hlavnej ciest, v okolni kamenného Peppervine Eatery."
+    },
+    "welcome": {
+      "name": "Pozdravíme",
+      "description": "Odtiaľa odletia šatly a kolená."
+    },
+    "spanda": {
+      "name": "Spanda Hall",
+      "description": "V tejto veľkej sále sa konajú vyspelené programy ako Bhava Spandana."
+    },
+    "spanda-in": {
+      "name": "V Špánde",
+      "description": "Na severnej stene je múrový obraz v Kerala štýle o Adiyogiho život."
+    },
+    "alayam": {
+      "name": "Adiyogi Alayam",
+      "description": "V tejto veľkej sále je bledne ružiarodová oblúkovená strecha a stony vyrezaných hadmi."
+    },
+    "nalanda": {
+      "name": "Nalanda",
+      "description": "Nalanda Stay je ubytovanie a konferenčné premieňa."
+    },
+    "bhiksha": {
+      "name": "Bhiksha Hall",
+      "description": "Asi dva tisia ľudí môžu sedieť na podlahe a v tejto jedálni jedla ticho."
+    },
+    "metalbridge": {
+      "name": "Metálový most",
+      "description": "Toto ocelové stopacie mosty prekračujú horské potok na konci trasy bulk vozík."
+    },
+    "campus": {
+      "name": "Inné budovy kampusu",
+      "description": ""
+    }
+  }
+}
