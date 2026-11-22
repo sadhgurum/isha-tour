@@ -45,7 +45,7 @@ Use `npm run format` to apply Prettier, `npm run typecheck` to check TypeScript,
 
 In **Settings → Pages → Build and deployment**, choose **GitHub Actions** as the source. In **Settings → Environments → github-pages**, allow `main` to deploy if the environment uses selected branch rules. Then push to `main` or run **Check and deploy tour** manually from `main`.
 
-Pull requests run formatting, linting, TypeScript and translation coverage checks, and the production build. On `main`, the workflow commits the generated site to `gh-pages` and deploys the same build through GitHub Pages. The branch is managed by CI. Publishing through the Pages action lets the workflow use the built-in token. [GitHub Pages publishing documentation](https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site)
+Pull requests run formatting, linting, TypeScript and translation coverage checks, and the production build. On `main`, the workflow publishes the generated `dist/` files directly to GitHub Pages after the checks pass. [GitHub Pages publishing documentation](https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site)
 
 ## Credits and license
 
