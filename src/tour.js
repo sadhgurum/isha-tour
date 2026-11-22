@@ -259,7 +259,7 @@ const ROADS = [
     w: 5,
     pts: [
       [84, 142],
-      [146, 183],
+      [123, 171],
     ],
   }, // → Spanda Hall
   {
@@ -353,25 +353,140 @@ for (const r of ROADS)
       b = geo(...r.pts[i + 1]);
     PATHS.push([a[0], a[2], b[0], b[2], r.w]);
   }
-// Field and lawn patches: [e, n, east-west width, north-south length, color].
+// Ground cover patches, broad fields first: [e, n, width, length, color, edge blend in meters].
 const FIELDS = [
-  [627, -1200, 80, 110, 0x8e8a82],
-  [633, -1098, 70, 85, 0x8e8a82],
-  [305, -222, 170, 60, 0x8e8a82], // Parking area (OSM).
-  [514, -914, 75, 300, 0x93ad5a],
-  [630, -914, 110, 300, 0x93ad5a], // Large lawns on either side of the approach (OSM leisure=pitch).
-  [353, -467, 220, 220, 0x86a84e],
-  [648, -790, 130, 420, 0x7fa54a],
-  [840, -344, 380, 640, 0xa3945e],
-  [176, -774, 105, 240, 0x96a257],
-  [165, -1036, 180, 250, 0xa8935f],
-  [424, -15, 130, 115, 0x99a653],
-  [780, -1060, 300, 640, 0x9da05a],
+  [840, -344, 380, 640, 0xa3945e, 75],
+  [780, -1060, 300, 640, 0x9da05a, 65],
+  [353, -467, 220, 220, 0x86a84e, 45],
+  [648, -790, 130, 420, 0x7fa54a, 40],
+  [176, -774, 105, 240, 0x96a257, 28],
+  [165, -1036, 180, 250, 0xa8935f, 40],
+  [424, -15, 130, 115, 0x99a653, 26],
+  [514, -914, 75, 300, 0x93ad5a, 16],
+  [630, -914, 110, 300, 0x93ad5a, 18], // Lawns on either side of the Adiyogi approach.
+  [627, -1200, 80, 110, 0x8e8a82, 8],
+  [633, -1098, 70, 85, 0x8e8a82, 8],
+].map(([e, n, w, d, color, blend]) => {
+  const [x, , z] = geo(e, n);
+  return { x, z, hw: w / 2, hd: d / 2, color: new Color(color), blend };
+});
+const SPANDA_GARDEN = { width: 68, depth: 34, start: 26.2 };
+const BRIDGE_STREAM = [
+  [-3.5, -31],
+  [-0.5, -25],
+  [0.3, -17],
+  [1.8, -8],
+  [3.1, 1],
+  [4.3, 11],
+  [5.8, 20],
+  [5, 27],
+  [3.8, 33],
+  [2.5, 27],
+  [1, 20],
+  [-1.6, 11],
+  [-2.8, 1],
+  [-4.3, -8],
+  [-5.3, -17],
+  [-5.5, -25],
 ];
-const inField = (e, n) =>
-  FIELDS.some(
-    ([fe, fn, w, h]) => Math.abs(e - fe) < w / 2 && Math.abs(n - fn) < h / 2,
-  );
+
+function groundFootprint(points, color, blend, opacity = 0.8) {
+  const xs = points.map(([x]) => x);
+  const zs = points.map(([, z]) => z);
+  const minX = Math.min(...xs);
+  const maxX = Math.max(...xs);
+  const minZ = Math.min(...zs);
+  const maxZ = Math.max(...zs);
+  return {
+    x: (minX + maxX) / 2,
+    z: (minZ + maxZ) / 2,
+    hw: (maxX - minX) / 2,
+    hd: (maxZ - minZ) / 2,
+    color: new Color(color),
+    points,
+    blend,
+    opacity,
+  };
+}
+
+// Map footprints in meters east and north of Dhyanalinga, rounded to the nearest meter.
+const campusFootprints = [
+  // Nalanda Ground, OpenStreetMap way 639660570.
+  [
+    [
+      [-69, 346],
+      [104, 325],
+      [111, 220],
+      [95, 213],
+      [85, 251],
+      [45, 249],
+      [47, 215],
+      [72, 196],
+      [56, 188],
+      [-70, 177],
+      [-77, 256],
+      [-82, 342],
+    ],
+    0x78984e,
+    10,
+  ],
+  // Worn grass near the goalposts. Model the wear as a gradual change in ground cover.
+  [
+    [
+      [-35, 269],
+      [-19, 281],
+      [9, 285],
+      [34, 275],
+      [41, 258],
+      [24, 240],
+      [-3, 238],
+      [-27, 247],
+    ],
+    0xa8936b,
+    15,
+    0.55,
+  ],
+  // Sarpa Vasal parking area, OpenStreetMap way 640475151.
+  [
+    [
+      [219, -181],
+      [291, -194],
+      [395, -209],
+      [382, -226],
+      [352, -247],
+      [327, -266],
+      [277, -236],
+      [238, -217],
+      [209, -205],
+    ],
+    0x958b79,
+    5,
+  ],
+  // Lawn around the Dhyanalinga path, wider to the west and south.
+  [
+    [
+      [-31, 8],
+      [-24, 19],
+      [-9, 23],
+      [10, 18],
+      [22, 7],
+      [24, -10],
+      [12, -23],
+      [-5, -30],
+      [-24, -25],
+      [-31, -11],
+    ],
+    0x78984e,
+    8,
+  ],
+];
+for (const [points, color, blend, opacity] of campusFootprints) {
+  const footprint = points.map(([e, n]) => {
+    const [x, , z] = geo(e, n);
+    return [x, z];
+  });
+  FIELDS.push(groundFootprint(footprint, color, blend, opacity));
+}
 let EXCLUDE = []; // Vegetation exclusion circles [x, z, r], generated from component clear entries.
 let PITS = []; // Terrain openings for sunken pools, generated from component pit entries.
 
@@ -1097,6 +1212,100 @@ function createSky() {
   return g;
 }
 
+function fieldCoverage(field, x, z) {
+  const dx = Math.abs(x - field.x) - field.hw;
+  const dz = Math.abs(z - field.z) - field.hd;
+  const edge = field.blend;
+  if (Math.max(dx, dz) >= edge) return 0;
+  let distance;
+  if (field.points) {
+    let nearestSquared = Infinity;
+    const points = field.points;
+    for (let i = 0, j = points.length - 1; i < points.length; j = i++) {
+      const [ax, az] = points[j];
+      const [bx, bz] = points[i];
+      const vx = bx - ax;
+      const vz = bz - az;
+      const t = clamp(
+        ((x - ax) * vx + (z - az) * vz) / (vx * vx + vz * vz),
+        0,
+        1,
+      );
+      nearestSquared = Math.min(
+        nearestSquared,
+        (x - ax - t * vx) ** 2 + (z - az - t * vz) ** 2,
+      );
+    }
+    distance = Math.sqrt(nearestSquared) * (inPoly(x, z, points) ? -1 : 1);
+  } else {
+    // Round the corners of the approximate fields.
+    const roundedX = dx + edge;
+    const roundedZ = dz + edge;
+    distance =
+      Math.hypot(Math.max(0, roundedX), Math.max(0, roundedZ)) +
+      Math.min(0, Math.max(roundedX, roundedZ)) -
+      edge;
+  }
+  const variation =
+    vnoise(x * 0.023, z * 0.023) + 0.35 * vnoise(x * 0.075, z * 0.075) - 0.675;
+  return 1 - smooth(-edge * 0.75, edge * 0.3, distance + variation * edge);
+}
+
+function createFieldTint() {
+  const minX = Math.min(...FIELDS.map((f) => f.x - f.hw - f.blend)) - 2;
+  const minZ = Math.min(...FIELDS.map((f) => f.z - f.hd - f.blend)) - 2;
+  const maxX = Math.max(...FIELDS.map((f) => f.x + f.hw + f.blend)) + 2;
+  const maxZ = Math.max(...FIELDS.map((f) => f.z + f.hd + f.blend)) + 2;
+  const width = THREE.MathUtils.ceilPowerOfTwo((maxX - minX) / 2);
+  const height = THREE.MathUtils.ceilPowerOfTwo((maxZ - minZ) / 2);
+  const stepX = (maxX - minX) / width;
+  const stepZ = (maxZ - minZ) / height;
+  // Store premultiplied linear colors so edge texels blend correctly through mipmaps.
+  const pixels = new Uint8Array(width * height * 4);
+  for (const f of FIELDS) {
+    const left = Math.floor((f.x - f.hw - f.blend - minX) / stepX);
+    const right = Math.ceil((f.x + f.hw + f.blend - minX) / stepX);
+    const top = Math.floor((f.z - f.hd - f.blend - minZ) / stepZ);
+    const bottom = Math.ceil((f.z + f.hd + f.blend - minZ) / stepZ);
+    for (let j = top; j < bottom; j++) {
+      const z = minZ + (j + 0.5) * stepZ;
+      for (let i = left; i < right; i++) {
+        const x = minX + (i + 0.5) * stepX;
+        const alpha = fieldCoverage(f, x, z) * (f.opacity ?? 0.8);
+        if (alpha === 0) continue;
+        const tone =
+          0.78 +
+          0.38 * vnoise(x * 0.021, z * 0.021) +
+          0.14 * vnoise(x * 0.09, z * 0.09);
+        const offset = (j * width + i) * 4;
+        pixels[offset] = Math.round(
+          lerp(pixels[offset], f.color.r * tone * 255, alpha),
+        );
+        pixels[offset + 1] = Math.round(
+          lerp(pixels[offset + 1], f.color.g * tone * 255, alpha),
+        );
+        pixels[offset + 2] = Math.round(
+          lerp(pixels[offset + 2], f.color.b * tone * 255, alpha),
+        );
+        pixels[offset + 3] = Math.round(lerp(pixels[offset + 3], 255, alpha));
+      }
+    }
+  }
+  const texture = new THREE.DataTexture(pixels, width, height);
+  texture.magFilter = THREE.LinearFilter;
+  texture.minFilter = THREE.LinearMipmapLinearFilter;
+  texture.generateMipmaps = true;
+  texture.anisotropy = 4;
+  texture.needsUpdate = true;
+  const bounds = new THREE.Vector4(
+    minX,
+    minZ,
+    1 / (maxX - minX),
+    1 / (maxZ - minZ),
+  );
+  return { texture, bounds };
+}
+
 function createTerrain() {
   const geo = new THREE.PlaneGeometry(5600, 5600, 250, 250);
   geo.rotateX(-Math.PI / 2);
@@ -1129,9 +1338,12 @@ function createTerrain() {
     vertexColors: true,
     map: TEX.ground,
   });
+  const fieldTint = createFieldTint();
   // Discard terrain fragments inside PITS to open the sunken pools.
   const N = Math.max(1, PITS.length);
   mat.onBeforeCompile = (sh) => {
+    sh.uniforms.fieldTint = { value: fieldTint.texture };
+    sh.uniforms.fieldBounds = { value: fieldTint.bounds };
     sh.uniforms.pits = {
       value: PITS.length
         ? PITS.map((q) => new THREE.Vector4(q.x, q.z, q.hw, q.hd))
@@ -1147,36 +1359,31 @@ function createTerrain() {
     sh.fragmentShader = sh.fragmentShader
       .replace(
         '#include <common>',
-        `#include <common>\nvarying vec3 vWp; uniform vec4 pits[${N}]; uniform float pitRot[${N}];`,
+        `#include <common>
+        varying vec3 vWp;
+        uniform sampler2D fieldTint;
+        uniform vec4 fieldBounds;
+        uniform vec4 pits[${N}];
+        uniform float pitRot[${N}];`,
       )
       .replace(
         'void main() {',
         `void main() {
         for (int i = 0; i < ${N}; i++) { vec2 d = vWp.xz - pits[i].xy; float c = cos(pitRot[i]), s = sin(pitRot[i]);
           vec2 l = vec2(c * d.x - s * d.y, s * d.x + c * d.y); if (abs(l.x) < pits[i].z && abs(l.y) < pits[i].w) discard; }`,
+      )
+      .replace(
+        '#include <color_fragment>',
+        `vec2 fieldUV = (vWp.xz - fieldBounds.xy) * fieldBounds.zw;
+        vec4 tint = texture2D(fieldTint, fieldUV);
+        diffuseColor.rgb *= vColor * (1.0 - tint.a) + tint.rgb;`,
       );
   };
   const m = new THREE.Mesh(geo, mat);
   m.receiveShadow = true;
   m.name = 'Terrain';
-  const g = new THREE.Group();
-  g.name = 'Terrain';
-  g.add(m);
-  for (const [e, n, w, h, color] of FIELDS) {
-    // Fields and lawns.
-    const f = new THREE.Mesh(
-      scaleUV(new THREE.PlaneGeometry(w, h), w / 6, h / 6),
-      new THREE.MeshLambertMaterial({ color, map: TEX.ground }),
-    );
-    const q = geo2(e, n);
-    f.rotation.x = -Math.PI / 2;
-    f.position.set(q[0], 0.035, q[2]);
-    f.receiveShadow = true;
-    g.add(f);
-  }
-  return g;
+  return m;
 }
-const geo2 = geo; // Alias geo() because createTerrain has a local geometry named geo.
 
 function createPaths() {
   const g = new THREE.Group();
@@ -1258,10 +1465,12 @@ function createVegetation() {
   const col = new Color();
   const adi = geo(562, -690);
   // The campus (e -330..430, n -140..780) has coconut and areca groves. Adiyogi has open grass, and other fields are sparsely planted.
-  const density = (e, n) => {
-    const [x, , z] = geo(e, n);
-    if (Math.hypot(x - adi[0], z - adi[2]) < 190 || inField(e, n)) return 0;
-    return e > -330 && e < 430 && n > -140 && n < 780 ? 1 : 0.12;
+  const density = (e, n, x, z) => {
+    if (Math.hypot(x - adi[0], z - adi[2]) < 190) return 0;
+    let cover = 0;
+    for (const f of FIELDS) cover = Math.max(cover, fieldCoverage(f, x, z));
+    const treeDensity = e > -330 && e < 430 && n > -140 && n < 780 ? 1 : 0.12;
+    return treeDensity * (1 - cover);
   };
   const scatter = (count, pad, noiseK, thresh) => {
     const out = [];
@@ -1269,7 +1478,11 @@ function createVegetation() {
       const e = rr(-480, 1000),
         n = rr(-1750, 880),
         [x, , z] = geo(e, n);
-      if (rnd() > density(e, n) || blocked(x, z, pad) || groundH(x, z) > 0.5)
+      if (
+        rnd() > density(e, n, x, z) ||
+        blocked(x, z, pad) ||
+        groundH(x, z) > 0.5
+      )
         continue;
       if (fbm(x * noiseK + 9, z * noiseK, 2) > thresh) out.push([x, z]);
     }
@@ -3376,9 +3589,6 @@ function createDhyanalinga() {
     R = 11.6,
     DR = 1.85,
     RISE = 8.2;
-  const lawn = tcyl(27, 27, 0.1, 48, MAT.lawn, 0, 0.05, 0);
-  lawn.castShadow = false;
-  g.add(lawn); // Aerial photos show lawns west and south of the dome and stone paving by the east entrance.
   const ring = mesh(
     new THREE.RingGeometry(R + 2.2, R + 5, 64).rotateX(-Math.PI / 2),
     MAT.paving,
@@ -5388,17 +5598,10 @@ function createNalanda() {
     ),
   );
   g.add(b);
-  // Nalanda Grounds measures about 165 × 150 m and is used for evening games. Paths and lights surround it.
+  // Nalanda Grounds is used for evening games. Its surface is painted on the terrain.
   const lawn = new THREE.Group();
   lawn.name = 'NalandaGrounds';
   lawn.position.set(-5, 0, 130);
-  const turf = tbox(165, 0.12, 150, MAT.lawn, 0, 0.06, 0);
-  turf.castShadow = false;
-  lawn.add(turf);
-  const worn = tbox(70, 0.02, 50, MAT.paving, 10, 0.13, 5);
-  worn.castShadow = false;
-  worn.material = new THREE.MeshLambertMaterial({ color: 0xa8926a });
-  lawn.add(worn);
   for (const sx of [-1, 1]) {
     lawn.add(
       columns(
@@ -5716,13 +5919,8 @@ function createSpandaHall() {
     ),
   );
   // Garden on the +Z side.
-  const GZ = D / 2 + VR + 1,
-    GD = 34,
-    GW = 68,
-    gz = GZ + GD / 2; // Reduce the inferred 40 × 74 m garden footprint to clear the north-south road at the southwest corner.
-  const turf = tbox(GW, 0.1, GD, MAT.lawn, 0, 0.05, gz);
-  turf.castShadow = false;
-  g.add(turf);
+  const { width: GW, depth: GD, start: GZ } = SPANDA_GARDEN;
+  const gz = GZ + GD / 2;
   const wallH = 2.6,
     wt = 0.7;
   g.add(
@@ -7294,19 +7492,8 @@ function createMetalBridge() {
       roughness: 0.5,
       metalness: 0.6,
     });
-  // Shallow streambed with water and rocks.
-  const bed = tbox(13, 0.1, 60, MAT.darkPlaster, 0, 0.1, 0);
-  bed.castShadow = false;
-  bed.rotation.y = 0.12;
-  const wtr = mesh(
-    scaleUV(new THREE.PlaneGeometry(6, 60), 1, 8).rotateX(-Math.PI / 2),
-    MAT.water,
-    0,
-    0.18,
-    0,
-    false,
-  );
-  wtr.rotation.y = 0.12;
+  // The water sits inside the stream banks painted on the terrain.
+  const wtr = polyPlane(BRIDGE_STREAM, MAT.water, 0.18);
   const rocks = [];
   for (let i = 0; i < 70; i++) {
     const z = rr(-29, 29),
@@ -7316,11 +7503,7 @@ function createMetalBridge() {
       M(sd * rr(2.6, 6.2) + z * 0.12, 0.25, z, s * 1.3, s * 0.7, s, rnd() * 6),
     );
   }
-  g.add(
-    bed,
-    wtr,
-    instanced(new THREE.IcosahedronGeometry(1, 0), MAT.rock, rocks),
-  );
+  g.add(wtr, instanced(new THREE.IcosahedronGeometry(1, 0), MAT.rock, rocks));
   // Steel deck grating and Warren trusses on both sides.
   const DY = 2.1;
   g.add(
@@ -7809,7 +7992,8 @@ function createKalabhairava() {
 /* at: Surveyed position (e, n) in meters east and north of the Dhyanalinga dome, from OpenStreetMap.
  * rotY: Heading as face(east, north), with an optional offset for the building's measured angle.
  * view: Camera { d: distance, yaw: heading relative to the front, ph: pitch, h: target height }.
- * clear: Vegetation exclusion [local x, local z, radius]. pit: Terrain opening [local x, local z, half-width, half-depth]. */
+ * clear: Vegetation exclusion [local x, local z, radius]. pit: Terrain opening [local x, local z, half-width, half-depth].
+ * ground: Local ground-cover footprint, tint color and edge blend. */
 const COMPONENTS = [
   {
     id: 'adiyogi',
@@ -8073,6 +8257,16 @@ const COMPONENTS = [
     at: [174, 205],
     rotY: face(-0.83, -0.56),
     view: { d: 105, yaw: 0.4, ph: 1.15, h: 4, tz: 18 },
+    ground: {
+      points: [
+        [-SPANDA_GARDEN.width / 2, SPANDA_GARDEN.start],
+        [SPANDA_GARDEN.width / 2, SPANDA_GARDEN.start],
+        [SPANDA_GARDEN.width / 2, SPANDA_GARDEN.start + SPANDA_GARDEN.depth],
+        [-SPANDA_GARDEN.width / 2, SPANDA_GARDEN.start + SPANDA_GARDEN.depth],
+      ],
+      color: 0x76964b,
+      blend: 2,
+    },
     clear: [
       [-18, 0, 30],
       [18, 0, 30],
@@ -8119,15 +8313,8 @@ const COMPONENTS = [
       [52, 16, 17],
       [-34, 14, 14],
       [34, 14, 14],
-      [-52, 92, 42],
-      [0, 92, 42],
-      [44, 92, 42],
-      [-52, 130, 42],
-      [0, 130, 42],
-      [44, 130, 42],
-      [-52, 168, 42],
-      [0, 168, 42],
-      [44, 168, 42],
+      [44, 130, 26],
+      [44, 168, 33],
     ],
   },
   {
@@ -8150,6 +8337,11 @@ const COMPONENTS = [
     at: [372, 356],
     rotY: 0.161,
     view: { d: 52, yaw: 0.6, ph: 1.2, h: 2 },
+    ground: {
+      points: BRIDGE_STREAM.map(([x, z]) => [x + (x - z * 0.12) * 1.1, z]),
+      color: 0x91866c,
+      blend: 4,
+    },
     clear: [
       [0, 0, 17],
       [0, -22, 9],
@@ -8193,6 +8385,16 @@ for (const c of COMPONENTS) {
     c.pos[0] + lx * cs + lz * sn,
     c.pos[2] - lx * sn + lz * cs,
   ];
+  if (c.ground) {
+    const { points, color, blend } = c.ground;
+    FIELDS.push(
+      groundFootprint(
+        points.map(([x, z]) => c.toWorld(x, z)),
+        color,
+        blend,
+      ),
+    );
+  }
   if (c.create)
     for (const [lx, lz, r] of c.clear || []) {
       const [x, z] = c.toWorld(lx, lz);
