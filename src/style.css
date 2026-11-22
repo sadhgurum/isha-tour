@@ -1,4 +1,14 @@
+@font-face {
+  font-family: 'Isha Tour Hand';
+  src: url('./fonts/IshaTourHand-Regular.woff2') format('woff2');
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+
 :root {
+  --text-font:
+    'Songti SC', 'Noto Serif SC', 'Source Han Serif SC', Georgia, serif;
   --ink: #f4e9d8;
   --dim: rgba(244, 233, 216, 0.62);
   --panel: rgba(24, 17, 12, 0.46);
@@ -15,8 +25,14 @@ body {
   overflow: hidden;
   background: #120d0a;
   color: var(--ink);
-  font-family:
-    'Songti SC', 'Noto Serif SC', 'Source Han Serif SC', Georgia, serif;
+  font-family: var(--text-font);
+}
+
+#title h1,
+#info h2,
+#loader h1 {
+  font-family: 'Isha Tour Hand', var(--text-font);
+  font-synthesis: none;
 }
 canvas#scene {
   position: fixed;
@@ -55,7 +71,7 @@ body.ready .ui {
   margin: 0;
   font-size: 22px;
   font-weight: 600;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.04em;
   text-shadow: 0 1px 12px rgba(0, 0, 0, 0.5);
 }
 #title p {
@@ -245,10 +261,13 @@ button.on {
   pointer-events: none;
 }
 #loader .om {
+  max-width: 90vw;
   font-size: 15px;
   letter-spacing: 0.5em;
   color: var(--dim);
   margin-bottom: 8px;
+  text-align: center;
+  text-transform: uppercase;
 }
 #loader h1 {
   margin: 0 0 30px;

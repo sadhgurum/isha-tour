@@ -14,6 +14,8 @@ Share the URL to open the tour in the selected language, for example `?lang=ta` 
 
 Translations are bundled with the tour as static files. Most locales contain machine-translated text. Some use shorter landmark descriptions than the English and Simplified Chinese versions. Signs rendered inside the 3D model retain their original wording.
 
+The tour bundles Isha Tour Hand for headings. It extends the original Custom Hand lettering with Cyrillic glyphs and Latin accents. To regenerate the WOFF2, install Python's `fonttools` and `brotli` packages, then run `python3 scripts/build-title-font.py ../fonts/output/CustomHand-Regular.ttf` with the original font file.
+
 ## Tour controls
 
 | Mode             | Controls                                                                                                                                                                                                                                            |
