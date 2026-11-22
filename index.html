@@ -1,39 +1,60 @@
 <!doctype html>
-<html lang="zh-CN">
+<html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Isha Yoga Center · 3D 漫游</title>
-    <script type="module" crossorigin src="./assets/index-C85CwzsT.js"></script>
+    <title>Isha Yoga Center · 3D Virtual Tour</title>
+    <script type="module" crossorigin src="./assets/index-COv1kmKi.js"></script>
     <link rel="modulepreload" crossorigin href="./assets/math-Cy1ps70r.js">
-    <link rel="stylesheet" crossorigin href="./assets/index-HPgEASMI.css">
+    <link rel="stylesheet" crossorigin href="./assets/index-Cg43oNpc.css">
   </head>
   <body>
     <canvas id="scene"></canvas>
 
     <div id="loader">
       <div class="om">ISHA YOGA CENTER</div>
-      <h1>韦灵吉里山麓</h1>
+      <h1 id="foothills">Velliangiri foothills</h1>
       <div id="bar"><i></i></div>
-      <div id="step">正在载入渲染引擎…</div>
+      <div id="step">Loading the 3D engine…</div>
     </div>
 
     <div id="title" class="ui">
       <h1>Isha Yoga Center</h1>
-      <p>哥印拜陀 · 韦灵吉里山麓 · 按实测位置 1:1</p>
-      <p>建模 · Claude</p>
+      <p id="subtitle">Coimbatore · Velliangiri foothills · 1:1 scale</p>
     </div>
-    <div id="moods" class="ui"></div>
+    <div id="moods" class="ui">
+      <label id="language-picker">
+        <span id="language-label" class="visually-hidden">Language</span>
+        <svg
+          aria-hidden="true"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.6"
+        >
+          <circle cx="12" cy="12" r="9" />
+          <ellipse cx="12" cy="12" rx="4" ry="9" />
+          <path d="M3 12h18" />
+        </svg>
+        <span id="language-code" aria-hidden="true" dir="ltr">en</span>
+        <select id="language" dir="auto" disabled></select>
+      </label>
+      <select id="mood" disabled></select>
+    </div>
     <div id="nav" class="ui"></div>
     <div id="info" class="ui">
       <h2></h2>
       <p></p>
     </div>
-    <div id="hint" class="ui">
-      拖动旋转 · 滚轮缩放 · 右键 / Shift 拖动平移 · 右上角「漫步」可第一人称走动
-    </div>
-    <button id="navBtn" class="ui">导航 ▴</button>
+    <div id="hint" class="ui"></div>
+    <button id="navBtn" class="ui">Locations</button>
     <div id="joy"><i></i></div>
+    <div id="touch-flight">
+      <button id="touch-rise" type="button"></button>
+      <button id="touch-descend" class="touch-arrow" type="button" hidden>
+        ↓
+      </button>
+    </div>
 
   </body>
 </html>
