@@ -37,49 +37,26 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     permissions:
-      contents: write
+      contents: read
       pages: write
       id-token: write
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - uses: actions/checkout@v6
-      - uses: actions/download-artifact@v7
-        with:
-          name: github-pages
-          path: pages-artifact
-      - name: Update gh-pages
+      - name: Check current main revision
+        id: revision
         shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
-          main_sha="$(git ls-remote origin refs/heads/main | cut -f1)"
+          main_sha="$(gh api "repos/$GITHUB_REPOSITORY/git/ref/heads/main" --jq '.object.sha')"
           if [[ "$main_sha" != "$GITHUB_SHA" ]]; then
             echo "Skipping a superseded build."
             exit 0
           fi
-
-          site="$RUNNER_TEMP/isha-tour-pages"
-          pages_ref="refs/heads/gh-pages"
-          pages_head="$(git ls-remote origin "$pages_ref")"
-          if [[ -n "$pages_head" ]]; then
-            git fetch --no-tags origin "$pages_ref"
-            git worktree add --detach "$site" FETCH_HEAD
-            git -C "$site" rm -r --ignore-unmatch .
-          else
-            git worktree add --orphan -b gh-pages "$site"
-          fi
-
-          tar -xf pages-artifact/artifact.tar -C "$site"
-          git -C "$site" add --all
-          if ! git -C "$site" diff --cached --quiet; then
-            git -C "$site" -c user.name='github-actions[bot]' \
-              -c user.email='41898282+github-actions[bot]@users.noreply.github.com' \
-              commit -m "Deploy ${GITHUB_SHA}"
-            git push origin "$(git -C "$site" rev-parse HEAD):$pages_ref"
-          fi
-          echo 'ready=true' >> "$GITHUB_OUTPUT"
-        id: publish
+          echo 'current=true' >> "$GITHUB_OUTPUT"
       - name: Deploy to GitHub Pages
-        if: steps.publish.outputs.ready == 'true'
+        if: steps.revision.outputs.current == 'true'
         id: deployment
         uses: actions/deploy-pages@v4
