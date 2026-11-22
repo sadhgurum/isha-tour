@@ -92,8 +92,12 @@ export function createControls(
     phi: overview.ph,
     radius: overview.r,
   };
-  const ptrs = new Map<number, PointerPosition & { b: number }>();
+  const ptrs = new Map<
+    number,
+    PointerPosition & { b: number; touch: boolean }
+  >();
   let pinch = 0;
+  let doubleClickDrag = false;
   const pan = (dx: number, dy: number) => {
     const k = goal.radius * 0.0016,
       th = c.theta;
@@ -103,8 +107,15 @@ export function createControls(
   el.addEventListener('pointerdown', (e) => {
     if (!c.enabled) return;
     el.setPointerCapture(e.pointerId);
-    ptrs.set(e.pointerId, { x: e.clientX, y: e.clientY, b: e.button });
+    const touch = e.pointerType === 'touch';
+    ptrs.set(e.pointerId, { x: e.clientX, y: e.clientY, b: e.button, touch });
+    if (touch) pinch = 0;
+    if (e.pointerType === 'mouse') doubleClickDrag = false;
     c.auto = false;
+  });
+  el.addEventListener('mousedown', (e) => {
+    // Touchpad tap-and-drag holds the primary button on the second press.
+    if (e.button === 0) doubleClickDrag = e.detail === 2;
   });
   el.addEventListener('pointermove', (e) => {
     const p = ptrs.get(e.pointerId);
@@ -113,26 +124,40 @@ export function createControls(
       dy = e.clientY - p.y;
     p.x = e.clientX;
     p.y = e.clientY;
-    if (ptrs.size >= 2) {
-      const [a, b] = [...ptrs.values()],
-        d = Math.hypot(a.x - b.x, a.y - b.y);
-      if (pinch) goal.radius = clamp((goal.radius * pinch) / d, 6, 1800);
-      pinch = d;
-      pan(dx * 0.5, dy * 0.5);
-      return;
+    if (p.touch && ptrs.size > 1) {
+      const touches = [...ptrs.values()].filter((pointer) => pointer.touch);
+      if (touches.length >= 3) {
+        // Each move contributes its share of the touch centroid's movement.
+        pan(dx / touches.length, dy / touches.length);
+        return;
+      }
+      if (touches.length === 2) {
+        const [a, b] = touches;
+        const d = Math.hypot(a.x - b.x, a.y - b.y);
+        if (pinch && d) goal.radius = clamp((goal.radius * pinch) / d, 6, 1800);
+        pinch = d;
+        pan(dx * 0.5, dy * 0.5);
+        return;
+      }
     }
-    if (p.b === 2 || e.shiftKey) pan(dx, dy);
+    if (
+      p.b === 2 ||
+      e.shiftKey ||
+      (p.b === 0 && e.pointerType === 'mouse' && doubleClickDrag)
+    )
+      pan(dx, dy);
     else {
       goal.theta -= dx * 0.005;
       goal.phi = clamp(goal.phi - dy * 0.005, 0.18, 1.53);
     }
   });
   const up = (e: PointerEvent) => {
+    if (ptrs.get(e.pointerId)?.touch) pinch = 0;
     ptrs.delete(e.pointerId);
-    pinch = 0;
   };
   el.addEventListener('pointerup', up);
   el.addEventListener('pointercancel', up);
+  el.addEventListener('lostpointercapture', up);
   el.addEventListener(
     'wheel',
     (e) => {
