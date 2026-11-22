@@ -1,8 +1,10 @@
 # Isha Yoga Center · 3D Virtual Tour
 
+[![Check and deploy tour](https://github.com/sadhgurum/isha-tour/actions/workflows/pages.yml/badge.svg?branch=main&event=push)](https://github.com/sadhgurum/isha-tour/actions/workflows/pages.yml)
+
 Explore a procedural Three.js model of the Isha Yoga Center near Coimbatore, India. The tour includes landmark flyovers, first-person walking and flight, lighting presets, and a roof cutaway view.
 
-[Open the tour on GitHub Pages](https://sadhgurum.github.io/isha-tour/) once the first deployment succeeds.
+[Open the tour on GitHub Pages](https://sadhgurum.github.io/isha-tour/).
 
 ## Languages
 
@@ -41,7 +43,7 @@ Use `npm run format` to apply Prettier, `npm run typecheck` to check TypeScript,
 
 ## GitHub Pages
 
-In **Settings → Pages → Build and deployment**, choose **GitHub Actions** as the source. Then push to `main` or run **Check and deploy tour** manually from `main`.
+In **Settings → Pages → Build and deployment**, choose **GitHub Actions** as the source. In **Settings → Environments → github-pages**, allow `main` to deploy if the environment uses selected branch rules. Then push to `main` or run **Check and deploy tour** manually from `main`.
 
 Pull requests run formatting, linting, TypeScript and translation coverage checks, and the production build. On `main`, the workflow commits the generated site to `gh-pages` and deploys the same build through GitHub Pages. The branch is managed by CI. Publishing through the Pages action lets the workflow use the built-in token. [GitHub Pages publishing documentation](https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site)
 
