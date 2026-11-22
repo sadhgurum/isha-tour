@@ -1781,8 +1781,6 @@ function createPeople() {
         v = pr(0.9, 1.35); // Leave 0.7 m at the path edge to clear pillars and wall corners.
       let lane = pr(-half, half - (pair - 1) * 0.62);
       for (let j = 0; j < pair; j++, lane += 0.62) {
-        const female = PR() < 0.45,
-          col = dress(female);
         W.push({
           r,
           s,
@@ -1790,23 +1788,18 @@ function createPeople() {
           lane,
           v,
           ph: PR() * 6.28,
-          female,
-          col,
-          low: female
-            ? col
-            : PR() < 0.65
-              ? pick(WHITES)
-              : pick([0x3b3b44, 0x5a4a3a, 0x2e3a52]),
+          outfit: visitorOutfit(),
         });
       }
     }
   const PG = personGeos(),
-    mat = vcolMat(),
-    c = new Color();
-  const nF = W.filter((w) => w.female).length,
-    nM = W.length - nF;
+    mat = vcolMat();
   const mk = (geo, n, m = mat) => {
-    const im = new THREE.InstancedMesh(geo, m, Math.max(1, n));
+    const im = new THREE.InstancedMesh(
+      m === mat ? visitorGeometry(geo, n) : geo,
+      m,
+      n,
+    );
     im.count = n;
     im.frustumCulled = false;
     im.receiveShadow = true;
@@ -1814,9 +1807,12 @@ function createPeople() {
     g.add(im);
     return im;
   };
-  const upM = mk(PG.wm, nM),
-    upF = mk(PG.wf, nF),
-    legs = mk(PG.leg, W.length * 2);
+  const uppers = new Map();
+  for (const style of Object.keys(VISITOR_CLOTHES)) {
+    const count = W.filter((w) => w.outfit.style === style).length;
+    if (count) uppers.set(style, mk(PG[`w${style}`], count));
+  }
+  const legs = mk(PG.leg, W.length * 2);
   const blobMat = new THREE.MeshBasicMaterial({
     color: 0x000000,
     transparent: true,
@@ -1830,14 +1826,17 @@ function createPeople() {
     W.length,
     blobMat,
   );
-  W.forEach((w, i) => {
-    w.up = w.female ? upF : upM;
-    w.up.setColorAt(0, c);
-    legs.setColorAt(i * 2, c);
-    legs.setColorAt(i * 2 + 1, c);
-    w.c1 = new Color(w.col);
-    w.c2 = new Color(w.low);
-  });
+  const visitorMeshes = [...uppers.values(), legs];
+  const color = new Color();
+  for (const im of visitorMeshes) im.setColorAt(0, color);
+  for (const w of W) {
+    const { style, fabric, skin } = w.outfit;
+    w.up = uppers.get(style);
+    w.fabric = new Color(fabric);
+    w.skin = new Color(skin);
+    w.wrapped = style === 'sari' || style === 'veshti';
+    w.trousers = new Color(w.wrapped ? skin : visitorTrousers(style));
+  }
 
   // Bullock cart route: Welcome Point, main north-south road, Bhiksha Hall, Metal Bridge.
   const cartRoute = route([
@@ -1900,9 +1899,8 @@ function createPeople() {
         cg.getWorldPosition(pv);
         cg.visible = pv.distanceTo(cp) - cg.userData.radius < NPC_FAR;
       }
-    let nm = 0,
-      nf = 0,
-      nl = 0;
+    for (const upper of uppers.values()) upper.count = 0;
+    let nl = 0;
     W.forEach((w) => {
       const r = w.r;
       w.s += w.v * w.dir * dt;
@@ -1922,26 +1920,26 @@ function createPeople() {
         return;
       const y = r.yFn ? r.yFn(x, z) : 0.13,
         ry = Math.atan2(o.tx * w.dir, o.tz * w.dir);
-      const sw = Math.sin(w.ph) * 0.42,
+      const sw = Math.sin(w.ph) * (w.wrapped ? 0.15 : 0.36),
         bob = Math.abs(Math.cos(w.ph)) * 0.03,
         cx = Math.cos(ry) * 0.085,
         cz = -Math.sin(ry) * 0.085;
-      const iu = w.female ? nf++ : nm++;
+      const iu = w.up.count++;
       put(w.up, iu, x, y + bob, z, ry);
-      w.up.setColorAt(iu, w.c1);
+      setVisitorColors(w.up, iu, w.fabric, w.skin);
       put(legs, nl, x - cx, y + 0.84 + bob, z - cz, ry, sw);
-      legs.setColorAt(nl++, w.c2);
+      setVisitorColors(legs, nl++, w.trousers, w.skin);
       put(legs, nl, x + cx, y + 0.84 + bob, z + cz, ry, -sw);
-      legs.setColorAt(nl++, w.c2);
+      setVisitorColors(legs, nl++, w.trousers, w.skin);
       put(blobs, nl / 2 - 1, x, y + 0.015, z, 0);
     });
-    upM.count = nm;
-    upF.count = nf;
     legs.count = nl;
     blobs.count = nl / 2;
-    for (const im of [upM, upF, legs, blobs]) {
+    blobs.instanceMatrix.needsUpdate = true;
+    for (const im of visitorMeshes) {
       im.instanceMatrix.needsUpdate = true;
-      if (im.instanceColor) im.instanceColor.needsUpdate = true;
+      im.instanceColor.needsUpdate = true;
+      im.geometry.attributes.visitorSkin.needsUpdate = true;
     }
 
     for (const k of carts) {
@@ -2392,51 +2390,87 @@ function tinted(geo, items, rough = 0.7) {
   return m;
 }
 // People and bullock carts
-// People and carts share a vertex color material. Clothing vertices use -1 and take their color from instanceColor.
-// Skin, hair, wood, and oxen have fixed vertex colors. Each pose needs a single draw call for a crowd.
+// People and carts share a vertex color material. Negative red values identify fabric and skin.
 // Walk skips people and carts marked userData.npc when checking for collisions.
 const PR = mulberry(20261119); // A separate seed keeps crowd placement independent from vegetation and other layouts.
 const pr = (a, b) => a + (b - a) * PR();
-const SKIN = 0x7a4a30,
-  HAIR = 0x17120e;
-const WHITES = [0xf2eee4, 0xebe5d6, 0xf6f4ee],
-  MENC = [0xd8c7a2, 0x8c6b4a, 0x3f5c86, 0xc9692e, 0x6c7a88, 0xa33a2a],
-  SARI = [
-    0xb3261c, 0xe0781e, 0x2f7d4a, 0x2a4f9a, 0xd2477f, 0xe2be3e, 0x7a2f6b,
-    0x1f8a8a,
-  ];
-const pick = (a) => a[(PR() * a.length) | 0];
-// White clothing is common on campus, and many women wear saris.
-const dress = (female) =>
-  female
-    ? PR() < 0.3
-      ? pick(WHITES)
-      : pick(SARI)
-    : PR() < 0.6
-      ? pick(WHITES)
-      : pick(MENC);
+const FABRIC = -1,
+  SKIN = -2,
+  HAIR = 0x211813,
+  IVORY = 0xf0e7d5,
+  GOLD_TRIM = 0xbf8a44;
+const VISITOR_CLOTHES = {
+  sari: [0xf5e7c8, 0xa53359, 0x23776c],
+  salwar: [0xece5d6, 0x306687, 0xb65c39],
+  kurta: [0xf4eee2, 0x547480, 0xa75f37],
+  veshti: [0xf2ead9, 0xccc1a4, 0x53664c],
+  casual: [0x718787, 0xac654e, 0x677fa1],
+};
+const VISITOR_SKIN = [
+  0x54301f, 0x815139, 0xa26948, 0xbb8562, 0xc99c78, 0xe4b898,
+];
+const appearanceRandom = mulberry(20261120);
+const visitorSkin = () =>
+  VISITOR_SKIN[Math.floor(appearanceRandom() * VISITOR_SKIN.length)];
+const visitorTrousers = (style) => (style === 'casual' ? 0x3b4b60 : IVORY);
+function visitorOutfit(female = 0.45, white = 0.2) {
+  const traditional = appearanceRandom() >= 0.1;
+  const styles =
+    appearanceRandom() < female ? ['sari', 'salwar'] : ['kurta', 'veshti'];
+  const style = traditional
+    ? styles[Math.floor(appearanceRandom() * styles.length)]
+    : 'casual';
+  const colors = VISITOR_CLOTHES[style];
+  // Light clothing is common on campus, especially in meditation spaces.
+  const fabric =
+    colors[
+      appearanceRandom() < white
+        ? 0
+        : Math.floor(appearanceRandom() * colors.length)
+    ];
+  return { style, fabric, skin: visitorSkin() };
+}
 function paint(geo, hex) {
-  // Paint the entire geometry with one vertex color. A null hex marks clothing colored by the instance.
   const g = geo.index ? geo.toNonIndexed() : geo,
     n = g.attributes.position.count,
     a = new Float32Array(n * 3),
-    c = hex == null ? null : new Color(hex);
+    c = hex < 0 ? null : new Color(hex);
   for (let i = 0; i < n; i++) {
-    a[i * 3] = c ? c.r : -1;
-    a[i * 3 + 1] = c ? c.g : -1;
-    a[i * 3 + 2] = c ? c.b : -1;
+    a[i * 3] = c ? c.r : hex;
+    a[i * 3 + 1] = c ? c.g : 0;
+    a[i * 3 + 2] = c ? c.b : 0;
   }
   g.setAttribute('color', new THREE.BufferAttribute(a, 3));
   return g;
 }
-function recolor(geo, hex) {
-  // Bake a fixed color into clothing vertices when merging people into a single mesh such as the cart.
+function recolor(geo, outfit) {
+  // Bake the rider's colors into the cart mesh.
   const g = geo.clone(),
     a = g.attributes.color,
-    c = new Color(hex);
-  for (let i = 0; i < a.count; i++)
-    if (a.getX(i) < 0) a.setXYZ(i, c.r, c.g, c.b);
+    fabric = new Color(outfit.fabric),
+    skin = new Color(outfit.skin);
+  for (let i = 0; i < a.count; i++) {
+    const marker = a.getX(i);
+    if (marker >= 0) continue;
+    const c = marker === SKIN ? skin : fabric;
+    a.setXYZ(i, c.r, c.g, c.b);
+  }
   return g;
+}
+function visitorGeometry(base, count) {
+  // Each batch owns its instance colors and shares the model's vertex buffers.
+  const geometry = new THREE.BufferGeometry();
+  for (const [name, attribute] of Object.entries(base.attributes))
+    geometry.setAttribute(name, attribute);
+  geometry.setAttribute(
+    'visitorSkin',
+    new THREE.InstancedBufferAttribute(new Float32Array(count * 3), 3),
+  );
+  return geometry;
+}
+function setVisitorColors(mesh, index, fabric, skin) {
+  mesh.setColorAt(index, fabric);
+  mesh.geometry.attributes.visitorSkin.setXYZ(index, skin.r, skin.g, skin.b);
 }
 function vcolMat() {
   if (MAT.vcol) return MAT.vcol;
@@ -2446,13 +2480,19 @@ function vcolMat() {
     side: THREE.DoubleSide,
   });
   m.onBeforeCompile = (s) => {
+    s.vertexShader =
+      `
+      #ifdef USE_INSTANCING_COLOR
+        attribute vec3 visitorSkin;
+      #endif
+    ` + s.vertexShader;
     s.vertexShader = s.vertexShader.replace(
       '#include <color_vertex>',
       `#include <color_vertex>
     #ifdef USE_INSTANCING_COLOR
-      vColor.xyz = color.r < 0.0 ? instanceColor.xyz : color.xyz;
+      vColor.xyz = color.r < -1.5 ? visitorSkin : color.r < 0.0 ? instanceColor : color.xyz;
     #else
-      vColor.xyz = color.r < 0.0 ? vec3(0.85) : color.xyz;
+      vColor.xyz = color.xyz;
     #endif`,
     );
   };
@@ -2466,132 +2506,294 @@ const pcap = (r, len, x, y, z, rx = 0, rz = 0, sx = 1, sz = 1) =>
     .translate(x, y, z);
 const pball = (r, x, y, z, sx = 1, sy = 1, sz = 1, w = 6, h = 4) =>
   new THREE.SphereGeometry(r, w, h).scale(sx, sy, sz).translate(x, y, z);
-// Poses face local +Z from floor or seat level. sm/sf stand, cm/cf sit cross-legged, hm/hf sit on chairs, wm/wf are walking torsos, and leg pivots at the hip.
+// Poses face local +Z. The pose key combines standing (s), walking (w),
+// cross-legged (c), or chair seating (h) with the garment style.
 let _PG;
 function personGeos() {
   if (_PG) return _PG;
-  const C = null;
-  // Upper body: y0 is waist height. Arms can hang ('down'), rest on knees ('knee'), or reach forward while eating ('fwd').
-  const upper = (y0, female, arms) => {
-    const ys = y0 + 0.52,
-      p = [
+
+  const garment = (top, bottom, height, y, depth, color) =>
+    paint(
+      new THREE.CylinderGeometry(top, bottom, height, 10)
+        .scale(1, 1, depth)
+        .translate(0, y, 0),
+      color,
+    );
+  // A strip follows the blouse up over the shoulder and down the back.
+  const drape = (points, width, y, color, offset = 0) => {
+    const positions = [];
+    for (let i = 1; i < points.length; i++) {
+      const [ax, ay, az] = points[i - 1];
+      const [bx, by, bz] = points[i];
+      const a = [ax + offset, y + ay, az],
+        b = [bx + offset, y + by, bz],
+        c = [ax + offset + width, y + ay, az],
+        d = [bx + offset + width, y + by, bz];
+      positions.push(...a, ...b, ...c, ...b, ...d, ...c);
+    }
+    const geometry = new THREE.BufferGeometry();
+    geometry.setAttribute(
+      'position',
+      new THREE.Float32BufferAttribute(positions, 3),
+    );
+    geometry.computeVertexNormals();
+    return paint(geometry, color);
+  };
+
+  const upper = (y, style, pose) => {
+    const longHair = style === 'sari' || style === 'salwar';
+    const clothes = [
+      garment(0.16, 0.15, 0.46, y + 0.33, 0.69, FABRIC),
+      paint(pcap(0.047, 0.07, 0, y + 0.62, 0), SKIN),
+      paint(pball(0.104, 0, y + 0.75, 0.018, 0.91, 1.12, 1, 8, 6), SKIN),
+      paint(
+        new THREE.SphereGeometry(
+          0.111,
+          8,
+          4,
+          0,
+          Math.PI * 2,
+          0,
+          longHair ? 2.07 : 1.7,
+        )
+          .scale(0.94, 1.07, 1.03)
+          .translate(0, y + 0.78, -0.014),
+        HAIR,
+      ),
+      paint(pball(0.024, 0, y + 0.737, 0.113, 0.73, 1.05, 1.1), SKIN),
+    ];
+    for (const side of [-1, 1]) {
+      clothes.push(
         paint(
-          new THREE.CapsuleGeometry(0.15, 0.3, 2, 7)
-            .scale(1.18, 1, 0.72)
-            .translate(0, y0 + 0.3, 0),
-          C,
-        ),
-        paint(
-          new THREE.CylinderGeometry(0.045, 0.05, 0.1, 5, 1, true).translate(
-            0,
-            y0 + 0.64,
-            0,
-          ),
+          pball(0.023, side * 0.09, y + 0.744, 0.008, 0.56, 1.1, 0.75),
           SKIN,
         ),
-        paint(pball(0.105, 0, y0 + 0.77, 0.01, 0.9, 1.1, 1, 7, 5), SKIN),
         paint(
-          new THREE.SphereGeometry(
-            0.112,
-            7,
-            3,
-            0,
-            Math.PI * 2,
-            0,
-            female ? 2.0 : 1.7,
-          )
-            .scale(0.92, 1.1, 1.02)
-            .translate(0, y0 + 0.785, -0.012),
+          pball(0.008, side * 0.035, y + 0.766, 0.112, 1.3, 0.66, 0.8),
           HAIR,
         ),
-      ];
-    if (female) p.push(paint(pball(0.065, 0, y0 + 0.74, -0.12), HAIR));
-    const A = {
-      down: [0, -0.27, 0, -0.56, 0.01],
-      knee: [-0.5, -0.215, 0.118, -0.43, 0.235],
-      fwd: [-1.1, -0.11, 0.22, -0.22, 0.44],
-    }[arms];
-    for (const sx of [-1, 1])
-      p.push(
-        paint(
-          pcap(
-            0.045,
-            0.4,
-            sx * 0.21,
-            ys + A[1],
-            A[2],
-            A[0],
-            arms === 'down' ? sx * 0.07 : 0,
-          ),
-          C,
-        ),
-        paint(pball(0.045, sx * 0.23, ys + A[3], A[4]), SKIN),
       );
-    return p;
+    }
+    if (style === 'sari') {
+      const pallu = [
+        [0.082, 0.13, 0.115],
+        [0.005, 0.31, 0.129],
+        [-0.166, 0.57, 0.073],
+        [-0.161, 0.576, -0.075],
+        [-0.162, 0.37, -0.121],
+        [-0.18, 0.1, -0.136],
+      ];
+      clothes.push(
+        garment(0.154, 0.164, 0.21, y + 0.12, 0.72, FABRIC),
+        drape(pallu, 0.13, y, FABRIC),
+        drape(pallu, 0.021, y, GOLD_TRIM, -0.021),
+        paint(pball(0.058, 0, y + 0.716, -0.12), HAIR),
+      );
+    } else if (style === 'salwar') {
+      const tunicLength = pose === 'c' ? 0.25 : 0.36;
+      clothes.push(
+        garment(
+          0.148,
+          0.2,
+          tunicLength,
+          y + 0.135 - tunicLength / 2,
+          0.78,
+          FABRIC,
+        ),
+        drape(
+          [
+            [-0.146, 0.25, 0.124],
+            [-0.07, 0.47, 0.119],
+            [0.07, 0.569, 0.091],
+            [0.07, 0.562, -0.082],
+            [0.082, 0.15, -0.134],
+          ],
+          0.084,
+          y,
+          IVORY,
+        ),
+        paint(pcap(0.035, 0.2, 0, y + 0.61, -0.12, -0.18), HAIR),
+      );
+    } else if (style === 'casual') {
+      clothes.push(
+        garment(0.143, 0.154, 0.13, y + 0.007, 0.69, visitorTrousers(style)),
+        garment(0.151, 0.155, 0.12, y + 0.085, 0.71, FABRIC),
+        garment(0.055, 0.064, 0.027, y + 0.554, 1, IVORY),
+        paint(pcap(0.051, 0.19, 0.105, y + 0.31, -0.104), 0x544f4b),
+        paint(pcap(0.051, 0.19, -0.105, y + 0.31, -0.104), 0x544f4b),
+        paint(pball(0.18, 0, y + 0.32, -0.17, 0.86, 1.23, 0.67), 0x544f4b),
+      );
+    } else {
+      clothes.push(
+        garment(0.061, 0.067, 0.046, y + 0.557, 0.94, IVORY),
+        paint(
+          new THREE.BoxGeometry(0.024, 0.2, 0.012).translate(
+            0,
+            y + 0.443,
+            0.11,
+          ),
+          IVORY,
+        ),
+      );
+      if (style === 'kurta') {
+        const tunicLength = pose === 'c' ? 0.25 : 0.39;
+        clothes.push(
+          garment(
+            0.15,
+            0.184,
+            tunicLength,
+            y + 0.145 - tunicLength / 2,
+            0.78,
+            FABRIC,
+          ),
+        );
+      }
+      if (style === 'veshti')
+        clothes.push(garment(0.151, 0.158, 0.15, y + 0.067, 0.77, FABRIC));
+    }
+
+    const [handY, handZ] = {
+      s: [-0.035, 0.02],
+      c: [0.035, 0.265],
+      h: [0.2, 0.46],
+    }[pose];
+    const shortSleeve = style === 'sari' || style === 'casual';
+    const down = new V3(0, -1, 0);
+    for (const side of [-1, 1]) {
+      const shoulder = new V3(side * 0.148, y + 0.497, 0);
+      const hand = new V3(side * 0.21, y + handY, handZ);
+      const sleeveEnd = shoulder.clone().lerp(hand, shortSleeve ? 0.35 : 0.72);
+      for (const [start, end, radius, color] of [
+        [shoulder, sleeveEnd, 0.058, FABRIC],
+        [sleeveEnd, hand, 0.035, SKIN],
+      ]) {
+        const direction = end.clone().sub(start);
+        const orientation = new THREE.Quaternion().setFromUnitVectors(
+          down,
+          direction.clone().normalize(),
+        );
+        const midpoint = start.clone().lerp(end, 0.5);
+        clothes.push(
+          paint(
+            new THREE.CapsuleGeometry(radius, direction.length(), 1, 5)
+              .applyQuaternion(orientation)
+              .translate(midpoint.x, midpoint.y, midpoint.z),
+            color,
+          ),
+        );
+      }
+      clothes.push(paint(pball(0.038, hand.x, hand.y, hand.z), SKIN));
+    }
+    return clothes;
   };
+
   const feet = (y, z) =>
-    [-1, 1].map((sx) =>
-      paint(pball(0.05, sx * 0.085, y, z, 0.9, 0.5, 1.8), SKIN),
+    [-1, 1].map((side) =>
+      paint(pball(0.048, side * 0.085, y, z, 0.9, 0.55, 1.75), SKIN),
     );
-  const legsStand = () => [
-    paint(pcap(0.07, 0.62, -0.085, 0.42, 0), C),
-    paint(pcap(0.07, 0.62, 0.085, 0.42, 0), C),
-    ...feet(0.03, 0.05),
-  ];
-  const skirt = () => [
-    paint(
-      new THREE.CylinderGeometry(0.17, 0.27, 0.84, 8, 1, true).translate(
-        0,
-        0.44,
-        0,
-      ),
-      C,
-    ),
-    ...feet(0.03, 0.08),
-  ];
-  const crossed = () => [paint(pball(1, 0, 0.09, 0.1, 0.3, 0.09, 0.2), C)];
-  const chairLegs = () =>
-    [-1, 1]
-      .flatMap((sx) => [
-        paint(pcap(0.07, 0.3, sx * 0.09, 0.52, 0.2, Math.PI / 2), C),
-        paint(pcap(0.06, 0.4, sx * 0.09, 0.21, 0.42), C),
-      ])
-      .concat(feet(-0.03, 0.47));
   _PG = {
-    sm: mergeGeos([...upper(0.84, false, 'down'), ...legsStand()]),
-    sf: mergeGeos([...upper(0.8, true, 'down'), ...skirt()]),
-    cm: mergeGeos([...upper(0.17, false, 'knee'), ...crossed()]),
-    cf: mergeGeos([...upper(0.17, true, 'knee'), ...crossed()]),
-    hm: mergeGeos([...upper(0.5, false, 'fwd'), ...chairLegs()]),
-    hf: mergeGeos([...upper(0.5, true, 'fwd'), ...chairLegs()]),
-    wm: mergeGeos(upper(0.84, false, 'down')),
-    wf: mergeGeos([...upper(0.84, true, 'down'), ...skirt()]),
     leg: mergeGeos([
-      paint(pcap(0.07, 0.62, 0, -0.42, 0), C),
-      paint(pball(0.05, 0, -0.81, 0.05, 0.9, 0.5, 1.8), SKIN),
+      paint(pcap(0.063, 0.61, 0, -0.398, 0), FABRIC),
+      paint(pcap(0.039, 0.085, 0, -0.747, 0), SKIN),
+      paint(pball(0.048, 0, -0.811, 0.053, 0.9, 0.55, 1.75), SKIN),
     ]),
   };
-  for (const k in _PG) _PG[k].computeBoundingSphere();
+  for (const style of Object.keys(VISITOR_CLOTHES)) {
+    const wrapped = style === 'sari' || style === 'veshti';
+    const lowerColor = style === 'sari' ? FABRIC : visitorTrousers(style);
+    const wrapHeight = style === 'sari' ? 0.74 : 0.62;
+    const hem = style === 'sari' ? 0.237 : 0.215;
+    const wrap = wrapped
+      ? [
+          garment(
+            0.155,
+            hem,
+            wrapHeight,
+            0.85 - wrapHeight / 2,
+            0.82,
+            lowerColor,
+          ),
+          garment(
+            hem - 0.001,
+            hem + 0.003,
+            0.033,
+            0.867 - wrapHeight,
+            0.83,
+            GOLD_TRIM,
+          ),
+          drape(
+            [
+              [-0.033, 0.84, 0.135],
+              [-0.026, 0.85 - wrapHeight, hem * 0.82],
+            ],
+            0.029,
+            0,
+            GOLD_TRIM,
+          ),
+        ]
+      : [];
+    const standing = wrapped
+      ? []
+      : [-1, 1].map((side) =>
+          paint(pcap(0.063, 0.61, side * 0.085, 0.442, 0), lowerColor),
+        );
+    const shins =
+      wrapped && style === 'veshti'
+        ? [-1, 1].map((side) =>
+            paint(pcap(0.044, 0.169, side * 0.085, 0.15, 0), SKIN),
+          )
+        : [];
+    const feetStanding = [...shins, ...feet(0.03, 0.052)];
+    const crossed = [-1, 1].map((side) =>
+      paint(
+        pcap(0.088, 0.28, 0, 0.095, 0.093, side * 0.21, Math.PI / 2, 1, 0.85),
+        lowerColor,
+      ),
+    );
+    const chairLegs = [-1, 1].flatMap((side) => [
+      paint(
+        pcap(0.076, 0.31, side * 0.091, 0.5, 0.199, Math.PI / 2),
+        lowerColor,
+      ),
+      paint(pcap(0.055, 0.39, side * 0.091, 0.227, 0.408), lowerColor),
+    ]);
+    const standingUpper = [...upper(0.84, style, 's'), ...wrap];
+    _PG['s' + style] = mergeGeos([
+      ...standingUpper,
+      ...standing,
+      ...feetStanding,
+    ]);
+    _PG['w' + style] = mergeGeos(standingUpper);
+    _PG['c' + style] = mergeGeos([...upper(0.17, style, 'c'), ...crossed]);
+    _PG['h' + style] = mergeGeos([
+      ...upper(0.5, style, 'h'),
+      ...chairLegs,
+      ...feet(-0.03, 0.47),
+    ]);
+  }
   return _PG;
 }
-// Stationary crowd entries use [x, y, z, yaw, 0xcolor, pose]. See personGeos() for poses. Each pose needs one draw call.
 const NPC_FAR = 380; // Cull people beyond this distance, where they would appear about three pixels tall.
 const CROWDS = []; // Stationary crowds, culled as groups by distance.
 let frameNo = 0;
+// Crowd entries use [x, y, z, yaw, outfit, pose]. Instance each pose and garment together.
 function crowd(list, shadow = true) {
   const PG = personGeos(),
     by = {},
-    c = new Color(),
+    fabric = new Color(),
+    skin = new Color(),
     g = new THREE.Group();
-  for (const p of list) (by[p[5]] ||= []).push(p);
-  for (const k in by) {
+  for (const p of list) (by[p[5] + p[4].style] ||= []).push(p);
+  for (const [key, people] of Object.entries(by)) {
     const m = instanced(
-      PG[k],
+      visitorGeometry(PG[key], people.length),
       vcolMat(),
-      by[k].map(([x, y, z, ry]) => M(x, y, z, 1, 1, 1, ry)),
+      people.map(([x, y, z, ry]) => M(x, y, z, 1, 1, 1, ry)),
       shadow,
     );
-    by[k].forEach((p, i) => m.setColorAt(i, c.set(p[4])));
+    people.forEach(([, , , , outfit], i) =>
+      setVisitorColors(m, i, fabric.set(outfit.fabric), skin.set(outfit.skin)),
+    );
     m.userData.npc = true;
     g.add(m);
   }
@@ -2606,21 +2808,26 @@ function crowd(list, shadow = true) {
   CROWDS.push(g);
   return g;
 }
-// Generate one person. pose is 's' for standing, 'c' for cross-legged, or 'h' for chair seating. fem is the share of women.
-const folk = (x, y, z, ry, pose, fem = 0.45, white = 0) => {
-  const f = PR() < fem;
-  return [
-    x,
-    y,
-    z,
-    ry,
-    PR() < white ? pick(WHITES) : dress(f),
-    pose + (f ? 'f' : 'm'),
-  ];
-};
+const folk = (x, y, z, ry, pose, fem = 0.45, white = 0.35) => [
+  x,
+  y,
+  z,
+  ry,
+  visitorOutfit(fem, white),
+  pose,
+];
 // Legacy helper for cross-legged people: pts = [[x, y, z, yaw, 0xcolor], ...].
 function seated(pts) {
-  return crowd(pts.map(([x, y, z, ry, col]) => [x, y, z, ry, col, 'cm']));
+  return crowd(
+    pts.map(([x, y, z, ry, fabric]) => [
+      x,
+      y,
+      z,
+      ry,
+      { style: 'kurta', fabric, skin: visitorSkin() },
+      'c',
+    ]),
+  );
 }
 
 // Pair of white Kangayam oxen with a wooden cart and curved canopy. +Z is forward and the origin is below the axle.
@@ -2780,15 +2987,19 @@ function oxCart(o = {}) {
     [-0.42, 0.05, Math.PI / 2],
     [0.42, 0.05, -Math.PI / 2],
   ].slice(0, o.riders ?? 4)) {
-    const f = PR() < 0.5;
+    const outfit = visitorOutfit(0.5, 0.35);
     P.push(
-      recolor(PG[f ? 'cf' : 'cm'], dress(f)).applyMatrix4(
+      recolor(PG['c' + outfit.style], outfit).applyMatrix4(
         M(x, 1.05, z, 1, 1, 1, ry),
       ),
     );
   }
   if (o.driver !== false)
-    P.push(recolor(PG.hm, pick(WHITES)).applyMatrix4(M(0, 0.6, 1.2)));
+    P.push(
+      recolor(PG.hveshti, { fabric: IVORY, skin: visitorSkin() }).applyMatrix4(
+        M(0, 0.6, 1.2),
+      ),
+    );
   const g = new THREE.Group(),
     shadow = !!o.shadow;
   g.add(mesh(mergeGeos(P), vcolMat(), 0, 0, 0, shadow));
