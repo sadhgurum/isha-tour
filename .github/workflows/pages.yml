@@ -1,0 +1,85 @@
+name: Check and deploy tour
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: tour-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npm run check
+      - uses: actions/upload-pages-artifact@v5
+        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+        with:
+          path: dist
+          include-hidden-files: true
+
+  deploy:
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/download-artifact@v7
+        with:
+          name: github-pages
+          path: pages-artifact
+      - name: Update gh-pages
+        shell: bash
+        run: |
+          main_sha="$(git ls-remote origin refs/heads/main | cut -f1)"
+          if [[ "$main_sha" != "$GITHUB_SHA" ]]; then
+            echo "Skipping a superseded build."
+            exit 0
+          fi
+
+          site="$RUNNER_TEMP/isha-tour-pages"
+          pages_ref="refs/heads/gh-pages"
+          pages_head="$(git ls-remote origin "$pages_ref")"
+          if [[ -n "$pages_head" ]]; then
+            git fetch --no-tags origin "$pages_ref"
+            git worktree add --detach "$site" FETCH_HEAD
+            git -C "$site" rm -r --ignore-unmatch .
+          else
+            git worktree add --orphan -b gh-pages "$site"
+          fi
+
+          tar -xf pages-artifact/artifact.tar -C "$site"
+          git -C "$site" add --all
+          if ! git -C "$site" diff --cached --quiet; then
+            git -C "$site" -c user.name='github-actions[bot]' \
+              -c user.email='41898282+github-actions[bot]@users.noreply.github.com' \
+              commit -m "Deploy ${GITHUB_SHA}"
+            git push origin "$(git -C "$site" rev-parse HEAD):$pages_ref"
+          fi
+          echo 'ready=true' >> "$GITHUB_OUTPUT"
+        id: publish
+      - name: Deploy to GitHub Pages
+        if: steps.publish.outputs.ready == 'true'
+        id: deployment
+        uses: actions/deploy-pages@v4
