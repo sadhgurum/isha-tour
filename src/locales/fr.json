@@ -33,8 +33,6 @@
     "walkDescription": "Explorez à pied. Mettez-vous en marche avec WASD ou les touches de flèche, tenez Shift pour exécuter ou appuyez sur F pour changer de vol. Traînez pour regarder autour. Sur les écrans tactiles, utilisez le joystick. Appuyez sur Esc ou sélectionnez Marcher à nouveau pour revenir à la vue aérienne.",
     "aerial": "Vue aérienne",
     "aerialDescription": "Sélectionnez un lieu de référence dans la liste de navigation pour y voler, ou sélectionnez Marcher pour explorer à pied.",
-    "people": "Personnes",
-    "peopleTip": "Montrez ou cachez les visiteurs, les foules et les chariots de taureaux.",
     "overview": "Vue d’ensemble",
     "overviewDescription": "Les emplacements, les orientations et les distances utilisent des coordonnées OpenStreetMap à l'échelle 1:1 et ont été vérifiées croisées par rapport à la carte du campus d'Isha ⁇  de 2026. Les bâtiments sont modélisés à partir de photographies officielles et de visiteurs. Adiyogi est au sud-est et face au sud. Les collines de Velliangiri sont à l'ouest. Utilisez Cutaway pour regarder à l'intérieur des bâtiments.",
     "outsideHeading": "À l'extérieur de Sarpa Vasal · Zone publique",

@@ -33,8 +33,6 @@
     "walkDescription": "像走在园区里一样四处看看。键盘：WASD 或方向键走，Shift 跑，F 切换飞行；鼠标或手指拖动看四周；触屏用左下角的摇杆。按 Esc 或再点「漫步」回到俯瞰。",
     "aerial": "俯瞰",
     "aerialDescription": "已回到俯瞰视角。点左下角的地点可以飞过去，或者再点「漫步」走走看。",
-    "people": "行人",
-    "peopleTip": "显示 / 隐藏园区里的行人、人群和牛车",
     "overview": "全景",
     "overviewDescription": "位置、朝向与间距按 OpenStreetMap 实测坐标 1:1 摆放，并对照 Isha 官方 2026 园区地图核对；建筑内外参照官网与访客照片建模。Adiyogi 在东南、面朝正南；韦灵吉里群山在西侧。点右上角「剖视」可掀开屋顶看室内。",
     "outsideHeading": "蛇门外 · 公开区域",

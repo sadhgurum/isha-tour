@@ -2394,7 +2394,7 @@ function tinted(geo, items, rough = 0.7) {
 // People and bullock carts
 // People and carts share a vertex color material. Clothing vertices use -1 and take their color from instanceColor.
 // Skin, hair, wood, and oxen have fixed vertex colors. Each pose needs a single draw call for a crowd.
-// People and carts have userData.npc so the People toggle can hide them and Walk can skip them for collisions.
+// Walk skips people and carts marked userData.npc when checking for collisions.
 const PR = mulberry(20261119); // A separate seed keeps crowd placement independent from vegetation and other layouts.
 const pr = (a, b) => a + (b - a) * PR();
 const SKIN = 0x7a4a30,
@@ -3558,7 +3558,7 @@ function createAdiyogi() {
       row.map(([x, , z]) => M(x, 0.4, z)),
     ),
   );
-  // The People toggle controls visitors seated and standing in the plaza and those offering water at the linga.
+  // Visitors sit and stand in the plaza and offer water at the linga.
   const ppl = [];
   for (let tries = 0; ppl.length < 230 && tries < 4000; tries++) {
     const z = 48 + Math.pow(PR(), 1.6) * 80,
@@ -8582,20 +8582,6 @@ function setRoofs(hidden) {
   });
   renderer.shadowMap.needsUpdate = true;
 }
-// The People toggle controls crowds, moving pedestrians, and bullock carts marked userData.npc.
-let peopleOn = true;
-function setPeople(on) {
-  peopleOn = on;
-  scene.traverse((o) => {
-    if (o.userData.npc) o.visible = on;
-  });
-  renderer.shadowMap.needsUpdate = true;
-  try {
-    localStorage.setItem('isha.people', on ? '1' : '0');
-  } catch {
-    // Storage may be blocked by the browser.
-  }
-}
 
 // Interface.
 const labelLayer = $('#landmark-labels');
@@ -8782,23 +8768,6 @@ function buildUI() {
   walker.onMode = walkHint;
   walk.onclick = () => (walker.on ? stopWalk() : startWalk());
   $('#moods').append(walk);
-  // Show or hide people and bullock carts and save the setting.
-  const ppl = document.createElement('button');
-  bindMessage(ppl, 'people');
-  bindMessage(ppl, 'peopleTip', 'title');
-  let saved = null;
-  try {
-    saved = localStorage.getItem('isha.people');
-  } catch {
-    // Storage may be blocked by the browser.
-  }
-  if (saved === '0') setPeople(false);
-  ppl.classList.toggle('on', peopleOn);
-  ppl.onclick = () => {
-    setPeople(!peopleOn);
-    ppl.classList.toggle('on', peopleOn);
-  };
-  $('#moods').append(ppl);
   const add = (readInfo, view, component) => {
     const b = document.createElement('button');
     if (component?.detail) b.classList.add('nav-detail');
@@ -8912,7 +8881,6 @@ window.ISHA = {
   MOODS,
   setMood,
   setRoofs,
-  setPeople,
   geo,
   fitShadow,
 }; // Expose scene controls for debugging in the console.
