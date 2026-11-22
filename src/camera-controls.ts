@@ -67,7 +67,7 @@ function isInPit(x: number, z: number, pits: readonly TerrainPit[]) {
   });
 }
 
-// —— 轨道相机（自带实现，无需额外依赖） ——
+// Orbit camera, implemented without additional dependencies.
 export function createControls(
   cam: PerspectiveCamera,
   el: HTMLCanvasElement,
@@ -167,7 +167,7 @@ export function createControls(
     if (c.auto) goal.theta += dt * 0.015;
     c.fly = Math.max(0, c.fly - dt);
     goal.target.x = clamp(goal.target.x, -800, 900);
-    goal.target.z = clamp(goal.target.z, -850, 1700); // 南边要能看到 Malai Vasal 与停车场
+    goal.target.z = clamp(goal.target.z, -850, 1700); // Include Malai Vasal and the parking area to the south.
     const k = 1 - Math.exp(-dt * (c.fly > 0 || c.auto ? 2.6 : 7));
     c.target.lerp(goal.target, k);
     c.theta = lerp(c.theta, goal.theta, k);
@@ -179,7 +179,7 @@ export function createControls(
       c.target.y + c.radius * Math.cos(c.phi),
       c.target.z + c.radius * sp * Math.cos(c.theta),
     );
-    // 下沉的池子（PITS）里允许相机降到地面以下，这样才能沿台阶走进 Chandrakund、Suryakund
+    // Let the camera follow the steps below ground into Chandrakund and Suryakund.
     if (!isInPit(cam.position.x, cam.position.z, terrain.pits))
       cam.position.y = Math.max(
         cam.position.y,
@@ -189,10 +189,9 @@ export function createControls(
   }
   return c;
 }
-// —— 漫步模式（第一人称）——
-// WASD / 方向键走，拖动看四周，Shift 跑，F 切换飞行（不受地面和墙阻挡，Space / E 升、Q / C 降），Esc 退出。
-// 触屏：左下角摇杆走，其余地方拖动看。脚下高度用向下的射线找“最高的地面”（台阶、桥、楼板都算），
-// 墙用水平射线挡住；只在玩家附近 16 米格子里的物体上做射线，草木、路灯、人群、半透明物体不参与。
+// First-person movement. The joystick handles walking on touchscreens.
+// Downward rays find floors, stairs, and bridges. Horizontal rays handle walls.
+// The collision grid uses 16-meter cells and skips vegetation, lamps, people, and translucent meshes.
 export function createWalker(
   cam: PerspectiveCamera,
   el: HTMLCanvasElement,
@@ -214,12 +213,34 @@ export function createWalker(
     update,
   };
   const ray = new Raycaster(),
+    up = new Vector3(0, 1, 0),
     down = new Vector3(0, -1, 0),
     tmp = new Vector3(),
     o = new Vector3(),
     nrm = new Matrix3();
   const CELL = 16,
     grid = new Map<number, Mesh[]>();
+  const minX = -1200,
+    maxX = 1300,
+    minZ = -1300,
+    maxZ = 1900;
+  const bodyRadius = 0.35;
+  const doubleTapMs = 300;
+  const touchVerticalSpeed = 6;
+  const risePointers = new Set<number>();
+  const descendPointers = new Map<number, number>();
+  const riseButton = document.getElementById('touch-rise');
+  const descendButton = document.getElementById('touch-descend');
+  if (!riseButton || !descendButton) {
+    throw new Error('Missing touch flight controls');
+  }
+  let movingFor = 0;
+  let lastSpacePress = -Infinity;
+  let lastDescendTap = -Infinity;
+  const landingDirections = Array.from({ length: 16 }, (_, i) => {
+    const angle = (i * Math.PI) / 8;
+    return [Math.cos(angle), Math.sin(angle)] as const;
+  });
   let built = false;
   const key = (i: number, k: number) => i * 100003 + k;
   const SKIP = new Set([
@@ -239,17 +260,17 @@ export function createWalker(
       top.traverse((m) => {
         if (!(m instanceof Mesh)) return;
         for (let q: Object3D | null = m; q; q = q.parent)
-          if (q.userData.npc) return; // 人群、牛车不挡路
+          if (q.userData.npc) return; // People and bullock carts do not block movement.
         const mat = Array.isArray(m.material) ? m.material[0] : m.material;
         if (!mat || mat.transparent || mat instanceof MeshBasicMaterial) return;
-        if (m instanceof InstancedMesh && m.count > 150) return; // 成群的人、成排的小物件：太多实例，射线代价高，也不挡路
+        if (m instanceof InstancedMesh && m.count > 150) return; // Skip dense clusters of small objects.
         box.setFromObject(m);
         if (box.isEmpty()) return;
         const i0 = Math.floor(box.min.x / CELL),
           i1 = Math.floor(box.max.x / CELL),
           k0 = Math.floor(box.min.z / CELL),
           k1 = Math.floor(box.max.z / CELL);
-        if ((i1 - i0 + 1) * (k1 - k0 + 1) > 400) return; // 特别大的面（远处的草场）交给地形
+        if ((i1 - i0 + 1) * (k1 - k0 + 1) > 400) return; // Terrain height covers large surfaces such as distant fields.
         for (let i = i0; i <= i1; i++)
           for (let k = k0; k <= k1; k++) {
             const kk = key(i, k);
@@ -275,18 +296,31 @@ export function createWalker(
           if (visible(m)) set.add(m);
     return [...set];
   }
-  // 脚下的地面高度：从膝盖高度往下打射线，取第一个朝上的面；没打到就用地形（水池坑里没有地形）
-  function floorAt(x: number, z: number, feet: number, objs: Mesh[]) {
-    o.set(x, feet + 0.75, z);
+  // Use the first upward-facing surface under the ray origin. Pits have no terrain floor.
+  function floorSurface(
+    x: number,
+    z: number,
+    top: number,
+    range: number,
+    objs: Mesh[],
+  ) {
+    o.set(x, top, z);
     ray.set(o, down);
-    ray.far = 40;
+    ray.far = range;
     for (const h of ray.intersectObjects(objs, false)) {
       if (!h.face) return h.point.y;
       nrm.getNormalMatrix(h.object.matrixWorld);
       tmp.copy(h.face.normal).applyMatrix3(nrm).normalize();
       if (tmp.y > 0.45) return h.point.y;
     }
-    return isInPit(x, z, terrain.pits) ? -40 : terrain.groundHeight(x, z);
+  }
+  function terrainSurface(x: number, z: number) {
+    return isInPit(x, z, terrain.pits) ? undefined : terrain.groundHeight(x, z);
+  }
+  function floorAt(x: number, z: number, feet: number, objs: Mesh[]) {
+    return (
+      floorSurface(x, z, feet + 0.75, 40, objs) ?? terrainSurface(x, z) ?? -40
+    );
   }
   function blockedMove(
     x: number,
@@ -295,6 +329,7 @@ export function createWalker(
     dz: number,
     feet: number,
     objs: Mesh[],
+    padding = bodyRadius,
   ) {
     const len = Math.hypot(dx, dz);
     if (len < 1e-5) return false;
@@ -302,20 +337,61 @@ export function createWalker(
     for (const hgt of [0.9, 1.5]) {
       o.set(x, feet + hgt, z);
       ray.set(o, tmp);
-      ray.far = len + 0.35;
+      ray.far = len + padding;
       if (ray.intersectObjects(objs, false).length) return true;
     }
     return false;
   }
+  function landingHeight(x: number, z: number, top: number) {
+    if (x < minX || x > maxX || z < minZ || z > maxZ) return;
+    const objs = near(x, z);
+    const feet =
+      floorSurface(x, z, top, Infinity, objs) ?? terrainSurface(x, z);
+    if (feet === undefined || feet > top) return;
+
+    o.set(x, feet + 0.05, z);
+    ray.set(o, up);
+    ray.far = w.eye + 0.1;
+    if (ray.intersectObjects(objs, false).length) return;
+
+    // Check for room to stand and enough floor to support both feet.
+    for (let i = 0; i < landingDirections.length; i += 4) {
+      const [dx, dz] = landingDirections[i];
+      const offsetX = dx * bodyRadius;
+      const offsetZ = dz * bodyRadius;
+      const sx = x + offsetX;
+      const sz = z + offsetZ;
+      if (blockedMove(sx, sz, -2 * offsetX, -2 * offsetZ, feet, objs, 0))
+        return;
+      const support =
+        floorSurface(sx, sz, feet + 0.35, 0.7, objs) ?? terrainSurface(sx, sz);
+      if (support === undefined || Math.abs(support - feet) > 0.35) return;
+    }
+    return feet;
+  }
+  function findLanding(x: number, z: number, top: number) {
+    const direct = landingHeight(x, z, top);
+    if (direct !== undefined) return new Vector3(x, direct, z);
+    for (let radius = 0.5; radius <= 24; radius += radius < 4 ? 0.5 : 2) {
+      for (const [dx, dz] of landingDirections) {
+        const px = x + dx * radius;
+        const pz = z + dz * radius;
+        const feet = landingHeight(px, pz, top);
+        if (feet !== undefined) return new Vector3(px, feet, pz);
+      }
+    }
+  }
   function enter(x: number, z: number, yaw: number) {
     if (!built) build();
+    x = clamp(x, minX, maxX);
+    z = clamp(z, minZ, maxZ);
+    const landing = findLanding(x, z, cam.position.y);
     w.on = true;
-    w.fly = false;
-    w.vy = 0;
+    setFlight(landing === undefined);
     w.yaw = yaw;
     w.pitch = -0.04;
-    w.pos.set(x, 0, z);
-    w.pos.y = floorAt(x, z, 200, near(x, z));
+    if (landing) w.pos.copy(landing);
+    else w.pos.set(x, cam.position.y - w.eye, z);
     cam.near = 0.15;
     cam.far = 9000;
     cam.updateProjectionMatrix();
@@ -324,13 +400,30 @@ export function createWalker(
   function exit() {
     w.on = false;
     w.keys.clear();
+    movingFor = 0;
+    lastSpacePress = -Infinity;
+    lastDescendTap = -Infinity;
+    risePointers.clear();
+    descendPointers.clear();
     w.joy.x = w.joy.y = 0;
     cam.near = 1.5;
     cam.far = 14000;
     cam.updateProjectionMatrix();
     document.body.classList.remove('walking');
   }
-  // 输入
+  const setFlight = (flying: boolean) => {
+    w.fly = flying;
+    w.vy = 0;
+    movingFor = 0;
+    lastSpacePress = -Infinity;
+    lastDescendTap = -Infinity;
+    risePointers.clear();
+    descendPointers.clear();
+    descendButton.hidden = !flying;
+    w.onMode?.();
+  };
+
+  // Input handlers.
   addEventListener('keydown', (e) => {
     if (
       !w.on ||
@@ -342,16 +435,60 @@ export function createWalker(
       return;
     }
     if (e.code === 'KeyF') {
-      w.fly = !w.fly;
-      w.vy = 0;
-      w.onMode?.();
+      if (!e.repeat) setFlight(!w.fly);
       return;
+    }
+    if (e.code === 'Space' && !e.repeat) {
+      if (e.timeStamp - lastSpacePress <= doubleTapMs) setFlight(!w.fly);
+      else lastSpacePress = e.timeStamp;
     }
     w.keys.add(e.code);
     if (/^(Arrow|Space)/.test(e.code)) e.preventDefault();
   });
   addEventListener('keyup', (e) => w.keys.delete(e.code));
-  addEventListener('blur', () => w.keys.clear());
+  addEventListener('blur', () => {
+    w.keys.clear();
+    movingFor = 0;
+    lastSpacePress = -Infinity;
+    lastDescendTap = -Infinity;
+    risePointers.clear();
+    descendPointers.clear();
+  });
+  riseButton.addEventListener('click', () => {
+    if (w.on && !w.fly) setFlight(true);
+  });
+  riseButton.addEventListener('pointerdown', (e) => {
+    if (!w.on || e.button !== 0) return;
+    if (!w.fly) setFlight(true);
+    lastDescendTap = -Infinity;
+    riseButton.setPointerCapture(e.pointerId);
+    risePointers.add(e.pointerId);
+  });
+  const releaseRise = (e: PointerEvent) => risePointers.delete(e.pointerId);
+  riseButton.addEventListener('pointerup', releaseRise);
+  riseButton.addEventListener('pointercancel', releaseRise);
+  riseButton.addEventListener('lostpointercapture', releaseRise);
+
+  descendButton.addEventListener('pointerdown', (e) => {
+    if (!w.on || !w.fly || e.button !== 0) return;
+    descendButton.setPointerCapture(e.pointerId);
+    descendPointers.set(e.pointerId, e.timeStamp);
+  });
+  descendButton.addEventListener('pointerup', (e) => {
+    const start = descendPointers.get(e.pointerId);
+    if (!descendPointers.delete(e.pointerId) || start === undefined) return;
+    if (e.timeStamp - start > 220) lastDescendTap = -Infinity;
+    else if (e.timeStamp - lastDescendTap <= doubleTapMs) setFlight(false);
+    else lastDescendTap = e.timeStamp;
+  });
+  const cancelDescend = (e: PointerEvent) => {
+    if (descendPointers.delete(e.pointerId)) lastDescendTap = -Infinity;
+  };
+  descendButton.addEventListener('pointercancel', cancelDescend);
+  descendButton.addEventListener('lostpointercapture', cancelDescend);
+  descendButton.addEventListener('click', (e) => {
+    if (w.on && w.fly && e.detail === 0) setFlight(false);
+  });
   const look = new Map<number, PointerPosition>();
   el.addEventListener('pointerdown', (e) => {
     if (!w.on) return;
@@ -407,10 +544,10 @@ export function createWalker(
   };
   joy.addEventListener('pointerup', joyUp);
   joy.addEventListener('pointercancel', joyUp);
-  // 每帧
+  // Update first-person movement each frame.
   function update(dt: number) {
     const K = w.keys,
-      run = K.has('ShiftLeft') || K.has('ShiftRight');
+      shift = K.has('ShiftLeft') || K.has('ShiftRight');
     let f =
       (K.has('KeyW') || K.has('ArrowUp') ? 1 : 0) -
       (K.has('KeyS') || K.has('ArrowDown') ? 1 : 0) -
@@ -419,12 +556,15 @@ export function createWalker(
       (K.has('KeyD') || K.has('ArrowRight') ? 1 : 0) -
       (K.has('KeyA') || K.has('ArrowLeft') ? 1 : 0) +
       w.joy.x;
+    // Opposite directions cancel. Diagonals and mixed inputs use the same speed limit.
     const m = Math.hypot(f, r);
     if (m > 1) {
       f /= m;
       r /= m;
     }
-    const speed = (w.fly ? 14 : 2.4) * (run ? 3 : 1),
+    movingFor = !w.fly && m > 0.05 ? Math.min(movingFor + dt, 2) : 0;
+    const pace = lerp(3.6, 7.2, clamp((movingFor - 0.35) / 1.65, 0, 1));
+    const speed = w.fly ? 14 : shift ? 10.8 : pace,
       sy = Math.sin(w.yaw),
       cy = Math.cos(w.yaw);
     const dx = (-sy * f + cy * r) * speed * dt,
@@ -432,11 +572,12 @@ export function createWalker(
     if (w.fly) {
       w.pos.x += dx;
       w.pos.z += dz;
-      w.pos.y +=
-        ((K.has('Space') || K.has('KeyE') ? 1 : 0) -
-          (K.has('KeyQ') || K.has('KeyC') ? 1 : 0)) *
-        speed *
-        dt;
+      const rise = K.has('Space') || K.has('KeyE');
+      const descend = shift || K.has('KeyQ') || K.has('KeyC');
+      const rising = rise || risePointers.size > 0;
+      const descending = descend || descendPointers.size > 0;
+      const verticalSpeed = rise || descend ? speed : touchVerticalSpeed;
+      w.pos.y += (Number(rising) - Number(descending)) * verticalSpeed * dt;
       w.pos.y = Math.max(
         w.pos.y,
         isInPit(w.pos.x, w.pos.z, terrain.pits)
@@ -449,22 +590,22 @@ export function createWalker(
         w.pos.x += dx;
         w.pos.z += dz;
       } else if (!blockedMove(w.pos.x, w.pos.z, dx, 0, w.pos.y, objs))
-        w.pos.x += dx; // 贴着墙滑行
+        w.pos.x += dx; // Slide along the wall.
       else if (!blockedMove(w.pos.x, w.pos.z, 0, dz, w.pos.y, objs))
         w.pos.z += dz;
       const fl = floorAt(w.pos.x, w.pos.z, w.pos.y, objs);
       if (fl >= w.pos.y - 0.05) {
         w.pos.y = lerp(w.pos.y, fl, 1 - Math.exp(-dt * 18));
         w.vy = 0;
-      } // 上台阶：平滑抬升
+      } // Ease upward when climbing steps.
       else {
         w.vy -= 9.8 * dt;
         w.pos.y = Math.max(fl, w.pos.y + w.vy * dt);
         if (w.pos.y === fl) w.vy = 0;
       }
     }
-    w.pos.x = clamp(w.pos.x, -1200, 1300);
-    w.pos.z = clamp(w.pos.z, -1300, 1900);
+    w.pos.x = clamp(w.pos.x, minX, maxX);
+    w.pos.z = clamp(w.pos.z, minZ, maxZ);
     cam.position.set(w.pos.x, w.pos.y + w.eye, w.pos.z);
     cam.rotation.set(w.pitch, w.yaw, 0, 'YXZ');
   }

@@ -19,7 +19,6 @@
     <div id="title" class="ui">
       <h1>Isha Yoga Center</h1>
       <p id="subtitle">Coimbatore · Velliangiri foothills · 1:1 scale</p>
-      <p id="credit">Model by Claude</p>
     </div>
     <div id="moods" class="ui">
       <label id="language-picker">
@@ -38,6 +37,7 @@
         <span id="language-code" aria-hidden="true" dir="ltr">en</span>
         <select id="language" dir="auto" disabled></select>
       </label>
+      <select id="mood" disabled></select>
     </div>
     <div id="nav" class="ui"></div>
     <div id="info" class="ui">
@@ -47,6 +47,12 @@
     <div id="hint" class="ui"></div>
     <button id="navBtn" class="ui">Locations</button>
     <div id="joy"><i></i></div>
+    <div id="touch-flight">
+      <button id="touch-rise" type="button"></button>
+      <button id="touch-descend" class="touch-arrow" type="button" hidden>
+        ↓
+      </button>
+    </div>
 
     <script type="module" src="/src/tour.js"></script>
   </body>

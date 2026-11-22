@@ -1,25 +1,25 @@
 /* =====================================================================================
- *  Isha Yoga Center —— Three.js 程序化场景
- *  建模与代码：Claude（Anthropic），2026-11
- *  所有几何体与贴图均由代码生成；Three.js 由 Vite 打包。
+ *  Isha Yoga Center procedural 3D scene
+ *  Model and code by Claude (Anthropic), November 2026
+ *  Code generates all geometry and textures. Vite bundles Three.js.
  *
- *  代码结构（想改哪里就搜对应的标题）：
- *    [1] 引擎加载        import('three')
- *    [2] 配置            MOODS（时段色调）/ geo()（实测坐标换算）/ ROADS（道路）/ FIELDS（农田）
- *    [3] 通用工具        噪声、贴图生成、tbox/tcyl/mesh、合并与实例化
- *    [4] 环境组件        createSky / createTerrain / createPaths / createVegetation / createLamps / createDust / createPeople（行人与牛车）
- *    [5] 建筑组件        createAdiyogi / createDhyanalinga / createNandi / createLingaBhairavi / createSadhanaHalls /
+ *  Search for these headings to find the corresponding code.
+ *    [1] Engine loading: import('three')
+ *    [2] Configuration: MOODS (lighting), geo() (coordinates), ROADS, and FIELDS
+ *    [3] Shared utilities: noise, textures, tbox/tcyl/mesh, merging, and instancing
+ *    [4] Environment: createSky / createTerrain / createPaths / createVegetation / createLamps / createDust / createPeople
+ *    [5] Buildings: createAdiyogi / createDhyanalinga / createNandi / createLingaBhairavi / createSadhanaHalls /
  *                        createSuryakund / createNagaShrine / createChandrakund / createLotusPonds / createAdiyogiAlayam /
  *                        createSpandaHall / createBhikshaHall / createIshaLife / createDepositCounter / createWelcomePoint /
  *                        createNalanda / createSarpaVasal / createMoondramPirai / createUnavagam / createMetalBridge / createCampus /
  *                        createMalaiVasal / createKalabhairava
- *    [6] 组件注册表      COMPONENTS —— 位置（实测坐标）、朝向、镜头都在这里，改一行即可挪动建筑
- *    [7] 渲染器、阴影跟随 fitShadow、轨道相机 createControls、漫步模式 createWalker、时段切换、界面、加载流程与主循环
+ *    [6] Component registry: COMPONENTS stores surveyed positions, headings, and camera views.
+ *    [7] Renderer, fitShadow, camera controls, lighting, interface, loading, and the render loop
  *
- *  位置数据来自 OpenStreetMap，按 1:1 比例摆放，并对照 Isha 官方 2026 园区地图；建筑内外参照 Isha 官网、Wikimedia Commons 与访客照片建模。
+ *  The 1:1 layout uses OpenStreetMap coordinates checked against Isha's 2026 campus map. Buildings reference photos from Isha, Wikimedia Commons, and visitors.
  *
- *  每个建筑组件都是一个返回 THREE.Group 的函数，局部坐标里“正面”朝 +Z，
- *  需要动画时给 group.userData.update = (t, dt) => {} 即可。
+ *  Each building factory returns a THREE.Group with its front along local +Z.
+ *  For animation, define group.userData.update = (t, dt) => {}.
  * ===================================================================================== */
 
 import { clamp, lerp } from './math';
@@ -31,16 +31,16 @@ import {
   placeText,
 } from './i18n';
 
-// ───────────────────────────── [1] 引擎加载 ─────────────────────────────
+// ───────────────────────────── [1] Engine loading ─────────────────────────────
 const $ = (s) => document.querySelector(s);
 bindMessage($('#foothills'), 'foothills');
 bindMessage($('#subtitle'), 'subtitle');
-bindMessage($('#credit'), 'credit');
 bindMessage($('#language-label'), 'language');
 bindMessage($('#navBtn'), 'navigation');
 onLanguageChange(() => {
   document.title = message('pageTitle');
   $('#nav').setAttribute('aria-label', message('navigation'));
+  $('#touch-descend').setAttribute('aria-label', message('descend'));
 });
 await initializeLanguage($('#language'), $('#language-code'));
 $('#step').textContent = message('loading');
@@ -52,7 +52,7 @@ const nextFrame = () =>
   new Promise((r) => {
     requestAnimationFrame(() => r());
     setTimeout(r, 60);
-  }); // 后台标签页里 rAF 会暂停，用定时器兜底
+  }); // The timer keeps loading moving when a background tab suspends requestAnimationFrame.
 
 let THREE, createControls, createWalker;
 try {
@@ -73,8 +73,8 @@ const smooth = (a, b, x) => {
   return t * t * (3 - 2 * t);
 };
 
-// ───────────────────────────── [2] 配置 ─────────────────────────────
-// 时段色调：改这里的数值就能调整整体氛围
+// ───────────────────────────── [2] Configuration ─────────────────────────────
+// Adjust these values to change the lighting and atmosphere by time of day.
 const deg = Math.PI / 180;
 const MOODS = {
   dawn: {
@@ -127,14 +127,14 @@ const MOODS = {
   },
 };
 
-/* 坐标系：所有位置都用“实测地理坐标”书写 —— (e, n) = 以 Dhyanalinga 穹顶为原点，向东 / 向北的米数，
- * 数据取自 OpenStreetMap（1:1 比例）。geo() 把它换算成场景坐标：+X 朝东，+Z 朝南，场景中心在园区与 Adiyogi 之间。
- * face(fe, fn) 把“朝向哪个方位”换算成组件的 rotY（组件局部 +Z 为正面）。 */
+/* Coordinates (e, n) are meters east and north of the Dhyanalinga dome.
+ * geo() converts 1:1 OSM coordinates to scene coordinates. +X is east, +Z is south, and the origin is between the campus and Adiyogi.
+ * face(fe, fn) converts a heading to rotY, with local +Z facing forward. */
 const geo = (e, n) => [e - 250, 0, -n - 150];
 const face = (fe, fn) => Math.atan2(fe, -fn);
-const AX = face(0.992, -0.126); // Dhyanalinga → Nandi → 莲池桥 → Suryakund 这条主轴的实际走向：正东偏南约 7°
+const AX = face(0.992, -0.126); // The axis from Dhyanalinga through Nandi and the Lotus Ponds bridge to Suryakund runs about 7° south of east.
 
-// 道路折线：[[e, n], ...] + 宽度。PATHS 由它展开成线段 [x1, z1, x2, z2, w]
+// Road polylines use [[e, n], ...] and a width. PATHS expands them to [x1, z1, x2, z2, w] segments.
 const ROADS = [
   {
     w: 8,
@@ -160,7 +160,7 @@ const ROADS = [
       [559, -890],
       [562, -730],
     ],
-  }, // Malai Vasal → Adiyogi 中轴步道（OSM）
+  }, // Malai Vasal to the Adiyogi approach (OSM).
   {
     w: 9,
     pts: [
@@ -190,7 +190,7 @@ const ROADS = [
       [229, -228],
       [196, -196],
     ],
-  }, // Adiyogi → Sarpa Vasal 步行道
+  }, // Adiyogi to Sarpa Vasal footpath.
   {
     w: 6,
     pts: [
@@ -203,7 +203,7 @@ const ROADS = [
       [78, -38],
       [52, -38],
     ],
-  }, // Sarpa Vasal → Nandi 广场
+  }, // Sarpa Vasal to Nandi plaza.
   {
     w: 4,
     pts: [
@@ -220,7 +220,7 @@ const ROADS = [
       [138, -38],
       [131, -49],
     ],
-  }, // 环莲池步道
+  }, // Path around the Lotus Ponds.
   {
     w: 4,
     pts: [
@@ -229,7 +229,7 @@ const ROADS = [
       [88, -11],
       [93, -12.5],
     ],
-  }, // Nandi → 拱桥
+  }, // Nandi to the arched bridge.
   {
     w: 4,
     pts: [
@@ -237,7 +237,7 @@ const ROADS = [
       [141, -20],
       [147, -20.5],
     ],
-  }, // 拱桥 → Suryakund
+  }, // Arched bridge to Suryakund.
   {
     w: 5,
     pts: [
@@ -254,7 +254,7 @@ const ROADS = [
       [231, 275],
       [249, 316.5],
     ],
-  }, // 南北主路 → Bhiksha Hall（第十轮：路口从 (246,318) 东移，避开 Bhiksha Hall 台基的东南角）
+  }, // Road to Bhiksha Hall. The junction moved east from (246, 318) to clear the southeast corner of the plinth.
   {
     w: 5,
     pts: [
@@ -275,7 +275,7 @@ const ROADS = [
       [-68, 10],
       [-73, -53],
     ],
-  }, // 西侧环路（Sadhana Halls、Chandra Vasal）
+  }, // West loop past Sadhana Halls and Chandra Vasal.
   {
     w: 4,
     pts: [
@@ -284,7 +284,7 @@ const ROADS = [
       [45, -54],
       [52, -38],
     ],
-  }, // 南侧小路
+  }, // South footpath.
   {
     w: 3,
     pts: [
@@ -305,7 +305,7 @@ const ROADS = [
       [100, 300],
       [112, 238],
     ],
-  }, // 环 Nalanda Grounds 步道
+  }, // Path around Nalanda Grounds.
   {
     w: 4,
     pts: [
@@ -313,7 +313,7 @@ const ROADS = [
       [221, -74],
       [232, 0],
     ],
-  }, // Suryakund 南侧、东侧
+  }, // South and east of Suryakund.
   {
     w: 3,
     pts: [
@@ -321,7 +321,7 @@ const ROADS = [
       [44, 40],
       [38, 52],
     ],
-  }, // → Chandrakund、寄存处
+  }, // Toward Chandrakund and the deposit counter.
   {
     w: 5,
     pts: [
@@ -337,7 +337,7 @@ const ROADS = [
       [388, 358.5],
       [420, 364],
     ],
-  }, // 桥东（通往 Velliangiri Prashala，未建模）
+  }, // East of the bridge toward Velliangiri Prashala, which is outside the model.
   {
     w: 4,
     pts: [
@@ -353,13 +353,13 @@ for (const r of ROADS)
       b = geo(...r.pts[i + 1]);
     PATHS.push([a[0], a[2], b[0], b[2], r.w]);
   }
-// 农田 / 草场色块：[e, n, 东西宽, 南北长, 颜色]
+// Field and lawn patches: [e, n, east-west width, north-south length, color].
 const FIELDS = [
   [627, -1200, 80, 110, 0x8e8a82],
   [633, -1098, 70, 85, 0x8e8a82],
-  [305, -222, 170, 60, 0x8e8a82], // 停车场（OSM）
+  [305, -222, 170, 60, 0x8e8a82], // Parking area (OSM).
   [514, -914, 75, 300, 0x93ad5a],
-  [630, -914, 110, 300, 0x93ad5a], // 中轴两侧的大草场（OSM leisure=pitch）
+  [630, -914, 110, 300, 0x93ad5a], // Large lawns on either side of the approach (OSM leisure=pitch).
   [353, -467, 220, 220, 0x86a84e],
   [648, -790, 130, 420, 0x7fa54a],
   [840, -344, 380, 640, 0xa3945e],
@@ -372,10 +372,10 @@ const inField = (e, n) =>
   FIELDS.some(
     ([fe, fn, w, h]) => Math.abs(e - fe) < w / 2 && Math.abs(n - fn) < h / 2,
   );
-let EXCLUDE = []; // 植被避让圈 [x, z, r]，由组件注册表里的 clear 自动生成
-let PITS = []; // 下沉水池在地形上开的洞，由注册表里的 pit 自动生成
+let EXCLUDE = []; // Vegetation exclusion circles [x, z, r], generated from component clear entries.
+let PITS = []; // Terrain openings for sunken pools, generated from component pit entries.
 
-// ───────────────────────────── [3] 通用工具 ─────────────────────────────
+// ───────────────────────────── [3] Shared utilities ─────────────────────────────
 function mulberry(seed) {
   return () => {
     let t = (seed += 0x6d2b79f5);
@@ -419,7 +419,7 @@ function fbm(x, y, o = 4) {
   return s / n;
 }
 
-// 地面高度：园区与 Adiyogi 一带为平地；韦灵吉里群山在西侧隆起，并向西北延伸（圆润的林地山体）
+// The campus and Adiyogi sit on flat ground. Wooded Velliangiri hills rise west and northwest.
 function groundH(x, z) {
   const r = Math.hypot(x, z);
   const west = smooth(-620, -1700, x);
@@ -428,7 +428,7 @@ function groundH(x, z) {
   const m = Math.max(west, north, ring);
   const ridge = fbm(x * 0.0013 + 7.3, z * 0.0013 + 3.1, 3);
   let h = m * (120 + 760 * ridge);
-  // 远处地面的小起伏；从 Adiyogi 往南到 Malai Vasal 的这条走廊保持平坦（街景里是平地）
+  // Add gentle terrain variation in the distance. Keep the corridor south from Adiyogi to Malai Vasal flat, as in street imagery.
   const ax = 312,
     az = 479,
     bx = 520,
@@ -445,7 +445,7 @@ function groundH(x, z) {
   return h;
 }
 
-// —— 程序化贴图 ——
+// Procedural textures
 function canvasTex(size, draw, repeat = true) {
   const c = document.createElement('canvas');
   c.width = size;
@@ -457,7 +457,7 @@ function canvasTex(size, draw, repeat = true) {
   t.anisotropy = 4;
   return t;
 }
-const TR = mulberry(20261118); // 贴图用的随机数：固定种子，每次打开都一样，方便前后截图对比
+const TR = mulberry(20261118); // The fixed texture seed keeps screenshots comparable across runs.
 function speckle(g, s, n, amp = 0.12, max = 3) {
   for (let i = 0; i < n; i++) {
     const a = TR() * amp;
@@ -468,7 +468,7 @@ function speckle(g, s, n, amp = 0.12, max = 3) {
 }
 const TEX = {},
   MAT = {};
-const FX = { emissive: [], glows: [], lights: [], tint: [] }; // 随时段变化的发光体
+const FX = { emissive: [], glows: [], lights: [], tint: [] }; // Lights and emissive materials that change with the time of day.
 const emi = (mat, base) => {
   FX.emissive.push({ mat, base });
   return mat;
@@ -653,11 +653,11 @@ function buildMaterials() {
     color: 0x6b7890,
     roughness: 0.55,
     metalness: 0.3,
-  }); // Adiyogi 的蓝黑色钢板
+  }); // Blue-black steel plates on Adiyogi.
   MAT.mud = std(
     { map: TEX.plaster, color: 0xa86a48, roughness: 1, side: THREE.DoubleSide },
     6,
-  ); // Dhyanalinga 穹顶的泥灰抹面
+  ); // Mud plaster on the Dhyanalinga dome.
   MAT.salmon = std(
     {
       map: TEX.plaster,
@@ -667,7 +667,7 @@ function buildMaterials() {
       side: THREE.DoubleSide,
     },
     6,
-  ); // 浅粉色金属屋面
+  ); // Pale pink metal roofing.
   MAT.darkPlaster = std(
     { map: TEX.plaster, color: 0x7a6756, roughness: 0.95 },
     6,
@@ -779,7 +779,7 @@ function buildMaterials() {
   });
 }
 
-// —— 几何辅助 ——
+// Geometry helpers
 function mesh(geo, mat, x = 0, y = 0, z = 0, shadow = true) {
   const m = new THREE.Mesh(geo, mat);
   m.position.set(x, y, z);
@@ -793,7 +793,7 @@ function scaleUV(geo, su, sv) {
     uv.setXY(i, uv.getX(i) * su, uv.getY(i) * sv);
   return geo;
 }
-// 贴图按世界尺寸平铺的盒子（y 为中心高度）
+// Box with textures tiled in world units. y is the center height.
 function tbox(w, h, d, mat, x = 0, y = 0, z = 0) {
   const s = mat.userData.s || 4,
     g = new THREE.BoxGeometry(w, h, d),
@@ -826,7 +826,7 @@ function mergeGeos(list) {
   const parts = list.map((g) => (g.index ? g.toNonIndexed() : g));
   let n = 0;
   parts.forEach((g) => (n += g.attributes.position.count));
-  const hasCol = parts.every((g) => g.attributes.color); // 顶点色（人和牛车用）：所有部件都有才合并
+  const hasCol = parts.every((g) => g.attributes.color); // Merge vertex colors for people and carts only when every part provides them.
   const pos = new Float32Array(n * 3),
     nor = new Float32Array(n * 3),
     uv = new Float32Array(n * 2),
@@ -862,7 +862,7 @@ function instanced(geo, mat, matrices, shadow = true) {
   m.receiveShadow = true;
   return m;
 }
-// 一组等高圆柱 / 方柱：pts = [[x,z],...]，y0 为柱底
+// Equal-height round or square pillars. pts = [[x, z], ...], with bases at y0.
 function columns(pts, y0, h, r, mat, square = false) {
   const geo = square
     ? new THREE.BoxGeometry(2, 1, 2)
@@ -873,7 +873,7 @@ function columns(pts, y0, h, r, mat, square = false) {
     pts.map(([x, z]) => M(x, y0 + h / 2, z, r, h, r)),
   );
 }
-// 双坡屋顶：屋脊沿 X，span 为 Z 向跨度
+// Gable roof with the ridge along X and span along Z.
 function gableRoof(span, length, rise, y, mat = MAT.tile, wall = MAT.plaster) {
   const g = new THREE.Group(),
     s = Math.hypot(span / 2, rise),
@@ -914,7 +914,7 @@ function archShape(w, h) {
   s.closePath();
   return s;
 }
-// 加色发光点（油灯光晕等），一次 draw call
+// Additive glows, such as oil-lamp halos, in one draw call.
 function glowPoints(pts, size = 5, color = 0xffad5c, base = 1) {
   const geo = new THREE.BufferGeometry();
   geo.setAttribute('position', new THREE.Float32BufferAttribute(pts.flat(), 3));
@@ -936,7 +936,7 @@ function pointLight(color, base, dist, x, y, z) {
   FX.lights.push({ light: l, base });
   return l;
 }
-// 林伽：圆柱 + 半球顶
+// Linga with a cylindrical base and hemispherical top.
 function linga(r, h, mat = MAT.black) {
   return mesh(
     new THREE.CapsuleGeometry(r, h, 6, 16),
@@ -946,7 +946,7 @@ function linga(r, h, mat = MAT.black) {
     0,
   );
 }
-// 灯塔（deepa stambha）
+// Lamp pillar (deepa stambha).
 function lampTower(h, tiers = 5) {
   const g = new THREE.Group(),
     pts = [];
@@ -988,7 +988,7 @@ function trishul(h) {
   return g;
 }
 
-// ───────────────────────────── [4] 环境组件 ─────────────────────────────
+// ───────────────────────────── [4] Environment ─────────────────────────────
 function createSky() {
   const g = new THREE.Group();
   g.name = 'Sky';
@@ -1129,7 +1129,7 @@ function createTerrain() {
     vertexColors: true,
     map: TEX.ground,
   });
-  // 在地形上为下沉水池“挖洞”：落在 PITS 矩形内的片元直接丢弃
+  // Discard terrain fragments inside PITS to open the sunken pools.
   const N = Math.max(1, PITS.length);
   mat.onBeforeCompile = (sh) => {
     sh.uniforms.pits = {
@@ -1163,7 +1163,7 @@ function createTerrain() {
   g.name = 'Terrain';
   g.add(m);
   for (const [e, n, w, h, color] of FIELDS) {
-    // 农田 / 草场
+    // Fields and lawns.
     const f = new THREE.Mesh(
       scaleUV(new THREE.PlaneGeometry(w, h), w / 6, h / 6),
       new THREE.MeshLambertMaterial({ color, map: TEX.ground }),
@@ -1176,7 +1176,7 @@ function createTerrain() {
   }
   return g;
 }
-const geo2 = geo; // createTerrain 内部有同名局部变量 geo，这里留一个别名
+const geo2 = geo; // Alias geo() because createTerrain has a local geometry named geo.
 
 function createPaths() {
   const g = new THREE.Group();
@@ -1257,7 +1257,7 @@ function createVegetation() {
   g.name = 'Vegetation';
   const col = new Color();
   const adi = geo(562, -690);
-  // 密度：园区内（e -330..430, n -140..780）是成片的椰林与槟榔林，Adiyogi 周围是开阔草地，其余为稀疏田野
+  // The campus (e -330..430, n -140..780) has coconut and areca groves. Adiyogi has open grass, and other fields are sparsely planted.
   const density = (e, n) => {
     const [x, , z] = geo(e, n);
     if (Math.hypot(x - adi[0], z - adi[2]) < 190 || inField(e, n)) return 0;
@@ -1275,7 +1275,7 @@ function createVegetation() {
     }
     return out;
   };
-  // 椰子树：随机散布 + 两片果园的行列种植（位置取自 OSM 的 orchard 地块）
+  // Scatter coconut palms and plant two orchards in rows using OSM orchard locations.
   const palms = scatter(1800, 1, 0.012, 0.36);
   for (const [e0, e1, n0, n1] of [
     [348, 492, 84, 330],
@@ -1324,7 +1324,7 @@ function createVegetation() {
     ),
   );
 
-  // 阔叶树
+  // Broadleaf trees.
   const trees = scatter(1300, 3, 0.011, 0.36).map(([x, z]) => [
     x,
     z,
@@ -1357,7 +1357,7 @@ function createVegetation() {
   );
   g.add(crowns);
 
-  // 灌木
+  // Shrubs.
   const bush = scatter(320, 0.5, 0.03, 0.3).map(([x, z]) =>
     M(x, 0.4, z, rr(0.6, 1.4), rr(0.5, 0.9), rr(0.6, 1.4), rnd() * 6),
   );
@@ -1375,7 +1375,7 @@ function createVegetation() {
   );
   g.add(bushes);
 
-  // 山麓密林（远景，只是低面数的色块）
+  // Low-poly silhouettes for distant foothill forest.
   const far = [];
   for (let tries = 0; far.length < 4200 && tries < 80000; tries++) {
     const x = rr(-2300, 900),
@@ -1475,9 +1475,9 @@ function createDust() {
   return p;
 }
 
-// —— 行人与牛车（会走动的 NPC，第十轮）——
-// 行人沿道路来回走（走到头就掉头），一对一对或单独走；牛车在 Welcome Point 与 Metal Bridge 之间往返，靠左行驶，到站停 15 秒再掉头。
-// 阴影图是静态的（只在光照变化时重算），所以走动的人和牛车不投射实时阴影，脚下垫一块淡淡的圆形暗影。
+// Pedestrians and bullock carts
+// Pedestrians walk alone or in pairs and turn at route ends. Carts keep left between Welcome Point and Metal Bridge and pause 15 seconds before turning back.
+// The shadow map updates with lighting changes. Moving people and carts use soft contact shadows.
 function createPeople() {
   const g = new THREE.Group();
   g.name = 'People';
@@ -1505,7 +1505,7 @@ function createPeople() {
     o.tz = (b[2] - a[2]) / seg;
     return o;
   };
-  // 莲池拱桥的桥面高度（与 createLotusPonds 里的拱桥一致）：桥两头是 0.3 m 高的平台，中间拱起 1.15 m
+  // The Lotus Ponds bridge deck matches createLotusPonds, with 0.3 m platforms and a 1.15 m crest.
   const A = geo(93.5, -12.6),
     B = geo(114.5, -16.2),
     BL = Math.hypot(B[0] - A[0], B[2] - A[2]);
@@ -1522,13 +1522,13 @@ function createPeople() {
       return 0.13;
     return t <= 0 || t >= 1 ? 0.3 : 0.3 + 4.6 * t * (1 - t);
   };
-  // 每条路的行人密度（人 / 米），顺序与 ROADS 一致；莲池拱桥那两段由下面的“神庙主轴”代替
+  // Pedestrians per meter in ROADS order. The temple route below replaces the two Lotus Ponds bridge segments.
   const DENS = [
     0.015, 0.1, 0.01, 0.06, 0.08, 0.05, 0, 0, 0.05, 0.05, 0.03, 0.04, 0.08,
     0.02, 0.04, 0.07, 0.03, 0, 0.06,
   ];
   const R = [];
-  // 行人避开 Adiyogi 台基的西缘（路在 e=526 擦着台基走）、Metal Bridge 桥头的坡道
+  // Keep pedestrians clear of Adiyogi's west plinth edge near e=526 and the ramps at Metal Bridge.
   const PTS = {
     3: ROADS[3].pts.map(([e, n]) => [e === 526 ? 517 : e, n]),
     16: [...ROADS[16].pts.slice(0, -1), [346, 352.6]],
@@ -1536,7 +1536,7 @@ function createPeople() {
   ROADS.forEach((r, i) => {
     if (DENS[i]) R.push({ ...route(PTS[i] || r.pts), w: r.w, d: DENS[i] });
   });
-  // 神庙主轴：Dhyanalinga 门前 → 从南北两侧绕过 Nandi → 莲池拱桥 → Suryakund
+  // Temple route from Dhyanalinga, around Nandi on both sides, across the Lotus Ponds bridge, and to Suryakund.
   for (const sd of [-1, 1])
     R.push({
       ...route(
@@ -1557,7 +1557,7 @@ function createPeople() {
       d: 0.07,
     });
 
-  // —— 行人 ——
+  // Pedestrians.
   const W = [];
   for (const r of R)
     for (let k = Math.round(r.L * r.d); k > 0; k--) {
@@ -1565,7 +1565,7 @@ function createPeople() {
         s = PR() * r.L,
         dir = PR() < 0.5 ? 1 : -1,
         half = clamp(r.w / 2 - 0.7, 0.3, 2.4),
-        v = pr(0.9, 1.35); // 离路边留 0.7 m：门柱、墙角不会擦到人
+        v = pr(0.9, 1.35); // Leave 0.7 m at the path edge to clear pillars and wall corners.
       let lane = pr(-half, half - (pair - 1) * 0.62);
       for (let j = 0; j < pair; j++, lane += 0.62) {
         const female = PR() < 0.45,
@@ -1626,7 +1626,7 @@ function createPeople() {
     w.c2 = new Color(w.low);
   });
 
-  // —— 牛车：Welcome Point → 南北主路 → Bhiksha Hall → Metal Bridge ——
+  // Bullock cart route: Welcome Point, main north-south road, Bhiksha Hall, Metal Bridge.
   const cartRoute = route([
     [81.2, 125],
     [84, 142],
@@ -1666,7 +1666,7 @@ function createPeople() {
     };
   });
 
-  g.userData.routes = [...R, cartRoute]; // 调试用：ISHA.scene.getObjectByName("People").userData.routes
+  g.userData.routes = [...R, cartRoute]; // Inspect routes via ISHA.scene.getObjectByName("People").userData.routes.
   const o = {},
     o2 = {},
     q = new THREE.Quaternion(),
@@ -1681,7 +1681,7 @@ function createPeople() {
   g.userData.update = (t, dt) => {
     if (!g.visible) return;
     const cp = camera.position;
-    // 远处的人只有几个像素：镜头 NPC_FAR 米以外的人不画（静止人群按组、走动的人按个）
+    // Cull pedestrians beyond NPC_FAR. Cull stationary groups together and moving pedestrians individually.
     if ((frameNo = (frameNo + 1) % 10) === 0)
       for (const cg of CROWDS) {
         cg.getWorldPosition(pv);
@@ -1696,7 +1696,7 @@ function createPeople() {
       if (w.s > r.L || w.s < 0) {
         w.s = clamp(w.s, 0, r.L);
         w.dir = -w.dir;
-      } // 走到头就掉头
+      } // Turn around at the end of the route.
       w.ph += ((dt * w.v) / 1.4) * Math.PI * 2;
       at(r, w.s, o);
       const x = o.x + o.tz * w.lane,
@@ -1751,14 +1751,14 @@ function createPeople() {
           k.dir = -k.dir;
         }
       }
-      // 朝向：车轴指向前方 3.5 m 处（牛的位置），转弯时牛也在路上；靠左行驶
+      // Aim the axle toward the oxen 3.5 m ahead so they follow the road through turns. Keep left.
       at(cartRoute, k.s, o);
       at(cartRoute, k.s + 3.5 * k.dir, o2);
       let h =
           Math.hypot(o2.x - o.x, o2.z - o.z) > 0.5
             ? Math.atan2(o2.x - o.x, o2.z - o.z)
             : Math.atan2(o.tx * k.dir, o.tz * k.dir),
-        side = 1; // 在路的两头没有“前方”，用路的切线
+        side = 1; // At a route endpoint, use the road tangent to determine heading.
       if (k.mode === 'turn') {
         const u = smooth(0, 1, 1 - k.t / 5);
         h += Math.PI * u;
@@ -1783,13 +1783,13 @@ function createPeople() {
   return g;
 }
 
-// ───────────────────────────── [5] 建筑组件 ─────────────────────────────
-// 标记为“屋顶”的物体可以用界面上的「剖视」按钮隐藏，方便看室内
+// ───────────────────────────── [5] Buildings ─────────────────────────────
+// Cutaway hides objects marked as roofs to reveal interiors.
 const asRoof = (o) => {
   o.userData.roof = true;
   return o;
 };
-// 带矩形洞口的地坪（洞口处是下沉水池）
+// Floor with a rectangular opening for a sunken pool.
 function floorWithHole(g, W, D, hx, hz, hw, hd, mat, y = 0.08, t = 0.16) {
   const zb = hz - hd,
     zf = hz + hd,
@@ -1807,7 +1807,7 @@ function floorWithHole(g, W, D, hx, hz, hw, hd, mat, y = 0.08, t = 0.16) {
   add(xl + W / 2, 2 * hd, (xl - W / 2) / 2, hz);
   add(W / 2 - xr, 2 * hd, (xr + W / 2) / 2, hz);
 }
-// 下沉池坑：四壁 + 池底（墙体藏在地面以下，只露出朝内的一面）
+// Sunken pool with four walls and a floor. The exposed wall faces point inward.
 function pit(g, cx, cz, w, d, depth, mat) {
   const t = 1.2,
     h = depth - 0.05,
@@ -1820,7 +1820,7 @@ function pit(g, cx, cz, w, d, depth, mat) {
     tbox(w, 0.4, d, mat, cx, -depth - 0.2, cz),
   );
 }
-// 浅拱屋顶：拱轴沿 Z
+// Shallow barrel roof with its axis along Z.
 function vaultRoof(span, len, rise, mat, endMat) {
   const g = new THREE.Group(),
     R = span / 2;
@@ -1847,8 +1847,8 @@ function vaultRoof(span, len, rise, mat, endMat) {
   return g;
 }
 
-// —— 第三轮新增的通用工具 ——
-// 一段台阶（一次 draw call）：从 (yTop, zTop) 起沿 dz 方向逐级下降；base 给定时每级踏步向下实心填到 base
+// Additional geometry helpers.
+// Stairs in one draw call, descending from (yTop, zTop) along dz. If base is set, each step extends down to that height.
 function stairs(w, n, rise, run, mat, x, yTop, zTop, dz = 1, base = null) {
   const ms = [];
   for (let i = 0; i < n; i++) {
@@ -1859,7 +1859,7 @@ function stairs(w, n, rise, run, mat, x, yTop, zTop, dz = 1, base = null) {
   }
   return instanced(new THREE.BoxGeometry(1, 1, 1), mat, ms);
 }
-// 空心圆筒（墙厚可见），用于穹顶的石鼓墙
+// Hollow cylinder with visible wall thickness for the dome's stone drum.
 function tube(rOut, rIn, h, seg, mat, y = 0) {
   const pts = [
     new THREE.Vector2(rIn, 0),
@@ -1870,7 +1870,7 @@ function tube(rOut, rIn, h, seg, mat, y = 0) {
   ];
   return mesh(scaleUV(new THREE.LatheGeometry(pts, seg), 18, 2), mat, 0, y, 0);
 }
-// 三角形棱柱 / 三角形楼板：底边在 z=0（宽 2·hw），顶点在 z=-len；hole>0 时在中间开一个同形的小三角洞
+// Triangular prism or floor, 2 * hw wide at z=0 with a tip at z=-len. A positive hole cuts a smaller triangle of the same shape.
 function triSlab(hw, len, h, mat, y, hole = 0) {
   const s = new THREE.Shape();
   s.moveTo(-hw, 0);
@@ -1890,7 +1890,7 @@ function triSlab(hw, len, h, mat, y, hole = 0) {
   geo.rotateX(-Math.PI / 2);
   return mesh(scaleUV(geo, 0.25, 0.25), mat, 0, y, 0);
 }
-// 三角形楼板，带一个矩形洞（hole = [x0, x1, z0, z1]，局部坐标，z 为负方向即三角尖端方向）
+// Triangular floor with a rectangular opening [x0, x1, z0, z1] in local coordinates. Negative Z points toward the tip.
 function triSlabHole(hw, len, h, mat, y, hole) {
   const s = new THREE.Shape();
   s.moveTo(-hw, 0);
@@ -1909,7 +1909,7 @@ function triSlabHole(hw, len, h, mat, y, hole) {
   geo.rotateX(-Math.PI / 2);
   return mesh(scaleUV(geo, 0.25, 0.25), mat, 0, y, 0);
 }
-// 由 (x, z) 折线围成的水平面（莲池水面、草坪等）
+// Horizontal surface bounded by (x, z) points, used for ponds and lawns.
 function polyPlane(pts, mat, y) {
   const s = new THREE.Shape();
   pts.forEach(([x, z], i) => (i ? s.lineTo(x, -z) : s.moveTo(x, -z)));
@@ -1928,7 +1928,7 @@ function inPoly(x, z, pts) {
   }
   return c;
 }
-// 招牌（双面）
+// Double-sided sign.
 function signBoard(text, w = 5, h = 1.1, bg, fg) {
   const t = signTex(text, bg, fg);
   const m = new THREE.MeshStandardMaterial({
@@ -1945,7 +1945,7 @@ function signBoard(text, w = 5, h = 1.1, bg, fg) {
   g.add(a, b, tbox(w + 0.16, h + 0.16, 0.06, MAT.wood));
   return g;
 }
-// 方石柱（柱础 + 柱身 + 柱头），三次 draw call 画一整片柱阵
+// Square stone columns with bases, shafts, and capitals, drawn in three calls.
 function stoneColumns(pts, y0, h, r, mat, capMat = mat) {
   const g = new THREE.Group(),
     box = new THREE.BoxGeometry(2, 1, 2);
@@ -1968,7 +1968,7 @@ function stoneColumns(pts, y0, h, r, mat, capMat = mat) {
   );
   return g;
 }
-// 简单房屋：台基 + 墙 + 屋顶 + 正面的窗；正面朝 +Z。o = { wall, roof:'gable'|'flat'|'hip', rise, roofMat, plinth, win, veranda }
+// Small building with plinth, walls, roof, and front windows. +Z is the front. Options include wall, roof, rise, roofMat, plinth, win, and veranda.
 function house(w, d, h, o = {}) {
   const g = new THREE.Group(),
     Y = o.plinth ?? 0.4,
@@ -2053,7 +2053,7 @@ function house(w, d, h, o = {}) {
   }
   return g;
 }
-// 开敞棚屋：石柱 + 平顶（钢格栅 / 木顶）；正面朝 +Z
+// Open-sided pavilion with stone pillars and a flat steel-lattice or timber roof. +Z is the front.
 function pavilion(w, d, h, o = {}) {
   const g = new THREE.Group(),
     Y = o.plinth ?? 0.3,
@@ -2105,7 +2105,7 @@ function pavilion(w, d, h, o = {}) {
   g.add(roof);
   return g;
 }
-// 大三叉戟（铁黑色）：杆 + 三股叶刃
+// Large black iron trident with a shaft and three blades.
 function bigTrishul(h, mat = MAT.black) {
   const g = new THREE.Group(),
     s = new THREE.Shape();
@@ -2113,7 +2113,7 @@ function bigTrishul(h, mat = MAT.black) {
   s.quadraticCurveTo(0.2, 0.5, 0.1, 1.15);
   s.lineTo(0, 1.5);
   s.lineTo(-0.1, 1.15);
-  s.quadraticCurveTo(-0.2, 0.5, 0, 0); // 中刃
+  s.quadraticCurveTo(-0.2, 0.5, 0, 0); // Center blade.
   const side = (sx) => {
     const p = new THREE.Shape();
     p.moveTo(0, -0.1);
@@ -2143,8 +2143,8 @@ function bigTrishul(h, mat = MAT.black) {
   );
   return g;
 }
-// —— 第四轮新增的小工具 ——
-// 由粗到细的弯管（牛角、尾巴）
+// Additional prop helpers.
+// Tapered curved tube for horns and tails.
 function taperTube(pts, r0, r1, mat, N = 24, R = 10) {
   const curve = new THREE.CatmullRomCurve3(pts.map((p) => new V3(...p))),
     geo = new THREE.TubeGeometry(curve, N, 1, R),
@@ -2166,7 +2166,7 @@ function taperTube(pts, r0, r1, mat, N = 24, R = 10) {
   geo.computeVertexNormals();
   return mesh(geo, mat);
 }
-// 一批可以各自上色的小方块 / 小物件：items = [[matrix, 0xcolor], ...]
+// Small independently colored items, specified as [[matrix, 0xcolor], ...].
 function tinted(geo, items, rough = 0.7) {
   const m = instanced(
       geo,
@@ -2178,11 +2178,11 @@ function tinted(geo, items, rough = 0.7) {
   items.forEach((it, i) => m.setColorAt(i, c.set(it[1])));
   return m;
 }
-// —— 人与牛车（第十轮）——
-// 人和牛车共用一种顶点色材质：衣服部分的顶点色写成 -1，渲染时换成每个实例自己的颜色（instanceColor）；
-// 皮肤、头发、木头、牛身等是固定的顶点色。于是一群人（站 / 盘腿坐 / 坐椅子）每种姿势只要一次 draw call。
-// 所有人群和牛车都标记 userData.npc：右上角「行人」整体开关，漫步模式不拿它们做碰撞。
-const PR = mulberry(20261119); // 人群专用随机数：不动 rnd()，植被等其它随机布置保持不变
+// People and bullock carts
+// People and carts share a vertex color material. Clothing vertices use -1 and take their color from instanceColor.
+// Skin, hair, wood, and oxen have fixed vertex colors. Each pose needs a single draw call for a crowd.
+// People and carts have userData.npc so the People toggle can hide them and Walk can skip them for collisions.
+const PR = mulberry(20261119); // A separate seed keeps crowd placement independent from vegetation and other layouts.
 const pr = (a, b) => a + (b - a) * PR();
 const SKIN = 0x7a4a30,
   HAIR = 0x17120e;
@@ -2193,7 +2193,7 @@ const WHITES = [0xf2eee4, 0xebe5d6, 0xf6f4ee],
     0x1f8a8a,
   ];
 const pick = (a) => a[(PR() * a.length) | 0];
-// 衣服颜色：园区里白色居多；女众多穿纱丽
+// White clothing is common on campus, and many women wear saris.
 const dress = (female) =>
   female
     ? PR() < 0.3
@@ -2203,7 +2203,7 @@ const dress = (female) =>
       ? pick(WHITES)
       : pick(MENC);
 function paint(geo, hex) {
-  // 给几何体整体上一种顶点色；hex 为 null 表示“衣服”（由实例颜色决定）
+  // Paint the entire geometry with one vertex color. A null hex marks clothing colored by the instance.
   const g = geo.index ? geo.toNonIndexed() : geo,
     n = g.attributes.position.count,
     a = new Float32Array(n * 3),
@@ -2217,7 +2217,7 @@ function paint(geo, hex) {
   return g;
 }
 function recolor(geo, hex) {
-  // 把“衣服”顶点换成固定颜色（合并进牛车这类整体网格时用）
+  // Bake a fixed color into clothing vertices when merging people into a single mesh such as the cart.
   const g = geo.clone(),
     a = g.attributes.color,
     c = new Color(hex);
@@ -2253,12 +2253,12 @@ const pcap = (r, len, x, y, z, rx = 0, rz = 0, sx = 1, sz = 1) =>
     .translate(x, y, z);
 const pball = (r, x, y, z, sx = 1, sy = 1, sz = 1, w = 6, h = 4) =>
   new THREE.SphereGeometry(r, w, h).scale(sx, sy, sz).translate(x, y, z);
-// 人的几种姿势（正面朝 +Z，原点在脚下 / 坐面下）：sm/sf 站，cm/cf 盘腿坐，hm/hf 坐椅子，wm/wf 走路的上半身，leg 走路的腿（原点在髋）
+// Poses face local +Z from floor or seat level. sm/sf stand, cm/cf sit cross-legged, hm/hf sit on chairs, wm/wf are walking torsos, and leg pivots at the hip.
 let _PG;
 function personGeos() {
   if (_PG) return _PG;
   const C = null;
-  // 上半身：y0 为腰高；arms = 'down' 下垂 / 'knee' 搭在膝上 / 'fwd' 向前伸（吃饭）
+  // Upper body: y0 is waist height. Arms can hang ('down'), rest on knees ('knee'), or reach forward while eating ('fwd').
   const upper = (y0, female, arms) => {
     const ys = y0 + 0.52,
       p = [
@@ -2361,9 +2361,9 @@ function personGeos() {
   for (const k in _PG) _PG[k].computeBoundingSphere();
   return _PG;
 }
-// 一群静止的人：list = [[x, y, z, 朝向, 0xcolor, 姿势], ...]，姿势见 personGeos()；每种姿势一次 draw call
-const NPC_FAR = 380; // 镜头这么远以外的人不画（约 3 像素高）
-const CROWDS = []; // 所有静止人群（按组做远近隐藏）
+// Stationary crowd entries use [x, y, z, yaw, 0xcolor, pose]. See personGeos() for poses. Each pose needs one draw call.
+const NPC_FAR = 380; // Cull people beyond this distance, where they would appear about three pixels tall.
+const CROWDS = []; // Stationary crowds, culled as groups by distance.
 let frameNo = 0;
 function crowd(list, shadow = true) {
   const PG = personGeos(),
@@ -2382,7 +2382,7 @@ function crowd(list, shadow = true) {
     m.userData.npc = true;
     g.add(m);
   }
-  // 以人群中心为组的原点，方便按距离隐藏
+  // Center the group on the crowd for distance culling.
   const cx = list.reduce((s, p) => s + p[0], 0) / list.length,
     cz = list.reduce((s, p) => s + p[2], 0) / list.length;
   g.children.forEach((m) => m.position.set(-cx, 0, -cz));
@@ -2393,7 +2393,7 @@ function crowd(list, shadow = true) {
   CROWDS.push(g);
   return g;
 }
-// 随机生成一个人：pose = 's' 站 / 'c' 盘腿 / 'h' 坐椅子；fem 为女众比例
+// Generate one person. pose is 's' for standing, 'c' for cross-legged, or 'h' for chair seating. fem is the share of women.
 const folk = (x, y, z, ry, pose, fem = 0.45, white = 0) => {
   const f = PR() < fem;
   return [
@@ -2405,13 +2405,13 @@ const folk = (x, y, z, ry, pose, fem = 0.45, white = 0) => {
     pose + (f ? 'f' : 'm'),
   ];
 };
-// 盘腿坐着的人（兼容旧接口）：pts = [[x, y, z, 朝向, 0xcolor], ...]
+// Legacy helper for cross-legged people: pts = [[x, y, z, yaw, 0xcolor], ...].
 function seated(pts) {
   return crowd(pts.map(([x, y, z, ry, col]) => [x, y, z, ry, col, 'cm']));
 }
 
-// 牛车（Kangayam 白牛一对 + 木轮车 + 拱形布篷），正面朝 +Z，原点在车轴正下方的地面。
-// 返回 Group，userData.step(行进距离, 是否在走) 转动车轮、摆动牛腿。车身、两头牛、乘客合并成一个网格。
+// Pair of white Kangayam oxen with a wooden cart and curved canopy. +Z is forward and the origin is below the axle.
+// Returns a Group. userData.step(distance, moving) turns the wheels and animates the oxen's legs. The cart, bodies, and passengers share a mesh.
 let _wheelGeo;
 function oxCart(o = {}) {
   const horn = o.horn ?? 0xb3261c,
@@ -2424,7 +2424,7 @@ function oxCart(o = {}) {
   const P = [],
     box = (w, h, d, x, y, z, col) =>
       P.push(paint(new THREE.BoxGeometry(w, h, d).translate(x, y, z), col));
-  // 车身：木板车床、两侧与后面的挡板、车轴与轴托
+  // Cart bed, side and rear boards, axle, and axle supports.
   box(1.5, 0.1, 2.5, 0, 1.0, 0.1, WOOD);
   for (const sx of [-1, 1])
     (box(0.08, 0.26, 2.5, sx * 0.74, 1.17, 0.1, DW),
@@ -2438,7 +2438,7 @@ function oxCart(o = {}) {
       DW,
     ),
   );
-  // 拱形布篷，两端红边
+  // Curved canvas canopy with red trim at the ends.
   P.push(
     paint(
       new THREE.CylinderGeometry(
@@ -2474,7 +2474,7 @@ function oxCart(o = {}) {
         0xa8281e,
       ),
     );
-  // 车辕与轭
+  // Drawbar and yoke.
   P.push(
     paint(
       new THREE.BoxGeometry(0.12, 0.12, 2.7)
@@ -2484,7 +2484,7 @@ function oxCart(o = {}) {
     ),
   );
   box(1.9, 0.12, 0.14, 0, 1.38, 3.9, WOOD);
-  // 两头白牛：肩峰、垂皮、彩绘牛角（角尖铜帽）、颈下铜铃、背上的彩毯
+  // White oxen with prominent shoulders, dewlaps, painted horns with brass tips, neck bells, and colored blankets.
   const pivots = [];
   for (const [bi, bx] of [
     [0, -0.55],
@@ -2550,7 +2550,7 @@ function oxCart(o = {}) {
         paint(pball(0.03, bx + sx * 0.2, 1.91, bz + 1.17), GOLD),
       );
     }
-    // 腿的转轴（走路顺序：左后 → 左前 → 右后 → 右前）
+    // Leg pivots in gait order: rear left, front left, rear right, front right.
     const off = bi * 0.4;
     pivots.push(
       [bx - 0.16, 0.95, bz - 0.62, off],
@@ -2559,7 +2559,7 @@ function oxCart(o = {}) {
       [bx + 0.15, 0.92, bz + 0.6, off + Math.PI * 1.5],
     );
   }
-  // 乘客：车上两两相对盘腿坐；赶车人坐在车前沿，腿垂在车辕两边
+  // Passengers sit cross-legged facing each other. The driver sits forward with legs hanging beside the drawbar.
   const PG = personGeos();
   for (const [x, z, ry] of [
     [-0.42, -0.75, Math.PI / 2],
@@ -2579,7 +2579,7 @@ function oxCart(o = {}) {
   const g = new THREE.Group(),
     shadow = !!o.shadow;
   g.add(mesh(mergeGeos(P), vcolMat(), 0, 0, 0, shadow));
-  // 两个木轮（辐条 + 铁箍），绕 X 轴转
+  // Wooden wheels with spokes and iron rims, rotating about X.
   _wheelGeo =
     _wheelGeo ||
     mergeGeos([
@@ -2606,7 +2606,7 @@ function oxCart(o = {}) {
     mesh(_wheelGeo, vcolMat(), x, 0.745, 0, shadow),
   );
   g.add(...wheels);
-  // 八条牛腿：一个 InstancedMesh，原点在肩 / 髋
+  // The eight legs share one InstancedMesh, with origins at the shoulder or hip.
   const legGeo = mergeGeos([
     paint(
       new THREE.CylinderGeometry(0.06, 0.085, 0.82, 6).translate(0, -0.41, 0),
@@ -2640,7 +2640,7 @@ function oxCart(o = {}) {
   };
   return g;
 }
-// 餐桌 + 四把椅子（黑色铁艺），pts = [[x, z], ...]
+// Black wrought-iron dining table and four chairs. pts = [[x, z], ...].
 function diningSets(pts, y, mat) {
   const box = new THREE.BoxGeometry(1, 1, 1),
     tops = [],
@@ -2665,14 +2665,14 @@ function diningSets(pts, y, mat) {
   );
   return g;
 }
-// 额外的贴图与材质（在 buildMaterials 末尾调用）
+// Additional textures and materials, called at the end of buildMaterials.
 function buildExtras() {
   const std = (o, s) => {
     const m = new THREE.MeshStandardMaterial(o);
     m.userData.s = s;
     return m;
   };
-  // 镂空格栅（木格 / 石雕花窗）：白线 + 透明孔，颜色由材质决定
+  // Lattice texture for wood and carved stone screens. White lines surround transparent openings. The material supplies the color.
   TEX.jali = canvasTex(128, (g, s) => {
     g.clearRect(0, 0, s, s);
     g.fillStyle = '#fff';
@@ -2696,7 +2696,7 @@ function buildExtras() {
       g.stroke();
     }
   });
-  // Kerala 风格壁画（Mahakumbha Mela）：赭黄底、青绿色的河、成群的人物
+  // Kerala-style Mahakumbha Mela mural with an ochre ground, turquoise river, and groups of people.
   TEX.mural = canvasTex(
     512,
     (g, s) => {
@@ -2738,7 +2738,7 @@ function buildExtras() {
     },
     false,
   );
-  MAT.mud.color.set(0xb8663a); // 穹顶是赭红的泥灰色
+  MAT.mud.color.set(0xb8663a); // The dome uses reddish ochre mud plaster.
   MAT.brickDS = std(
     {
       map: TEX.brick,
@@ -2759,7 +2759,7 @@ function buildExtras() {
   MAT.avud = std(
     { map: TEX.plaster, color: 0x8b5a3c, roughness: 0.6, metalness: 0.1 },
     3,
-  ); // 七圈盘蛇的 avudaiyar
+  ); // Avudaiyar with a seven-coil serpent.
   MAT.greenStone = std({ map: TEX.stone, color: 0x6f8d7c, roughness: 0.75 }, 3);
   MAT.concrete = std({ map: TEX.plaster, color: 0xbdb6a8, roughness: 0.95 }, 5);
   MAT.jali = std(
@@ -2791,7 +2791,7 @@ function buildExtras() {
       side: THREE.DoubleSide,
     },
     2.4,
-  ); // 钢格栅顶棚
+  ); // Steel lattice roof.
   MAT.sariRed = std(
     { color: 0x9c1b22, roughness: 0.85, side: THREE.DoubleSide },
     4,
@@ -2851,17 +2851,17 @@ function buildExtras() {
   );
 }
 
-// —— Adiyogi 的头（第十一轮）：参照 Wikimedia Commons 上的正面、侧面照片，用代码“雕”出五官 ——
-// 头部局部坐标（hd 组内、缩放前）：原点在头中心，+Z 朝前，+Y 朝上；头宽约 10.3、高约 14.6、前后约 12。
-// 做法：自建一个经纬网格，正面（经度 0 附近）和脸的高度（纬度中段）加密，约 0.05 单位一格；
-// 先摆成下颌收窄的椭球，再在正面叠加起伏 relief(x, y)：眉弓、眼窝、半闭的上眼睑和眼缝、长直的鼻梁与鼻翼、
-// 饱满带笑意的双唇、圆下巴、颧骨。凹处（眼缝、嘴缝、鼻孔、鼻翼沟）同时记一个 dark 值，用顶点色压暗，远看也读得出五官。
-// 想调五官：改 relief() 里对应那一行的位置 / 大小 / 高度即可。
+// Adiyogi's head uses Wikimedia Commons front and side photos as references for sculpted facial features.
+// Local coordinates in hd before scaling: origin at the head center, +Z forward, +Y up. The head is about 10.3 wide, 14.6 tall, and 12 deep.
+// A latitude-longitude mesh concentrates vertices at the front and at face height, with samples about 0.05 units apart there.
+// Start with an ellipsoid that narrows at the jaw. relief(x, y) models the brow, eye sockets, lowered eyelids, and nose.
+// The relief also shapes the smiling lips, chin, and cheekbones. Vertex colors darken creases, nostrils, and other recessed features for distance legibility.
+// Adjust each feature's position, size, or height in relief().
 function adiyogiHead() {
   const A = 5.15,
     B = 7.3,
     CF = 5.9,
-    CB = 6.4; // 椭球半轴：左右、上下、前、后
+    CB = 6.4; // Ellipsoid axes from side to side, top to bottom, front, and back.
   const G = (x, y, cx, cy, sx, sy) =>
     Math.exp(-(((x - cx) / sx) ** 2) - ((y - cy) / sy) ** 2);
   const line = (d, w) => Math.exp(-((d / w) ** 2));
@@ -2869,9 +2869,9 @@ function adiyogiHead() {
   const relief = (x, y) => {
     let F = 0;
     dark = 0;
-    F += 0.35 * G(x, y, 0, 2.9, 2.6, 1.3); // 额头微鼓
+    F += 0.35 * G(x, y, 0, 2.9, 2.6, 1.3); // Slightly rounded forehead.
     for (const s of [-1, 1]) {
-      F -= 0.25 * G(x, y, s * 4.3, 1.7, 0.8, 1.2); // 太阳穴
+      F -= 0.25 * G(x, y, s * 4.3, 1.7, 0.8, 1.2); // Temples.
       F +=
         0.75 *
         G(
@@ -2881,14 +2881,14 @@ function adiyogiHead() {
           1.15 + 0.1 * (1 - ((x * s - 2.0) / 1.6) ** 2),
           1.55,
           0.38,
-        ); // 眉弓：弓形，中段最高
+        ); // Arched brow, highest in the middle.
       const ex = s * 2.05,
         u = (x - ex) / 1.0,
         inEye = line(Math.max(0, Math.abs(u) - 0.95), 0.14);
-      F -= 0.78 * G(x, y, ex, 0.25, 1.25, 0.8); // 眼窝
-      F += 0.62 * G(x, y, ex, 0.28, 0.95, 0.42); // 半闭的上眼睑（盖着眼球）
-      F += 0.16 * G(x, y, ex, -0.22, 0.85, 0.2); // 下眼睑
-      const ySlit = -0.02 + 0.1 * u * s - 0.08 * (1 - u * u); // 眼缝：向下看，外眼角微微上挑
+      F -= 0.78 * G(x, y, ex, 0.25, 1.25, 0.8); // Eye socket.
+      F += 0.62 * G(x, y, ex, 0.28, 0.95, 0.42); // Partially closed upper lid over the eyeball.
+      F += 0.16 * G(x, y, ex, -0.22, 0.85, 0.2); // Lower lid.
+      const ySlit = -0.02 + 0.1 * u * s - 0.08 * (1 - u * u); // Eye opening looks downward and rises slightly at the outside corner.
       const slit = line(y - ySlit, 0.09) * inEye;
       F -= 0.3 * slit;
       dark += 0.9 * slit;
@@ -2896,10 +2896,10 @@ function adiyogiHead() {
         line(y - (ySlit + 0.46 - 0.06 * u * u), 0.09) *
         line(Math.max(0, Math.abs(u) - 0.8), 0.15);
       F -= 0.09 * crease;
-      dark += 0.25 * crease; // 上眼睑的褶线
-      F += 0.35 * G(x, y, s * 3.3, -0.8, 1.2, 0.9); // 颧骨
-      F += 0.38 * G(x, y, s * 2.55, -2.0, 1.1, 1.0); // 饱满的面颊
-      F += 0.72 * G(x, y, s * 0.72, -2.3, 0.38, 0.32); // 鼻翼
+      dark += 0.25 * crease; // Upper eyelid crease.
+      F += 0.35 * G(x, y, s * 3.3, -0.8, 1.2, 0.9); // Cheekbone.
+      F += 0.38 * G(x, y, s * 2.55, -2.0, 1.1, 1.0); // Full cheek.
+      F += 0.72 * G(x, y, s * 0.72, -2.3, 0.38, 0.32); // Nostril wing.
       const alar = G(x, y, s * 1.06, -2.2, 0.12, 0.36);
       F -= 0.22 * alar;
       dark += 0.5 * alar;
@@ -2908,33 +2908,33 @@ function adiyogiHead() {
       dark += 0.9 * nos;
       const cor = G(x, y, s * 1.78, -3.55, 0.24, 0.26);
       F -= 0.18 * cor;
-      dark += 0.4 * cor; // 嘴角（微微上翘的笑意）
+      dark += 0.4 * cor; // Slightly raised mouth corner.
     }
-    F += 0.35 * G(x, y, 0, 1.0, 0.8, 0.5); // 眉心
-    // 鼻梁：自眉心起越往下越高越宽，到鼻尖（y≈-2.05）最高，鼻底以下迅速收回
+    F += 0.35 * G(x, y, 0, 1.0, 0.8, 0.5); // Space between the brows.
+    // The bridge grows wider and more prominent from the brow to the tip (y about -2.05), then recedes sharply.
     const nh =
         (0.15 + 1.75 * smooth(0.9, -2.0, y)) *
         smooth(-2.75, -2.3, y) *
         smooth(1.5, 0.7, y),
       nw = 0.42 + 0.25 * smooth(0, -2.2, y);
     F += nh * Math.exp(-((x / nw) ** 2)) + 0.35 * G(x, y, 0, -2.05, 0.5, 0.4);
-    F += 0.45 * G(x, y, 0, -3.1, 1.3, 0.6); // 人中一带
+    F += 0.45 * G(x, y, 0, -3.1, 1.3, 0.6); // Philtrum.
     F +=
-      0.78 * G(x, y, 0, -3.5, 1.35, 0.3) - 0.1 * G(x, y, 0, -3.33, 0.25, 0.12); // 上唇与唇峰
-    F += 0.88 * G(x, y, 0, -4.12, 1.12, 0.33); // 下唇
+      0.78 * G(x, y, 0, -3.5, 1.35, 0.3) - 0.1 * G(x, y, 0, -3.33, 0.25, 0.12); // Upper lip and Cupid's bow.
+    F += 0.88 * G(x, y, 0, -4.12, 1.12, 0.33); // Lower lip.
     const yM = -3.78 + 0.22 * (x / 1.6) ** 2,
       mouth = line(y - yM, 0.09) * line(Math.max(0, Math.abs(x) - 1.55), 0.15);
     F -= 0.35 * mouth;
-    dark += 0.8 * mouth; // 嘴缝
-    F -= 0.25 * G(x, y, 0, -4.65, 0.9, 0.22); // 下唇下的凹
-    F += 1.05 * G(x, y, 0, -5.45, 1.25, 0.8); // 下巴：照片侧面看下巴饱满、几乎和嘴唇齐平
+    dark += 0.8 * mouth; // Mouth opening.
+    F -= 0.25 * G(x, y, 0, -4.65, 0.9, 0.22); // Indentation below the lower lip.
+    F += 1.05 * G(x, y, 0, -5.45, 1.25, 0.8); // Full chin, almost level with the lips in profile.
     return F;
   };
   const taper = (y) => {
     const t = clamp((-y + 0.2) / 7.5, 0, 1);
     return [1 - 0.44 * t ** 1.3, 1 - 0.1 * t ** 1.3];
-  }; // 下半张脸收窄成椭圆下巴，前后几乎不收
-  // 同一套经纬网格生成两层：脸和头皮（260×200 格），以及外面一层头发（发棱比五官粗，150×110 格就够）
+  }; // Taper the lower face into an oval chin while retaining depth.
+  // The same angular grid makes the face and scalp at 260 × 200 and the coarser hair layer at 150 × 110.
   const build = (hairLayer, NU, NV) => {
     const idx = [];
     for (let j = 0; j < NV; j++)
@@ -2948,10 +2948,10 @@ function adiyogiHead() {
     let k = 0;
     for (let j = 0; j <= NV; j++) {
       const s = (j / NV) * 2 - 1,
-        th = Math.PI / 2 + (Math.PI / 2) * (0.4 * s + 0.6 * s ** 3); // 纬度：脸的高度加密
+        th = Math.PI / 2 + (Math.PI / 2) * (0.4 * s + 0.6 * s ** 3); // Concentrate latitude samples near face height.
       for (let i = 0; i <= NU; i++, k += 3) {
         const u = (i / NU) * 2 - 1,
-          ph = Math.PI * (0.35 * u + 0.65 * u ** 3); // 经度：正面加密
+          ph = Math.PI * (0.35 * u + 0.65 * u ** 3); // Concentrate longitude samples on the front of the head.
         const dz = Math.sin(th) * Math.cos(ph);
         let x = Math.sin(th) * Math.sin(ph) * A,
           y = Math.cos(th) * B,
@@ -2961,7 +2961,7 @@ function adiyogiHead() {
           const hang = smooth(0.15, -0.25, dz);
           kx = lerp(kx, 1, hang);
           kz = lerp(kz, 1, hang);
-        } // 脑后的头发顺着垂下，不随下巴收窄
+        } // Hair hangs straight in back and keeps its volume through the jawline.
         x *= kx;
         z *= kz;
         const w = smooth(0.2, 0.7, dz);
@@ -2969,14 +2969,14 @@ function adiyogiHead() {
         if (w > 0) z += relief(x, y) * w;
         let c = 1 - Math.min(0.75, dark * w);
         if (hairLayer) {
-          // 发际线：额头正中约 y=4，向两侧降到太阳穴、耳朵上方；脑后整片都是头发。发际线以下的部分缩进头里看不见
+          // The hairline starts near y=4, dips toward the temples, and covers the back. Samples below the hairline tuck inside the head.
           const yH = 4.0 - 2.8 * smooth(2.0, 5.2, Math.abs(x)),
             m = smooth(-0.15, 0.2, dz),
             h = 1 - m + m * smooth(yH - 0.25, yH + 0.25, y);
           const q = Math.atan2(x, y + 4) + 0.08 * Math.sin(z * 0.6),
             ridge =
               0.8 * (0.5 + 0.5 * Math.cos(q * 22)) ** 0.7 +
-              0.5 * (fbm(q * 9 + 3, z * 0.35 + y * 0.2, 3) - 0.5); // 向后梳、一绺绺的发棱，带一点不规则的结块
+              0.5 * (fbm(q * 9 + 3, z * 0.35 + y * 0.2, 3) - 0.5); // Swept-back ridges with slightly irregular clumps.
           const t =
               -0.6 +
               h *
@@ -2984,11 +2984,11 @@ function adiyogiHead() {
                   ridge +
                   1.7 * smooth(3, 7.5, y) * smooth(-7, 1, z) +
                   2.2 * smooth(0.1, -0.45, dz) * smooth(4.5, 0, y)),
-            r = Math.hypot(x, y, z) || 1; // 头顶蓬起；脑后下半部的发团更厚，把发辫的根部包住
+            r = Math.hypot(x, y, z) || 1; // Add crown volume and thicken the lower back to hide the roots of the braids.
           x += (x / r) * t;
           y += (y / r) * t;
           z += (z / r) * t;
-          c = 0.7 + 0.3 * clamp(ridge, 0, 1); // 发棱之间略暗
+          c = 0.7 + 0.3 * clamp(ridge, 0, 1); // Darken the grooves between ridges.
         }
         pos[k] = x;
         pos[k + 1] = y;
@@ -3005,7 +3005,7 @@ function adiyogiHead() {
   };
   const geo = build(false, 260, 200),
     hairGeo = build(true, 150, 110);
-  // 正面某点 (x, y) 的表面 z（摆 tilak 等小件用）
+  // Front surface depth at (x, y), used to place the tilak and other details.
   const surfZ = (x, y) => {
     const [kx, kz] = taper(y),
       xx = x / kx,
@@ -3016,17 +3016,17 @@ function adiyogiHead() {
   return { geo, hairGeo, surfZ };
 }
 
-// —— Adiyogi：34 m 高、45 m 宽、25 m 深的钢制半身像，面朝正南 ——
+// Adiyogi is a south-facing steel bust, 34 m tall, 45 m wide, and 25 m deep.
 function createAdiyogi() {
   const g = new THREE.Group(),
     S = MAT.steel,
     yc = 22,
     TA = 22.5,
     TB = 11,
-    TC = 12.5; // yc：头部中心高度；TA/TB/TC：肩部椭球半轴
+    TC = 12.5; // yc is the head's center height. TA, TB, and TC are the shoulder ellipsoid axes.
   const surf = (x, z) =>
-    TB * Math.sqrt(Math.max(0.02, 1 - (x / TA) ** 2 - (z / TC) ** 2)); // 肩部表面高度
-  // 广场：南北向的大铺地、红色铺砖带、台阶与两侧石柱
+    TB * Math.sqrt(Math.max(0.02, 1 - (x / TA) ** 2 - (z / TC) ** 2)); // Shoulder surface height.
+  // North-south paved plaza with red brick bands, steps, and stone columns.
   const plaza = tbox(124, 0.16, 152, MAT.paving, 0, 0.08, 58);
   plaza.castShadow = false;
   g.add(plaza);
@@ -3048,20 +3048,20 @@ function createAdiyogi() {
   const body = new THREE.Group();
   body.position.y = 1;
   g.add(body);
-  // 躯干：又宽又浅的肩部穹面 + 粗壮的颈
+  // Wide, shallow shoulder dome and a thick neck.
   const torso = mesh(new THREE.SphereGeometry(1, 40, 20), S, 0, 0, 0);
   torso.scale.set(TA, TB, TC);
   body.add(
     torso,
     mesh(new THREE.CylinderGeometry(4.9, 6.4, 10, 20), S, 0, 12, 0.4),
   );
-  // 头部整体放在 hd 组里（坐标相对头部中心），改 hd.scale / hd.rotation 即可调整头身比例与仰角
+  // The hd group uses head-centered coordinates. Adjust hd.scale or hd.rotation to change its proportions or tilt.
   const hd = new THREE.Group();
   hd.position.set(0, yc, 0.6);
   hd.scale.setScalar(1.25);
   hd.rotation.x = -0.1;
   body.add(hd);
-  // 脸：一整张按参考照片“雕”出来的高密度网格（见 adiyogiHead），五官都是网格本身的起伏，凹处顶点色压暗
+  // The dense face mesh from adiyogiHead uses the reference photos. Mesh relief shapes the features and vertex colors darken recesses.
   const HEAD = adiyogiHead(),
     faceMat = S.clone();
   faceMat.vertexColors = true;
@@ -3086,7 +3086,7 @@ function createAdiyogi() {
     ring.rotation.y = Math.PI / 2;
     hd.add(ear, ring);
   }
-  // 额头正中一滴白色的 tilak（上尖下圆）
+  // White teardrop-shaped tilak with a pointed top and rounded base.
   const tk = mergeGeos([
     new THREE.SphereGeometry(
       0.32,
@@ -3104,8 +3104,8 @@ function createAdiyogi() {
   tilak.scale.set(1.25, 1.25, 0.5);
   tilak.rotation.x = -0.32;
   hd.add(tilak);
-  // 头发：蓬松的发冠（没有高耸的发髻），大波浪发辫披到肩上
-  hd.add(mesh(HEAD.hairGeo, faceMat)); // 头发：贴着头型的一层发壳，发际线以上、脑后整片，带向后梳的发棱（见 adiyogiHead）
+  // Full crown of hair and large wavy braids over the shoulders.
+  hd.add(mesh(HEAD.hairGeo, faceMat)); // A close-fitting hair shell with swept-back ridges covers the upper head and back.
   const moon = mesh(
     new THREE.TorusGeometry(2.3, 0.34, 8, 20, Math.PI * 1.1),
     MAT.moon,
@@ -3118,7 +3118,7 @@ function createAdiyogi() {
   hd.add(moon);
   const locks = [];
   for (let a = 96; a <= 264.1; a += 168 / 26) {
-    // 发辫从耳后垂下（第十一轮由 52°–308° 收窄，不再挡住侧脸；条数不变，随机数序列不变）
+    // The braids hang from behind the ears. The reduced 52°–308° span exposes the profile and keeps the count and random sequence stable.
     const A = (a + rr(-3, 3)) * deg,
       sn = Math.sin(A),
       cs = Math.cos(A),
@@ -3139,7 +3139,7 @@ function createAdiyogi() {
     locks.push(new THREE.TubeGeometry(curve, 16, rr(1.05, 1.6), 6));
   }
   body.add(mesh(mergeGeos(locks), S));
-  // 颈间之蛇：盘在颈上，蛇首昂起在他的右肩一侧（观者左手边）
+  // The serpent coils around the neck with its head raised over his right shoulder, on the viewer's left.
   const sp = [],
     a0 = 0.75 - Math.PI * 2 * 1.3;
   for (let i = 0; i <= 40; i++) {
@@ -3169,7 +3169,7 @@ function createAdiyogi() {
   hood.scale.set(1.5, 1.9, 0.5);
   hood.rotation.y = -0.9;
   body.add(hood);
-  // 细绳念珠
+  // Small prayer beads on a cord.
   const mp = [];
   for (let i = 0; i <= 24; i++) {
     const a = -Math.PI / 2 + (i * Math.PI) / 24,
@@ -3197,8 +3197,8 @@ function createAdiyogi() {
       mp[12].z + 0.2,
     ),
   );
-  // 像前的 Yogeshwar Linga（参照 Isha 官网照片）：方亭、赤陶色四坡攒尖顶、木条吊顶；地面嵌着六芒星圆盘，
-  //  中间是黑色环形水盘，盘里一座刻满经文的银色穹形林伽（象征五个主要脉轮）
+  // Isha photos show the Yogeshwar Linga pavilion with a terracotta hip roof, timber ceiling, and six-pointed star set into the floor.
+  //  The silver dome-shaped linga is inscribed and set in a black circular basin, symbolizing five major chakras.
   const yl = new THREE.Group();
   yl.position.set(0, 0, 33);
   yl.add(tbox(13, 0.5, 13, MAT.granite, 0, 0.25, 0));
@@ -3305,7 +3305,7 @@ function createAdiyogi() {
       2.5,
     ),
   );
-  // 半身像四周的一圈黑色铁栏杆（照片里很明显）
+  // A ring of black iron railings around the bust.
   const fence = [];
   for (let i = 0; i < 160; i++) {
     const a0 = (i / 160) * Math.PI * 2;
@@ -3345,7 +3345,7 @@ function createAdiyogi() {
       row.map(([x, , z]) => M(x, 0.4, z)),
     ),
   );
-  // 人群（可在「行人」里关掉）：广场上朝着像站着、坐着的人，越靠前越密；Yogeshwar Linga 四周一圈献水的人
+  // The People toggle controls visitors seated and standing in the plaza and those offering water at the linga.
   const ppl = [];
   for (let tries = 0; ppl.length < 230 && tries < 4000; tries++) {
     const z = 48 + Math.pow(PR(), 1.6) * 80,
@@ -3369,8 +3369,8 @@ function createAdiyogi() {
   return g;
 }
 
-// —— Dhyanalinga：赭红泥灰的砖穹顶（直径 76 ft ≈ 23.2 m、高 33 ft ≈ 10 m），坐在 6 ft 高的石鼓墙上；入口朝东 ——
-// 由外到内（局部 +Z 向东）：万教柱下沉院 → 石门 thorana → 三级高台阶 → 内绕行廊（Patanjali / Vanashree / 六块浮雕）→ 石拱隧道 → 殿内
+// Dhyanalinga has a 76 ft (23.2 m) wide, 33 ft (10 m) high brick dome with ochre plaster on a 6 ft stone drum. Its entrance faces east.
+// From outer to inner along local +Z: Sarva Dharma courtyard, stone thorana, three high steps, inner walkway with shrines and reliefs, stone tunnel, and sanctuary.
 function createDhyanalinga() {
   const g = new THREE.Group(),
     R = 11.6,
@@ -3378,7 +3378,7 @@ function createDhyanalinga() {
     RISE = 8.2;
   const lawn = tcyl(27, 27, 0.1, 48, MAT.lawn, 0, 0.05, 0);
   lawn.castShadow = false;
-  g.add(lawn); // 航拍：穹顶西、南两侧是草坪，东侧入口一带是石板地
+  g.add(lawn); // Aerial photos show lawns west and south of the dome and stone paving by the east entrance.
   const ring = mesh(
     new THREE.RingGeometry(R + 2.2, R + 5, 64).rotateX(-Math.PI / 2),
     MAT.paving,
@@ -3387,8 +3387,8 @@ function createDhyanalinga() {
     0,
     false,
   );
-  g.add(ring); // 外绕行道
-  // 石鼓墙（空心）+ 石过梁圈 + 28 个三角形石通风口
+  g.add(ring); // Outer circumambulatory path.
+  // Hollow stone drum, stone lintels, and 28 triangular vents.
   g.add(
     tube(R + 0.5, R - 0.45, DR - 0.6, 64, MAT.graniteDS, 0),
     tube(R + 0.62, R - 0.45, 0.6, 64, MAT.graniteDS, DR - 0.6),
@@ -3418,7 +3418,7 @@ function createDhyanalinga() {
     instanced(new THREE.BoxGeometry(1, 1, 1), MAT.black, cells, false),
     glowPoints(lamps, 1.6, 0xffa850),
   );
-  // 穹顶外壳（泥灰）+ 内壳（裸砖），顶上是镀金的林伽形铜顶
+  // Plastered outer dome, exposed brick inner shell, and a gilded linga-shaped finial.
   const shell = new THREE.SphereGeometry(
     R,
     64,
@@ -3449,14 +3449,14 @@ function createDhyanalinga() {
       ),
     ),
   );
-  // —— 殿内 ——
+  // Sanctuary.
   const floor = tcyl(R - 0.45, R - 0.45, 0.12, 48, MAT.darkStone, 0, 0.14, 0);
   floor.castShadow = false;
   g.add(floor);
   const L = new THREE.Group();
   L.position.y = 0.2;
   g.add(L);
-  // jalaseema：方形水池，花岗岩边框上一圈铜灯
+  // Jalaseema: square basin with brass lamps on a granite rim.
   for (const [w, d, x, z] of [
     [9.6, 0.55, 0, 4.55],
     [9.6, 0.55, 0, -4.55],
@@ -3490,7 +3490,7 @@ function createDhyanalinga() {
     instanced(new THREE.SphereGeometry(0.16, 8, 6), MAT.gold, brass, false),
     glowPoints(bl, 1.3, 0xffb060),
   );
-  // avudaiyar：七圈盘蛇（棕色石），蛇头朝东伸出、带出水口
+  // Avudaiyar: brown stone serpent with seven coils and an east-facing head with a spout.
   const AV = 0.42;
   L.add(tcyl(2.25, 2.35, 1.5, 36, MAT.avud, 0, AV + 0.75, 0));
   for (let i = 0; i < 7; i++) {
@@ -3541,7 +3541,7 @@ function createDhyanalinga() {
       3.85,
     ),
   );
-  // 林伽：黑色、通高 13 ft 9 in（≈4.2 m），七道等距铜环 = 七个脉轮；腰间系白布
+  // The black linga rises 13 ft 9 in (4.2 m). Seven bronze bands represent the chakras, and white cloth wraps its waist.
   const LY = AV + 1.5,
     lg = mesh(
       new THREE.CapsuleGeometry(0.78, 2.55, 8, 28),
@@ -3589,7 +3589,7 @@ function createDhyanalinga() {
       MAT.pad,
     ),
   );
-  // 林伽正上方悬着的镀金铜半球，水从这里滴落
+  // Water drips from a gilded bronze hemisphere above the linga.
   g.add(
     mesh(
       new THREE.SphereGeometry(0.95, 20, 10, 0, Math.PI * 2, 0, Math.PI / 2),
@@ -3606,13 +3606,13 @@ function createDhyanalinga() {
     fl.push([Math.sin(a) * (R - 1.3), 0.45, Math.cos(a) * (R - 1.3)]);
   }
   const il = new THREE.PointLight(0xffb070, 30, 14, 1.2);
-  il.position.set(0, 5.6, 2.5); // 殿内常亮的暖光（不随时段变化）
+  il.position.set(0, 5.6, 2.5); // Warm sanctuary light stays on at every time of day.
   g.add(
     glowPoints(fl, 1.4, 0xffa850),
     pointLight(0xffa050, 90, 34, 0, 4.5, 3),
     il,
   );
-  // 殿内静坐的人：靠墙 aura cell 前一圈，林伽水池外一圈，都面朝林伽（入口通道留空）
+  // Seat people facing the linga along the aura cells and basin, with a clear entrance path.
   const med = [];
   for (let i = 1; i < 27; i++) {
     const a = ((i + 0.5) * Math.PI * 2) / 28;
@@ -3646,7 +3646,7 @@ function createDhyanalinga() {
       );
   }
   g.add(crowd(med));
-  // —— 石拱隧道（宽 2.9 m、高 2.4 m），拱上是七头蛇 ——
+  // Stone tunnel, 2.9 m wide and 2.4 m high, with a seven-headed serpent above the arch.
   const TZ = R + 2.6,
     TL = 6.4;
   for (const sx of [-1, 1])
@@ -3694,7 +3694,7 @@ function createDhyanalinga() {
     instanced(new THREE.SphereGeometry(1, 10, 8), MAT.darkStone, hoods),
     tbox(2.6, 0.5, 0.5, MAT.darkStone, 0, 3.75, TZ + TL / 2 - 0.2),
   );
-  // —— 内绕行廊：中间露天石板路，两侧石柱托梁的带顶侧廊，外侧红砖墙 ——
+  // The inner walkway has a paved open center, roofed stone colonnades on each side, and outer brick walls.
   const Z0 = 20,
     Z1 = 40,
     zc = (Z0 + Z1) / 2,
@@ -3716,7 +3716,7 @@ function createDhyanalinga() {
       asRoof(tbox(8.6, 0.3, PL + 1, MAT.wood, sx * 6.2, 5.1, zc)),
       asRoof(tbox(9, 0.2, PL + 1.4, MAT.darkStone, sx * 6.2, 5.35, zc)),
     );
-    // 三块花岗岩浮雕（六位南印度圣者的故事）
+    // Three granite reliefs depicting stories of six South Indian saints.
     for (const z of [22.6, 27.2, 31.8]) {
       const p = new THREE.Group();
       p.position.set(sx * 9.6, 2.5, z);
@@ -3743,7 +3743,7 @@ function createDhyanalinga() {
       );
       g.add(p);
     }
-    // 龛：白石雕柱 + 过梁，两侧木格栅
+    // Niche with carved white stone columns, a lintel, and timber lattice sides.
     const sh = new THREE.Group();
     sh.position.set(sx * 9.55, 0.5, 36.4);
     sh.rotation.y = (-sx * Math.PI) / 2;
@@ -3756,7 +3756,7 @@ function createDhyanalinga() {
       tbox(1.5, 2.6, 0.08, MAT.jali, 2.85, 1.9, 0.1),
     );
     if (sx < 0) {
-      // 左：Patanjali，11 ft 黑石像，立在下沉的龛里，下半身为蛇、头顶蛇兜
+      // Left niche: 11 ft black stone Patanjali in a sunken alcove, with a serpent body and hood.
       const pt = new THREE.Group();
       pt.position.set(0, -0.3, 0.9);
       for (let i = 0; i < 3; i++) {
@@ -3815,7 +3815,7 @@ function createDhyanalinga() {
         ),
       );
     } else {
-      // 右：Vanashree，绿花岗岩的菩提树浮雕，中心一片金叶，龛位抬高
+      // Right niche: raised green-granite Vanashree Bodhi tree relief with a golden leaf at its center.
       const tree = mesh(
         new THREE.IcosahedronGeometry(1, 1),
         MAT.greenStone,
@@ -3844,8 +3844,8 @@ function createDhyanalinga() {
     }
     g.add(sh);
   }
-  g.add(stairs(4.6, 3, 0.34, 0.5, MAT.granite, 0, 1.12, Z1 + 1.5, -1, 0)); // 三级高台阶：Tamas / Rajas / Sattva
-  // —— 石门 thorana + 万教柱下沉院（三面深色石墙围合，像张开的双臂）——
+  g.add(stairs(4.6, 3, 0.34, 0.5, MAT.granite, 0, 1.12, Z1 + 1.5, -1, 0)); // Three high steps for Tamas, Rajas, and Sattva.
+  // Stone thorana and sunken Sarva Dharma courtyard, embraced by dark walls on three sides.
   const ZT = 43;
   g.add(tbox(6, 1.1, 3, MAT.granite, 0, 0.55, ZT));
   for (const sx of [-1, 1]) {
@@ -3882,7 +3882,7 @@ function createDhyanalinga() {
   const court = tbox(13.8, 0.14, 12, MAT.paving, 0, 0.08, ZT + 7);
   court.castShadow = false;
   g.add(court);
-  // Sarva Dharma Sthamba：17 ft（≈5.2 m）白色花岗岩整石，顶部石雕旭日；背面刻七脉轮
+  // Sarva Dharma Sthamba is a 17 ft (5.2 m) monolith of white granite with a rising sun up top and seven chakras carved into the rear.
   const st = new THREE.Group();
   st.position.set(0, 0.15, ZT + 5.2);
   st.add(
@@ -3953,7 +3953,7 @@ function createDhyanalinga() {
       2.5,
     ),
   );
-  // 入口两翼：白色平顶的长屋（各约 27 × 9 m），朝东一侧是柱廊
+  // Two long white flat-roofed entrance wings, about 27 × 9 m each, with east-facing colonnades.
   for (const sx of [-1, 1]) {
     const w = house(26, 8, 3.6, {
       roof: 'flat',
@@ -3967,7 +3967,7 @@ function createDhyanalinga() {
     w.position.set(sx * 21.5, 0, ZT + 2.5);
     g.add(w);
   }
-  // 穹顶背后（西南）的 Trimurti 整石浮雕：Rudra / Hara / Sadashiva 三张面孔
+  // The Trimurti monolith southwest of the dome depicts Rudra, Hara, and Sadashiva.
   const tm = new THREE.Group();
   tm.position.set(-7, 0, -R - 8.5);
   tm.rotation.y = Math.PI + 0.55;
@@ -4011,7 +4011,7 @@ function createDhyanalinga() {
   return g;
 }
 
-// —— Nandi：约 15 ft 高的黑色公牛，面向 Dhyanalinga 卧着：头颈高昂、肩上有峰、新月形的角，一条前腿屈膝踏地，颈间一串铜铃垂到胸前 ——
+// Nandi is a reclining black bull about 15 ft tall, facing Dhyanalinga with a raised neck, shoulder hump, crescent horns, and bronze bells.
 function createNandi() {
   const g = new THREE.Group(),
     B = new THREE.MeshStandardMaterial({
@@ -4022,7 +4022,7 @@ function createNandi() {
   const base = tcyl(8.2, 8.2, 0.2, 48, MAT.paving, 0, 0.1, 0);
   base.castShadow = false;
   g.add(base, tcyl(5.6, 5.8, 0.25, 40, MAT.granite, 0, 0.32, 0));
-  // 围栏：黑色短柱 + 一圈绳
+  // Low black posts connected by a rope.
   const bol = [];
   for (let i = 0; i < 12; i++)
     bol.push([
@@ -4063,12 +4063,12 @@ function createNandi() {
     n.add(m);
     return m;
   };
-  // 躯干：腹、臀、胸、肩峰
+  // Body: belly, rump, chest, and shoulder hump.
   blob(1.8, 1.5, 3.4, 0, 1.6, -1.0);
   blob(1.75, 1.45, 1.6, 0, 1.5, -2.7);
   blob(1.5, 1.75, 1.5, 0, 2.0, 1.4);
   blob(1.0, 0.95, 1.25, 0, 3.55, 0.45);
-  // 颈（粗壮、前倾）、垂皮、头、吻部、额
+  // Strong forward-leaning neck, dewlap, head, muzzle, and forehead.
   limb([0, 2.5, 1.6], [0, 4.25, 3.05], 1.12);
   blob(0.36, 1.45, 1.05, 0, 2.9, 3.3, -0.45);
   blob(0.32, 1.0, 0.75, 0, 1.8, 2.8, -0.1);
@@ -4077,8 +4077,8 @@ function createNandi() {
   blob(0.72, 0.22, 0.32, 0, 4.3, 5.55);
   blob(1.0, 0.46, 0.58, 0, 5.6, 3.25);
   for (const sx of [-1, 1]) {
-    blob(0.24, 0.16, 0.3, sx * 0.4, 5.15, 4.7); // 眉骨
-    blob(0.7, 0.19, 0.34, sx * 1.38, 5.15, 3.15, 0, sx * -0.35, sx * 0.2); // 耳
+    blob(0.24, 0.16, 0.3, sx * 0.4, 5.15, 4.7); // Brow ridge.
+    blob(0.7, 0.19, 0.34, sx * 1.38, 5.15, 3.15, 0, sx * -0.35, sx * 0.2); // Ear.
     const horn = taperTube(
       [
         [sx * 0.65, 5.7, 3.25],
@@ -4092,13 +4092,13 @@ function createNandi() {
       B,
     );
     n.add(horn);
-    blob(0.1, 0.07, 0.07, sx * 0.32, 4.45, 5.72); // 鼻孔
-    // 后腿：侧卧的大腿、贴地前伸的小腿与蹄
+    blob(0.1, 0.07, 0.07, sx * 0.32, 4.45, 5.72); // Nostril.
+    // Rear legs: thighs lie to the side and shins and hooves extend forward along the ground.
     blob(0.85, 1.25, 1.55, sx * 1.45, 1.3, -2.3);
     limb([sx * 1.85, 0.42, -1.9], [sx * 1.95, 0.4, -0.2], 0.36);
     blob(0.4, 0.3, 0.5, sx * 1.95, 0.32, 0.25);
   }
-  // 前腿：牠的左腿屈膝踏地（随时要起身的样子），右腿折在身下
+  // The left foreleg braces on a bent knee as if ready to rise, and the right folds underneath.
   limb([1.2, 1.9, 1.7], [1.55, 2.35, 3.45], 0.52);
   limb([1.55, 2.3, 3.5], [1.6, 0.5, 3.95], 0.36);
   blob(0.46, 0.3, 0.56, 1.6, 0.3, 4.1);
@@ -4106,7 +4106,7 @@ function createNandi() {
   limb([-1.25, 0.5, 1.7], [-1.3, 0.5, 3.3], 0.42);
   blob(0.5, 0.46, 0.5, -1.3, 0.55, 3.5);
   limb([-1.3, 0.45, 3.4], [-1.0, 0.36, 2.3], 0.3);
-  // 尾巴：从臀后绕到身侧
+  // Tail curls from the rump to the side.
   n.add(
     taperTube(
       [
@@ -4122,7 +4122,7 @@ function createNandi() {
     ),
   );
   blob(0.2, 0.2, 0.42, -2.35, 0.42, -1.6);
-  // 颈间的铜铃串：绕颈一圈，前面垂到胸口
+  // Bronze bells hang around the neck and drape down over the chest.
   const gp = [],
     bells = [];
   for (let i = 0; i <= 28; i++) {
@@ -4142,7 +4142,7 @@ function createNandi() {
   n.add(
     instanced(new THREE.ConeGeometry(0.11, 0.24, 8), MAT.gold, bells, false),
   );
-  // 夜里绕着牛的一圈油灯
+  // A ring of oil lamps lights the bull at night.
   const lamps = [];
   for (let i = 0; i < 36; i++)
     lamps.push([
@@ -4157,15 +4157,15 @@ function createNandi() {
   return g;
 }
 
-// —— Linga Bhairavi：倒三角形的殿墙（象征子宫），殿内尽端的小三角是神龛；正面朝东北，对着 Dhyanalinga ——
-// 局部坐标：三角底边在 z=0（宽 23 m），顶点在 z=-24；前面 z=0..15 是 15×15 m 的平顶前殿
+// Linga Bhairavi has an inverted triangular plan symbolizing the womb. Its small triangular shrine sits at the far end. The front faces northeast toward Dhyanalinga.
+// The triangle starts at z=0, spans 23 m, and ends at z=-24. The flat-roofed front hall spans z=0..15 and measures 15 × 15 m.
 function createLingaBhairavi() {
   const g = new THREE.Group(),
     Y = 0.6,
     HW = 11.5,
     LEN = 24,
     H = 6.2;
-  const HOLE = [-2.7, 2.7, -11.2, -15.9]; // Devi 前的下沉小坑
+  const HOLE = [-2.7, 2.7, -11.2, -15.9]; // Sunken area in front of Devi.
   g.add(
     triSlabHole(HW + 1.2, LEN + 2.4, Y, MAT.granite, 0, HOLE),
     tbox(17, Y, 16, MAT.granite, 0, Y / 2, 8),
@@ -4173,7 +4173,7 @@ function createLingaBhairavi() {
   const fl = triSlabHole(HW - 0.4, LEN - 0.8, 0.06, MAT.darkStone, Y, HOLE);
   fl.castShadow = false;
   g.add(fl);
-  // Devi 前方下沉的小坑：从殿内地面走四级台阶下去，坑边一圈黄铜立柱和红绳
+  // Four steps lead down into the sunken area, with brass posts and red rope around the edge.
   const SK = new THREE.Group();
   SK.position.y = Y + 0.07;
   g.add(SK);
@@ -4197,7 +4197,7 @@ function createLingaBhairavi() {
     tbox(0.04, 0.04, 3.8, MAT.red, -2.9, 0.82, -13.6),
     tbox(0.04, 0.04, 3.8, MAT.red, 2.9, 0.82, -13.6),
   );
-  // 两道斜墙：下段白墙、上段红砖；内侧挂红 / 绿纱丽幔
+  // The diagonal walls are white below and brick above, with red and green sari drapes inside.
   const wl = Math.hypot(HW, LEN);
   for (const sx of [-1, 1]) {
     const ry = Math.atan2(LEN, -sx * HW),
@@ -4236,10 +4236,10 @@ function createLingaBhairavi() {
     g.add(w);
     g.add(
       tbox(HW - 3.2, H, 0.6, MAT.white, (sx * (HW + 3.2)) / 2, Y + H / 2, -0.1),
-    ); // 正面墙（中间留 6.4 m 宽的门洞）
+    ); // Front wall with a 6.4 m doorway.
   }
   g.add(tbox(6.4, 1.3, 0.6, MAT.brick, 0, Y + H - 0.65, -0.1));
-  // 屋面：三角形楼板，中间是镂空石花窗的三角天窗
+  // Triangular roof slab with a carved stone lattice skylight.
   const roof = new THREE.Group();
   asRoof(roof);
   roof.add(triSlab(HW + 0.6, LEN + 1.2, 0.35, MAT.concrete, Y + H + 0.3, 0.5));
@@ -4248,7 +4248,7 @@ function createLingaBhairavi() {
   sky.castShadow = false;
   roof.add(sky);
   g.add(roof);
-  // 神龛（小三角的尖端）：深色雕花石框、Devi、两侧白色镂空雕花石柱、整面墙的油灯
+  // Shrine at the triangle tip with a carved dark surround, Devi, white lattice pillars, and a wall of lamps.
   const SZ = -15.5,
     S = new THREE.Group();
   S.position.set(0, Y, SZ);
@@ -4293,10 +4293,10 @@ function createLingaBhairavi() {
         wallLamps.push([sx * (2.2 + i * 0.32), 1.2 + k * 0.75, -1.1]);
     S.add(glowPoints(wallLamps, 0.8, 0xffa040));
   }
-  // Devi：约 8 ft 的黑色林伽形身躯，三只眼、十臂，下身裹红金纱丽
+  // Devi has a black linga-shaped body around 8 ft tall, three eyes, ten arms, and a red and gold sari.
   const d = new THREE.Group();
   d.position.set(0, -0.95, -0.35);
-  S.add(d); // Devi 立在下沉小坑的底面上
+  S.add(d); // Place Devi on the floor of the sunken area.
   const body = mesh(
     new THREE.CapsuleGeometry(0.72, 1.25, 8, 20),
     MAT.black,
@@ -4419,7 +4419,7 @@ function createLingaBhairavi() {
   const lbl = new THREE.PointLight(0xffd2a0, 34, 17, 1.2);
   lbl.position.set(0, Y + 4.2, -8);
   g.add(lbl);
-  // 殿中央：倾斜立着的大三叉戟，立在方形石座的水盘里
+  // A large tilted trident stands in a basin on a square stone pedestal.
   const tp = new THREE.Group();
   tp.position.set(0.4, Y, -6);
   const tr = bigTrishul(4.4);
@@ -4449,7 +4449,7 @@ function createLingaBhairavi() {
     tg,
   );
   g.add(tp);
-  // 前殿：雕蛇纹的石础 + 黑色立柱、出挑的平顶、木格栅；台阶前是灯塔与小三叉戟
+  // The front hall has a carved serpent plinth, black posts, a projecting flat roof, and timber lattice. A lamp pillar and small trident flank the steps.
   const bases = [],
     posts = [];
   for (const x of [-7, -2.4, 2.4, 7])
@@ -4494,9 +4494,9 @@ function createLingaBhairavi() {
   return g;
 }
 
-// —— Suryakund 与 Suryakund Mandapam：男众净身池。约 74 m 见方的列柱大殿（Mandapam）环绕着沉在地下 22 ft（≈6.7 m）的池坑：
-//    东侧是 28 级又宽又深的大台阶（每级近 1 m 深，清晨男众就坐在台阶上做 Guru Pooja 和练习），台阶尽头是 130 × 40 ft 的水池；
-//    三面是 200 块巨石砌的墙，池上横跨一道大砖拱，拱下悬着 20 ft 的铜日 —— 正面（+Z）朝西，对着莲池
+// Suryakund is the men's bathing pool. The columned mandapam is around 74 m square and surrounds a pool sunk 22 ft (6.7 m).
+//    On the east, 28 broad steps nearly 1 m deep lead to the 130 × 40 ft pool. The steps host morning Guru Pooja and practice.
+//    About 200 stones form walls on three sides. A brick arch spans the pool with a 20 ft bronze sun underneath. Local +Z faces west toward the ponds.
 function createSuryakund() {
   const g = new THREE.Group(),
     W = 74,
@@ -4516,7 +4516,7 @@ function createSuryakund() {
   pale.userData = { s: 4 };
   floorWithHole(g, W, D, 0, PZ, PW / 2, PD / 2, MAT.granite);
   pit(g, 0, PZ, PW, PD, DEP, MAT.sandstone);
-  // 大台阶：自东向西下行，最下面五级没在水里
+  // The main stairs descend from east to west. The lowest five steps are submerged.
   g.add(stairs(PW, NS, RISE, RUN, pale, 0, 0, zE, 1, -DEP));
   const stepY = (i) => -i * RISE,
     stepZ = (i) => zE + (i + 0.5) * RUN;
@@ -4543,7 +4543,7 @@ function createSuryakund() {
     ),
     tbox(7.5, 0.5, 1.2, MAT.darkStone, 0, 0.05, zW + 0.3),
   );
-  // 台阶中段的两根通高石柱；水边一方红布围着的林伽；池里三座水银林伽
+  // Two full-height stone pillars midway down, a linga wrapped in red at the water's edge, and three mercury lingas in the pool.
   for (const x of [-7.5, 7.5])
     g.add(
       tbox(1.3, 0.6, 1.3, pale, x, stepY(12) + 0.3, stepZ(12)),
@@ -4569,7 +4569,7 @@ function createSuryakund() {
       ),
       tcyl(0.8, 0.9, 0.3, 14, MAT.darkStone, x, WL - 0.5, zW - 6),
     );
-  // 台阶上的扶手短柱、练习垫，以及坐着做练习的人
+  // Low handrail posts, exercise mats, and people practicing on the stairs.
   const posts = [],
     mats = [],
     folk = [],
@@ -4603,7 +4603,7 @@ function createSuryakund() {
     seated(folk),
     glowPoints(sl, 1.4, 0xffb060),
   );
-  // Mandapam：白色花岗岩方柱（带柱础、柱头）；通往 Naga Shrine 的中轴留空
+  // White granite pillars with bases and capitals. Keep the central route to Naga Shrine clear.
   const cols = [];
   for (let x = -W / 2 + 3; x <= W / 2 - 2; x += 8.5)
     for (let z = -D / 2 + 3; z <= D / 2 - 2; z += 8.25)
@@ -4620,7 +4620,7 @@ function createSuryakund() {
   const pm = [];
   for (let x = -30; x <= 30; x += 4)
     for (const z of [-30, -26])
-      if (Math.abs(x) > 5) pm.push(M(x, 0.175, z, 0.66, 0.02, 1.8)); // Mandapam 地面上的练习垫
+      if (Math.abs(x) > 5) pm.push(M(x, 0.175, z, 0.66, 0.02, 1.8)); // Practice mats on the mandapam floor.
   g.add(instanced(new THREE.BoxGeometry(1, 1, 1), MAT.straw, pm, false));
   const roof = new THREE.Group();
   asRoof(roof);
@@ -4649,7 +4649,7 @@ function createSuryakund() {
     H + 0.68,
     0.36,
   );
-  // 池坑上的大砖拱（拱轴南北向），两端敞开透天
+  // Large brick barrel arch spanning the pool north to south, open to the sky at both ends.
   const VR = PD / 2 + 2.2,
     vg = new THREE.CylinderGeometry(
       VR,
@@ -4667,7 +4667,7 @@ function createSuryakund() {
   const vault = mesh(vg, MAT.brickDS, 0, H + 0.5, PZ);
   vault.rotation.y = Math.PI / 2;
   roof.add(vault);
-  // 铜日：直径约 6 m，悬在拱下，朝着台阶
+  // The bronze sun is about 6 m wide and hangs under the arch facing the stairs.
   const sun = new THREE.Group();
   sun.position.set(0, H + 4.2, 6);
   sun.rotation.order = 'YXZ';
@@ -4707,7 +4707,7 @@ function createSuryakund() {
   }
   sun.add(instanced(new THREE.ConeGeometry(0.3, 1, 5), MAT.gold, rays, false));
   g.add(sun);
-  // 西立面（正面）：赤陶瓦坡檐的长柱廊 + 通长台阶，檐后一排小攒尖亭；其余三面是矮石墙
+  // On the west, terracotta eaves cover a long colonnade and steps, with small pavilions behind. Low stone walls enclose the remaining sides.
   const vc = [];
   for (let x = -W / 2 + 2; x <= W / 2 - 2; x += 5) vc.push([x, D / 2 + 5]);
   g.add(
@@ -4742,7 +4742,7 @@ function createSuryakund() {
   return g;
 }
 
-// —— Chandrakund：女众净身池，沉在地下 30 ft（≈9 m），沿 32 级巨大石阶而下；入口是红砖拱丘 + 钢格栅平顶棚，柱脚两只石龟 ——
+// Chandrakund is the women's bathing pool, 30 ft (about 9 m) below ground and reached by 32 broad steps. Its entrance has a brick mound, steel lattice roof, and stone turtles.
 function createChandrakund() {
   const g = new THREE.Group(),
     PW = 12,
@@ -4772,8 +4772,8 @@ function createChandrakund() {
       -7.6,
       zB + 5,
     ),
-  ); // 池中的水银林伽
-  // 池上的拱顶：Kerala 风格的 Mahakumbha Mela 壁画（55 × 15 ft）
+  ); // Mercury linga in the pool.
+  // The pool vault carries a 55 × 15 ft Kerala-style Mahakumbha Mela mural.
   const vg = new THREE.CylinderGeometry(
     PW / 2,
     PW / 2,
@@ -4787,14 +4787,14 @@ function createChandrakund() {
   vg.rotateX(Math.PI / 2);
   vg.scale(1, 0.55, 1);
   g.add(mesh(vg, MAT.muralM, 0, -3.6, zB + 8.4, false));
-  // 地面：池坑上方是石板顶（点「剖视」掀开），台阶口敞开，可以沿台阶走下去
+  // Cutaway lifts the stone slab above the pool. The stair opening stays clear for walking down.
   const cover = new THREE.Group();
   asRoof(cover);
   const lid = tbox(PW + 3, 0.3, PD - 8, MAT.paving, 0, 0.0, PZ - 4);
   lid.castShadow = false;
   cover.add(lid);
   g.add(cover);
-  // 入口：红砖拱丘（锯齿形砖檐）罩住台阶口
+  // The red-brick entrance mound has a toothed cornice and covers the stairs.
   const mound = new THREE.Group();
   mound.position.set(0, 0, zTop + 0.5);
   const mg = new THREE.CylinderGeometry(
@@ -4835,7 +4835,7 @@ function createChandrakund() {
   }
   mound.add(instanced(new THREE.ConeGeometry(0.55, 0.8, 4), MAT.brick, teeth));
   g.add(mound);
-  // 钢格栅平顶棚：混凝土方柱，前排柱脚各一只石龟；两侧是低矮的更衣间
+  // The flat steel lattice roof rests on square concrete columns, with stone turtles by the front pair and low changing rooms at the sides.
   const CZ = zTop + 8,
     can = new THREE.Group();
   asRoof(can);
@@ -4926,7 +4926,7 @@ function createChandrakund() {
   return g;
 }
 
-// —— Bhiksha Hall：斋堂。约 62 × 52 m 的白色大厅，一次约两千人席地成排、在静默中用餐；南面是入口门廊 ——
+// Bhiksha Hall is a white dining hall about 62 × 52 m, with a south porch and space for about 2,000 people seated in rows on the floor, eating in silence.
 function createBhikshaHall() {
   const g = new THREE.Group(),
     Y = 0.6,
@@ -4959,7 +4959,7 @@ function createBhikshaHall() {
   asRoof(roof);
   roof.add(gableRoof(D + 5, W + 5, 4.2, Y + H, MAT.salmon, MAT.white));
   g.add(roof);
-  // 室内：两排白柱、成排的草垫、每排前面一溜香蕉叶餐位
+  // Inside are two rows of white pillars, rows of mats, and individual banana leaf place settings.
   const ic = [];
   for (let x = -24; x <= 24; x += 12) for (const z of [-9, 9]) ic.push([x, z]);
   g.add(columns(ic, Y, H, 0.3, MAT.white, true));
@@ -4974,7 +4974,7 @@ function createBhikshaHall() {
     instanced(new THREE.BoxGeometry(1, 1, 1), MAT.straw, mats, false),
     instanced(new THREE.BoxGeometry(1, 1, 1), MAT.pad, leaves, false),
   );
-  // 成排席地而坐、面朝香蕉叶用餐的人（约一半的位置坐了人；避开柱子）
+  // Seat diners in rows facing the banana leaves. Fill about half the spots and clear the columns.
   const diners = [];
   for (let i = 0; i < 12; i++)
     for (let x = -26.5; x <= 26.5; x += 1.0) {
@@ -4988,7 +4988,7 @@ function createBhikshaHall() {
       diners.push(folk(x, Y + 0.05, z, 0, 'c'));
     }
   g.add(crowd(diners));
-  // 南入口门廊（约 18 × 14 m）与台阶，门廊两侧是洗手槽
+  // The south porch is about 18 × 14 m, with stairs and wash troughs on both sides.
   g.add(
     tbox(19, Y, 15, MAT.granite, 0, Y / 2, D / 2 + 8),
     stoneColumns(
@@ -5033,9 +5033,9 @@ function createBhikshaHall() {
   return g;
 }
 
-// —— Isha Life 商店 + Peppervine Eatery：入口北翼以北、主路西侧。
-//    Peppervine 参照 Wikimedia Commons 的照片：分节雕花的石柱、钢桁架托着棕色屋面板的大敞棚、石板地、棚前的石水槽和木箭头路牌；
-//    Isha Life 没找到照片，按敞开式店面推测：货架上是衣物、书、铜器和食品 ——
+// Isha Life and Peppervine Eatery sit north of the entrance wing and west of the main road.
+//    Wikimedia photos show Peppervine's tiered carved pillars, open brown canopy on steel trusses, stone paving, basin, and wooden direction sign.
+//    The open Isha Life storefront and displays of clothing, books, copperware, and food are inferred without reference photos.
 function createIshaLife() {
   const g = new THREE.Group(),
     Y = 0.45,
@@ -5063,7 +5063,7 @@ function createIshaLife() {
   ver.rotation.x = 0.2;
   roof.add(ver);
   g.add(roof);
-  // 货架：后墙与两端各一排，分层摆着各色货品；中间是展示台和衣架
+  // Shelves at the back and ends hold assorted goods, with displays and clothes racks in the center.
   const shelf = [],
     goods = [],
     pal = [
@@ -5125,11 +5125,11 @@ function createIshaLife() {
   const pots = [];
   for (let i = 0; i < 7; i++)
     pots.push(M(-11.5 + i * 0.75, Y + 0.28, 3.2, 1, 1, 1));
-  g.add(instanced(new THREE.SphereGeometry(0.26, 10, 8), MAT.copper, pots)); // 门口一排铜器
+  g.add(instanced(new THREE.SphereGeometry(0.26, 10, 8), MAT.copper, pots)); // Copperware lined up near the entrance.
   g.add(
     tbox(2.6, 1.0, 0.9, MAT.wood, 11, Y + 0.5, 1.5),
     tbox(2.8, 0.05, 1.1, MAT.darkStone, 11, Y + 1.02, 1.5),
-  ); // 收银台
+  ); // Checkout counter.
   const sb = signBoard('Isha Life', 6, 1.2);
   sb.position.set(0, Y + H + 0.5, D / 2 + 3.3);
   g.add(sb);
@@ -5147,7 +5147,7 @@ function createIshaLife() {
   const sl = new THREE.PointLight(0xffe2b8, 26, 14, 1.2);
   sl.position.set(0, Y + 2.8, 0.5);
   g.add(sl);
-  // —— Peppervine Eatery（西北侧）——
+  // Peppervine Eatery, on the northwest side.
   const pv = new THREE.Group();
   pv.position.set(24, 0, -13);
   g.add(pv);
@@ -5173,7 +5173,7 @@ function createIshaLife() {
     );
   }
   pv.add(instanced(new THREE.BoxGeometry(1, 1, 1), MAT.concrete, seg));
-  // 钢桁架顶棚：上下弦 + 斜腹杆，上面是棕色屋面板，四周深出檐
+  // Steel trusses have top and bottom chords and diagonal bracing. Brown roof panels extend into deep eaves.
   const pr = new THREE.Group();
   asRoof(pr);
   pv.add(pr);
@@ -5206,7 +5206,7 @@ function createIshaLife() {
     tbox(PW + 5, 0.1, PD + 5, MAT.wood, 0, TY + 0.75, 0),
     tbox(PW + 5.2, 0.12, PD + 5.2, MAT.concrete, 0, TY + 0.87, 0),
   );
-  // 桌凳、取餐台与黑板、柱上攀着的胡椒藤
+  // Tables, benches, serving counter, chalkboard, and pepper vines on the pillars.
   const tables = [],
     benches = [];
   for (let i = 0; i < 4; i++)
@@ -5264,7 +5264,7 @@ function createIshaLife() {
     tbox(0.14, 3.3, 0.14, MAT.wood, -3.3, 1.65, PD / 2 + 2.3),
     tbox(0.14, 3.3, 0.14, MAT.wood, 3.3, 1.65, PD / 2 + 2.3),
   );
-  // 棚前的石水槽（养着睡莲）和木箭头路牌
+  // Stone trough with water lilies and a wooden arrow sign in front.
   const lil = [];
   for (let i = 0; i < 7; i++)
     lil.push(
@@ -5306,7 +5306,7 @@ function createIshaLife() {
   return g;
 }
 
-// —— Nalanda：北侧的 Nalanda Stay（白色三层住宿 / 会议楼，翼楼之间是弧形屋面罩着的敞厅）+ 南面的大操场 Nalanda Grounds ——
+// Nalanda Stay to the north has white three-story lodgings and meeting rooms, an open hall under a curved roof between the wings, and playing fields to the south.
 function createNalanda() {
   const g = new THREE.Group(),
     b = new THREE.Group();
@@ -5337,12 +5337,12 @@ function createNalanda() {
   for (let x = -56; x <= 56; x += 4)
     for (const fl of [0, 1, 2])
       win.push(M(x, 2.3 + fl * 3.4, -12.03, 1.8, 1.6, 0.08));
-  for (const fl of [1, 2]) rail.push(M(0, 0.6 + fl * 3.4, 0.9, 116, 0.25, 1.6)); // 朝内院的外廊
+  for (const fl of [1, 2]) rail.push(M(0, 0.6 + fl * 3.4, 0.9, 116, 0.25, 1.6)); // Exterior walkways facing the courtyard.
   b.add(
     instanced(new THREE.BoxGeometry(1, 1, 1), MAT.window, win, false),
     instanced(new THREE.BoxGeometry(1, 1, 1), MAT.concrete, rail),
   );
-  // 翼楼之间的敞厅：弧形白屋面 + 细柱，下面摆着桌椅
+  // The open hall between the wings has a curved white roof, slender columns, tables, and chairs.
   const endM = MAT.white.clone();
   endM.side = THREE.DoubleSide;
   const tables = [];
@@ -5388,7 +5388,7 @@ function createNalanda() {
     ),
   );
   g.add(b);
-  // Nalanda Grounds：约 165 × 150 m 的操场（傍晚在这里做游戏），四周一圈步道和照明灯杆
+  // Nalanda Grounds measures about 165 × 150 m and is used for evening games. Paths and lights surround it.
   const lawn = new THREE.Group();
   lawn.name = 'NalandaGrounds';
   lawn.position.set(-5, 0, 130);
@@ -5413,7 +5413,7 @@ function createNalanda() {
       ),
       tbox(0.12, 0.12, 7.3, MAT.white, sx * 32, 2.4, 0),
     );
-  } // 球门
+  } // Goalposts.
   const poles = [
     [-84, -76],
     [84, -76],
@@ -5436,7 +5436,7 @@ function createNalanda() {
   return g;
 }
 
-// —— Adiyogi Alayam：约 82,000 平方英尺的无柱大厅。浅粉色的低矮拱顶（中间高、两翼低），正面敞开，立着雕蛇纹的石柱 ——
+// Adiyogi Alayam is a column-free hall of about 82,000 sq ft. Its pale pink roof rises in the middle and lowers toward the sides. Carved serpent columns line the open front.
 function createAdiyogiAlayam() {
   const g = new THREE.Group(),
     Y = 0.6,
@@ -5459,7 +5459,7 @@ function createAdiyogiAlayam() {
     w.position.set(sx * 37, Y + H, 0);
     g.add(w);
   }
-  // 敞开的正面：深色内凹 + 四根大石柱（柱身一道赭红色的蛇纹）+ 赤陶花格矮墙
+  // Recessed open frontage with four large stone columns, ochre serpent reliefs, and a low terracotta lattice wall.
   g.add(tbox(60, 0.8, 10, MAT.darkStone, 0, Y + H + 0.2, D / 2 + 4));
   for (const x of [-27, -9, 9, 27]) {
     g.add(
@@ -5519,10 +5519,10 @@ function createAdiyogiAlayam() {
   return g;
 }
 
-// —— Spanda Hall：约 64,000 平方英尺的课程大厅与花园（参照 Isha 官网图库 18 张照片）。
-//    大厅：赭红抹灰的台基、四周一圈方石柱外廊、浅灰色低坡四坡金属屋顶，屋脊中央一座抬高的天窗；
-//    室内：白色大理石地面、白色层层内收的藻井天花（灯带沿着框线排开）、北墙一幅 140×12 英尺的 Kerala 风格湿婆生平壁画，壁画前是岩石讲座。
-//    花园：赭色夯土围墙围着的大草坪，墙边三座石柱小亭（雕花石柱、红色石板顶），石砌岸的莲池，入口处一块巨石和石板小径。正面朝 +Z（花园） ——
+// Spanda Hall includes a 64,000 sq ft program hall and garden, modeled from 18 photos in Isha's gallery.
+//    The hall has a plastered ochre plinth, a square-pillar colonnade, a shallow gray metal hip roof, and a raised ridge skylight.
+//    Inside are white marble, a tiered coffered ceiling with lighting strips, a 140 × 12 ft Kerala mural of Shiva's life on the north wall, and a stone dais.
+//    The garden has ochre rammed-earth walls, a lawn, three pavilions with carved pillars and red slabs, a stone-lined lotus pond, and an entry boulder and path. +Z faces the garden.
 function createSpandaHall() {
   const g = new THREE.Group(),
     Y = 0.7,
@@ -5551,12 +5551,12 @@ function createSpandaHall() {
     roughness: 0.8,
     side: THREE.DoubleSide,
   });
-  // 台基与地面
+  // Plinth and floor.
   g.add(
     tbox(W + 2 * VR + 1, Y, D + 2 * VR + 1, ochre, 0, Y / 2, 0),
     tbox(W + 2 * VR, 0.04, D + 2 * VR, marble, 0, Y + 0.02, 0),
   );
-  // 外廊方石柱（柱间约 5 米）
+  // Square arcade pillars spaced about 5 m apart.
   const cols = [],
     cw = W / 2 + VR - 0.5,
     cd = D / 2 + VR - 0.5;
@@ -5569,7 +5569,7 @@ function createSpandaHall() {
     cols.push([cw, z], [-cw, z]);
   }
   g.add(stoneColumns(cols, Y, H, 0.3, MAT.sandstone, MAT.granite));
-  // 墙：后墙（北，内侧画壁画）实墙；两侧墙开高窗；正面是一排木框玻璃门
+  // Solid north mural wall, high windows on the sides, and timber-framed glass doors at the front.
   const wy = Y + H / 2;
   g.add(
     tbox(W, H, 0.4, MAT.plaster, 0, wy, -D / 2),
@@ -5596,7 +5596,7 @@ function createSpandaHall() {
     instanced(new THREE.BoxGeometry(1, 1, 1), MAT.plaster, lintel),
     tbox(W, H - 3.1, 0.4, MAT.plaster, 0, Y + 3.1 + (H - 3.1) / 2, D / 2),
   );
-  // 壁画（140×12 英尺 ≈ 42.7×3.7 米）与岩石讲座
+  // The 140 × 12 ft (42.7 × 3.7 m) mural and stone dais.
   const mur = mesh(
     new THREE.PlaneGeometry(42.7, 3.7),
     MAT.muralM,
@@ -5626,15 +5626,15 @@ function createSpandaHall() {
     rk.scale.y = sy;
     dais.add(rk);
   }
-  dais.add(tbox(0.9, 1.4, 0.06, MAT.white, 0, 1.6, -0.4)); // 讲座上方的白色小像框
+  dais.add(tbox(0.9, 1.4, 0.06, MAT.white, 0, 1.6, -0.4)); // Small white frame above the dais.
   g.add(dais);
-  // 练习垫：一排排深灰色瑜伽垫
+  // Rows of dark gray yoga mats.
   const mats = [];
   for (let r = 0; r < 9; r++)
     for (let c = 0; c < 18; c++)
       mats.push(M(-25.5 + c * 3, Y + 0.05, -10 + r * 3.4, 0.62, 0.02, 1.8));
   g.add(instanced(new THREE.BoxGeometry(1, 1, 1), MAT.darkStone, mats, false));
-  // 藻井天花：一圈圈白框层层抬高，框线间是深色缝，灯带沿框排开（剖视时一起掀开）
+  // Stepped white ceiling coffers with dark gaps and lighting strips. Cutaway lifts them together.
   const ceil = new THREE.Group();
   asRoof(ceil);
   ceil.add(tbox(W, 0.08, D, ceilM, 0, Y + H - 0.04, 0));
@@ -5664,13 +5664,13 @@ function createSpandaHall() {
   ceil.add(
     instanced(new THREE.BoxGeometry(1, 1, 1), ceilM, fw, false),
     instanced(new THREE.BoxGeometry(1, 1, 1), MAT.black, fb, false),
-  ); // 全部框线两次 draw call
+  ); // Draw the complete framework in two calls.
   ceil.add(glowPoints(lights, 0.9, 0xfff1d6, 0.8));
   g.add(ceil);
   const hl = new THREE.PointLight(0xfff0d8, 30, 60, 1.6);
   hl.position.set(0, Y + H - 1, 0);
   g.add(hl);
-  // 屋顶：浅灰低坡四坡顶，出檐盖过外廊；屋脊中央抬高一段天窗
+  // Shallow gray hip roof whose eaves cover the arcade, with a raised skylight at the ridge.
   const roof = new THREE.Group();
   asRoof(roof);
   const rw = W + 2 * VR + 3,
@@ -5685,8 +5685,8 @@ function createSpandaHall() {
   );
   hip.scale.set(rw, rise, rd);
   roof.add(hip);
-  roof.add(tbox(rw, 0.25, rd, ceilM, 0, Y + H + 0.45, 0)); // 檐下底板
-  const CY = Y + H + 0.55 + rise - 0.4; // 天窗：从屋脊下方升起约 1.8 米
+  roof.add(tbox(rw, 0.25, rd, ceilM, 0, Y + H + 0.45, 0)); // Soffit beneath the eaves.
+  const CY = Y + H + 0.55 + rise - 0.4; // The skylight rises about 1.8 m from below the ridge.
   roof.add(
     tbox(18, 2.2, 9, MAT.plaster, 0, CY + 1.1, 0),
     instanced(
@@ -5715,11 +5715,11 @@ function createSpandaHall() {
       3.2,
     ),
   );
-  // —— 花园（+Z）——
+  // Garden on the +Z side.
   const GZ = D / 2 + VR + 1,
     GD = 34,
     GW = 68,
-    gz = GZ + GD / 2; // 第十轮由 40×74 缩小：原来西南角压在南北主路上（花园范围本来就是推测）
+    gz = GZ + GD / 2; // Reduce the inferred 40 × 74 m garden footprint to clear the north-south road at the southwest corner.
   const turf = tbox(GW, 0.1, GD, MAT.lawn, 0, 0.05, gz);
   turf.castShadow = false;
   g.add(turf);
@@ -5731,7 +5731,7 @@ function createSpandaHall() {
     tbox(GW / 2 - 4, wallH, wt, ochre, -(GW / 4 + 2), wallH / 2, GZ + GD),
     tbox(GW / 2 - 4, wallH, wt, ochre, GW / 4 + 2, wallH / 2, GZ + GD),
   );
-  // 入口木门（敞开）与门边巨石
+  // Open wooden gate and boulder by the entrance.
   for (const sx of [-1, 1]) {
     const d = tbox(3.6, 3.0, 0.15, MAT.wood, sx * 4.2, 1.5, GZ + GD + 1.6);
     d.rotation.y = sx * 1.2;
@@ -5751,7 +5751,7 @@ function createSpandaHall() {
   boulder.scale.set(4.2, 3.0, 2.8);
   boulder.rotation.set(0.1, 0.5, 0.18);
   g.add(boulder);
-  // 石板小径（入口 → 大厅）
+  // Stone path from the entrance to the hall.
   const slabs = [];
   for (let k = 0; k < 13; k++)
     slabs.push([
@@ -5767,7 +5767,7 @@ function createSpandaHall() {
       0xb9a98e + ((k * 37) % 5) * 0x030303,
     ]);
   g.add(tinted(new THREE.BoxGeometry(1, 1, 1), slabs, 0.95));
-  // 莲池：石砌池岸
+  // Stone-lined lotus pond.
   const PX = 15,
     PZ = GZ + GD - 9;
   g.add(
@@ -5799,7 +5799,7 @@ function createSpandaHall() {
   g.add(
     instanced(new THREE.CylinderGeometry(1, 1, 1, 10), MAT.pad, pads, false),
   );
-  // 三座石柱小亭，沿西墙一字排开
+  // Three stone pavilions in a row along the west wall.
   const slabRoof = new THREE.MeshStandardMaterial({
     map: TEX.stone,
     color: 0xa65f45,
@@ -5827,7 +5827,7 @@ function createSpandaHall() {
     );
     g.add(m);
   }
-  // 草坪上的长条木凳
+  // Long wooden benches on the lawn.
   const bench = [];
   for (const [x, z] of [
     [-14, GZ + 12],
@@ -5845,7 +5845,7 @@ function createSpandaHall() {
   return g;
 }
 
-// —— Sarpa Vasal（蛇门）：Narasipuram Road 边的入口。灰花岗岩层层内收的门框、红砖镶边、两侧毛石墙，顶上赤陶色筒拱，门洞正中立着黑色眼镜蛇 ——
+// Sarpa Vasal (Serpent Gate) stands by Narasipuram Road, with stepped gray granite, red brick trim, rubble walls, a terracotta barrel arch, and a black cobra centered in the opening.
 function createSarpaVasal() {
   const g = new THREE.Group(),
     endM = MAT.salmon.clone();
@@ -5876,7 +5876,7 @@ function createSarpaVasal() {
   v.rotation.y = Math.PI / 2;
   v.position.set(0, 11, 0);
   g.add(v);
-  // 蛇柱：自地面盘旋而上，蛇兜高过门楣
+  // The serpent spirals up from the ground, with its hood higher than the lintel.
   const sp = [];
   for (let i = 0; i <= 14; i++) {
     const a = (i / 14) * Math.PI * 2.2;
@@ -5887,7 +5887,7 @@ function createSarpaVasal() {
         2.6 + Math.cos(a) * (1.3 - i * 0.05),
       ),
     );
-  } // 地面上的一圈盘身
+  } // Ground coil.
   for (let i = 1; i <= 16; i++) {
     const t = i / 16;
     sp.push(
@@ -5897,7 +5897,7 @@ function createSarpaVasal() {
         2.6 + (1 - t) * 0.4,
       ),
     );
-  } // 蛇身 S 形升起
+  } // S-shaped rise of the body.
   g.add(
     mesh(
       new THREE.TubeGeometry(new THREE.CatmullRomCurve3(sp), 110, 0.6, 10),
@@ -5932,7 +5932,7 @@ function createSarpaVasal() {
         3.22,
         false,
       ),
-    ); // 蛇兜上的眼镜纹
+    ); // Spectacle marking on the cobra's hood.
   const pvm = tbox(40, 0.14, 26, MAT.paving, 0, 0.09, 6);
   pvm.castShadow = false;
   g.add(pvm);
@@ -5940,8 +5940,8 @@ function createSarpaVasal() {
     g.add(
       tbox(3.2, 0.9, 0.08, MAT.black, sx * 5.2, 0.9, 9),
       tbox(3, 0.5, 0.06, MAT.goldTrim, sx * 5.2, 0.95, 9.05),
-    ); // 路障
-  // 门内左侧的 Information Center 小亭、门外的 ATM
+    ); // Road barrier.
+  // Information Center inside the gate to the left, with an ATM outside.
   const info = house(7, 5, 3, { roof: 'hip', rise: 1.8, win: 2, plinth: 0.3 });
   info.position.set(-14, 0, -9);
   g.add(info);
@@ -5963,8 +5963,8 @@ function createSarpaVasal() {
   return g;
 }
 
-// —— 莲池：Nandi 与 Suryakund 之间的一片葫芦形水池（轮廓取自 OSM），腰部横跨一座白色拱桥；北面还有一方圆池 ——
-// 本组件不旋转，轮廓点直接用 (东, 北) 实测坐标书写，原点在 (112, -14)
+// A gourd-shaped pond between Nandi and Suryakund follows the OSM outline. A white arched bridge spans its waist, and a round pool lies to the north.
+// This component is unrotated. Its surveyed (east, north) outline is relative to (112, -14).
 function createLotusPonds() {
   const g = new THREE.Group(),
     O = [112, -14],
@@ -6008,7 +6008,7 @@ function createLotusPonds() {
   for (const poly of [south]) {
     g.add(polyPlane(poly, MAT.pondWater, 0.14));
     for (let i = 0; i < poly.length; i++) {
-      // 岸边压着大石块
+      // Large stones along the bank.
       const [x1, z1] = poly[i],
         [x2, z2] = poly[(i + 1) % poly.length],
         len = Math.hypot(x2 - x1, z2 - z1),
@@ -6057,7 +6057,7 @@ function createLotusPonds() {
     instanced(flower, MAT.lotus, pink, false),
     instanced(flower, MAT.lotusW, white, false),
   );
-  // 白色拱桥：自 Nandi 广场 (94,-13) 跨过池腰到 (114,-16)，长约 21 m、宽 3.4 m
+  // The white bridge spans the pond from Nandi plaza (94, -13) to (114, -16), about 21 m long and 3.4 m wide.
   const a = L([93.5, -12.6]),
     b = L([114.5, -16.2]),
     BL = Math.hypot(b[0] - a[0], b[1] - a[1]),
@@ -6113,7 +6113,7 @@ function createLotusPonds() {
   }
   br.add(glowPoints(bl, 1.8));
   g.add(br);
-  // 神庙区的石板地：从入口两翼一直铺到 Suryakund 西立面，莲池嵌在其中（实地没有草坪）
+  // Stone paving continues from the entrance wings to the west face of Suryakund, enclosing the ponds.
   const plaza = polyPlane(
     [
       [22, -52],
@@ -6128,7 +6128,7 @@ function createLotusPonds() {
   );
   plaza.receiveShadow = true;
   g.add(plaza);
-  // 池边的石凳
+  // Stone seats by the ponds.
   for (const [e, n] of [
     [124, 19],
     [137, 0],
@@ -6141,7 +6141,7 @@ function createLotusPonds() {
   return g;
 }
 
-// —— Naga Shrine：Suryakund 东侧台阶顶上的黑色巨石，石面上雕着相缠的眼镜蛇（一条昂首、红色蛇兜）——
+// At the top of the east steps of Suryakund, a black boulder bears intertwined cobras, one with a raised red hood.
 function createNagaShrine() {
   const g = new THREE.Group();
   g.add(
@@ -6169,7 +6169,7 @@ function createNagaShrine() {
     flatShading: true,
   });
   g.add(mesh(rg, rockM, 0, 2.4, -0.2));
-  // 两条蛇：贴着石面的浮雕
+  // Two serpents carved in relief against the rock.
   const snake = (pts, r) =>
     mesh(
       new THREE.TubeGeometry(
@@ -6232,7 +6232,7 @@ function createNagaShrine() {
   );
   hood2.scale.set(0.3, 0.36, 0.12);
   g.add(hood, hoodIn, hood2);
-  // 花环、红布、铜灯与三只盛着绿叶的铜盆
+  // Garlands, red cloth, brass lamps, and three brass bowls with greenery.
   const gar = mesh(
     new THREE.TorusGeometry(1.75, 0.06, 6, 40, Math.PI),
     MAT.lotusW,
@@ -6277,7 +6277,7 @@ function createNagaShrine() {
   return g;
 }
 
-// —— Deposit Counter：手机 / 行李寄存处（园区内不许用手机），在 Chandrakund 东北；旁边是鞋架 ——
+// The phone and luggage deposit counter is northeast of Chandrakund and next to the shoe racks. Phones are restricted on campus.
 function createDepositCounter() {
   const g = new THREE.Group();
   g.add(
@@ -6293,7 +6293,7 @@ function createDepositCounter() {
     tbox(11, 1.1, 0.7, MAT.wood, 0, 0.9, 3.2),
     tbox(11.4, 0.08, 1, MAT.darkStone, 0, 1.48, 3.2),
     tbox(11, 1.5, 0.12, MAT.black, 0, 2.3, 3.02),
-  ); // 柜台与窗口
+  ); // Counter and service opening.
   const lock = [];
   for (let i = 0; i < 12; i++)
     for (let k = 0; k < 4; k++)
@@ -6302,7 +6302,7 @@ function createDepositCounter() {
   const sb = signBoard('Deposit Counter', 6.4, 1.0);
   sb.position.set(0, 3.75, 5.7);
   g.add(sb);
-  // 鞋架：三排木架，上面盖一片瓦顶
+  // Three rows of wooden shoe racks under a tiled roof.
   const rk = new THREE.Group();
   rk.position.set(0, 0, 10);
   const sh = [];
@@ -6339,7 +6339,7 @@ function createDepositCounter() {
   return g;
 }
 
-// 竹篾编的屏风墙贴图（Welcome Point 的柜台棚用）
+// Woven bamboo screen texture for the shelters at Welcome Point.
 let _bambooMat;
 function bambooMat() {
   if (_bambooMat) return _bambooMat;
@@ -6360,7 +6360,7 @@ function bambooMat() {
   });
   return _bambooMat;
 }
-// 四坡瓦顶（深灰 Mangalore 瓦），出檐 eave 米
+// Dark gray Mangalore tile hip roof with eave meters of overhang.
 function hipRoof(w, d, rise, y, mat, eave = 1.2) {
   const c = mesh(
     new THREE.ConeGeometry(Math.SQRT1_2, 1, 4).rotateY(Math.PI / 4),
@@ -6373,9 +6373,9 @@ function hipRoof(w, d, rise, y, mat, eave = 1.2) {
   return asRoof(c);
 }
 
-// —— Welcome Point：访客登记、志愿者接待、班车和牛车的起点（Google 地图上的 “Welcome Point - Isha Cottages”，访客照片可见）。
-//    几座低矮的柜台棚：深灰色瓦的四坡顶、宽出檐、深色钢柱，背墙和侧墙是竹篾屏风，里面是黄墙和带编号的登记窗口；
-//    后面是一栋赭橙色抹灰的两层楼；棚前一根雕着人面的石柱；路边是木条吊顶、深色金属檐口的上下客雨棚。正面朝 +Z（主路） ——
+// Welcome Point handles visitor registration and volunteer reception. Shuttles and bullock carts depart here. Reference: Google Maps listing Welcome Point - Isha Cottages and visitor photos.
+//    Low shelters have dark gray hipped tile roofs, deep eaves, steel posts, bamboo screens, yellow walls, and numbered registration windows.
+//    Behind them is a two-story ochre building. The front has a carved pillar and a roadside canopy with a timber ceiling and dark metal fascia. +Z faces the main road.
 function createWelcomePoint() {
   const g = new THREE.Group();
   const tileGrey = new THREE.MeshStandardMaterial({
@@ -6399,7 +6399,7 @@ function createWelcomePoint() {
     metalness: 0.5,
   });
   g.add(tbox(30, 0.15, 26, MAT.paving, 0, 0.075, 0));
-  // 后面的两层楼
+  // Two-story building behind the shelters.
   const B = new THREE.Group();
   B.position.set(-2, 0, -9);
   B.add(
@@ -6412,7 +6412,7 @@ function createWelcomePoint() {
     bw.push(M(-9 + i * 3.6, 4.9, 3.53, 1.4, 1.3, 0.06));
   B.add(instanced(new THREE.BoxGeometry(1, 1, 1), MAT.window, bw, false));
   g.add(B);
-  // 两座柜台棚
+  // Two service shelters.
   const nums = ['21', '22', '23', '24'];
   for (const [cx, cz, i0] of [
     [-6.5, 0, 0],
@@ -6429,7 +6429,7 @@ function createWelcomePoint() {
       tbox(0.12, h, d, bambooMat(), -w / 2, h / 2 + 0.25, 0),
       tbox(0.12, h, d, bambooMat(), w / 2, h / 2 + 0.25, 0),
     );
-    // 中间一间黄墙的登记室，正面开两个窗口
+    // The yellow registration room has two windows in front.
     P.add(
       tbox(6.4, h, 0.2, yellow, 0, h / 2 + 0.25, -0.6),
       tbox(0.2, h, 2.6, yellow, -3.2, h / 2 + 0.25, -1.9),
@@ -6469,7 +6469,7 @@ function createWelcomePoint() {
       ),
     );
     P.add(hipRoof(w, d, 1.7, h + 0.25, tileGrey, 1.4));
-    // 等候的木长凳
+    // Wooden waiting benches.
     P.add(
       instanced(new THREE.BoxGeometry(1, 1, 1), MAT.wood, [
         M(-3, 0.7, 2.2, 3, 0.1, 0.45),
@@ -6480,7 +6480,7 @@ function createWelcomePoint() {
     );
     g.add(P);
   }
-  // 雕人面的石柱
+  // Stone column carved with faces.
   g.add(
     tbox(0.8, 1.7, 0.8, MAT.sandstone, 0.2, 0.85, 6.2),
     tbox(1.0, 0.18, 1.0, MAT.sandstone, 0.2, 1.75, 6.2),
@@ -6500,7 +6500,7 @@ function createWelcomePoint() {
       .translateY(3.9)
       .translateZ(7.4),
   );
-  // 路边的上下客雨棚：木条吊顶 + 深色金属檐口
+  // Roadside pickup shelter with a timber ceiling and dark metal fascia.
   const C = new THREE.Group();
   C.position.set(4, 0, 10.5);
   C.add(
@@ -6537,7 +6537,7 @@ function createWelcomePoint() {
     ),
   );
   g.add(C);
-  // 雨棚下：等客的电瓶班车和牛车
+  // Battery shuttle and bullock cart parked under the shelter.
   const cart = new THREE.Group();
   cart.position.set(0.5, 0, 10.5);
   cart.rotation.y = Math.PI / 2;
@@ -6574,11 +6574,11 @@ function createWelcomePoint() {
     );
     cart.add(wh);
   }
-  // 停着等客的牛车（与路上走的牛车同一个模型，只有赶车人）；车头朝西北，车尾在雨棚下
+  // Parked bullock cart with the driver only, facing northwest with its rear under the canopy.
   const ox = oxCart({ horn: 0x2f7d4a, riders: 0, shadow: true });
   ox.position.set(9, 0, 10.5);
   ox.rotation.y = -Math.PI / 2;
-  // 雨棚下等车的人
+  // People waiting under the canopy.
   const wait = [];
   for (let i = 0; i < 7; i++)
     wait.push(
@@ -6600,10 +6600,10 @@ function createWelcomePoint() {
   return g;
 }
 
-// —— Sadhana Hall 1 / 2：Dhyanalinga 西侧一栋连体的两层长楼（约 64 × 16 m，南端紧挨 Linga Bhairavi）。
-//    一楼沿东侧柱廊是一排房间：南头 Devi Office、Ritual Office（Linga Bhairavi 的登记与仪式预约），往北是楼梯与其他办公室；
-//    二楼是两间修习厅：南边 Sadhana Hall 2、北边 Sadhana Hall 1（每天的 Darshan、Aumkar 启蒙、女众清晨练习），屋顶是一排横向的小筒拱。
-//    航拍可见这栋楼的筒拱屋顶；一楼房间的具体排布是按用户描述推测的。局部 +X 朝北、+Z 朝东（正面） ——
+// Sadhana Halls 1 and 2 share a two-story building of about 64 × 16 m west of Dhyanalinga, with Linga Bhairavi just south.
+//    The east colonnade fronts ground-floor rooms. Devi Office and Ritual Office occupy the south end, with stairs and offices farther north.
+//    Upstairs are Sadhana Hall 2 to the south and Hall 1 to the north, used for Darshan, Aumkar initiation, and women's morning practice. Small barrel vaults cover the roof.
+//    Aerial photos show the vaults. The room layout is inferred from a user description. Local +X points north and +Z points east.
 function createSadhanaHalls() {
   const g = new THREE.Group(),
     L = 64,
@@ -6616,7 +6616,7 @@ function createSadhanaHalls() {
   endM.map = null;
   endM.side = THREE.DoubleSide;
   g.add(tbox(L + 2, Y, Wd + 5, MAT.granite, 0, Y / 2, 1.8));
-  // 一楼：后墙 + 房间隔墙 + 朝东的柱廊
+  // Ground-floor rear wall, partitions, and east colonnade.
   g.add(
     tbox(L, H1, 0.3, MAT.white, 0, Y + H1 / 2, -Wd / 2),
     tbox(0.3, H1, Wd, MAT.white, -L / 2, Y + H1 / 2, 0),
@@ -6666,7 +6666,7 @@ function createSadhanaHalls() {
     instanced(new THREE.BoxGeometry(1, 1, 1), MAT.window, win, false),
     instanced(new THREE.BoxGeometry(1, 1, 1), MAT.wood, doors, false),
   );
-  // 二楼楼板与外廊、二楼墙、两间厅的分隔墙
+  // Upper slab, walkway, walls, and the partition between the halls.
   g.add(
     tbox(L + 0.6, 0.3, Wd + 0.6, MAT.concrete, 0, F2 - 0.15, 0),
     tbox(L, 0.9, 0.12, MAT.white, 0, F2 + 0.45, Wd / 2 + 0.2),
@@ -6685,13 +6685,13 @@ function createSadhanaHalls() {
   const cols = [];
   for (let x = -L / 2 + 1; x <= L / 2 - 1; x += 5.25) cols.push([x, Wd / 2]);
   g.add(columns(cols, Y, H1 + 0.3 + H2 + 0.2, 0.18, MAT.concrete, true));
-  // 屋顶：一排横向的小筒拱
+  // A row of transverse shallow barrel vaults.
   for (let i = 0; i < 12; i++) {
     const v = asRoof(vaultRoof(5.3, Wd + 1, 1.8, MAT.concrete, endM));
     v.position.set(-L / 2 + 2.65 + i * 5.3, F2 + H2, 0);
     g.add(v);
   }
-  // 二楼厅内：1 号厅（北）有讲台和成排的练习垫，2 号厅（南）较空
+  // Hall 1 to the north contains a dais and practice mats. Hall 2 is more open.
   g.add(
     tbox(9, 0.5, 3, MAT.wood, 26, F2 + 0.25, -4.6),
     tbox(9.4, 0.06, 3.4, MAT.sariRed, 26, F2 + 0.53, -4.6),
@@ -6717,8 +6717,8 @@ function createSadhanaHalls() {
   return g;
 }
 
-// —— Moondram Pirai Eatery（“初三的月牙”）：Sarpa Vasal 南侧、路对面的餐厅，约 36 × 24 m。
-//    室内参照访客照片：白墙、白色钢桁架顶、浅色地砖、黑色铁艺桌椅、自助取餐台、墙上的 Devi 像；招牌的锥形 dosa。外观没找到照片，是推测 ——
+// Moondram Pirai Eatery, named for the third-day crescent, is about 36 × 24 m and across the road south of Sarpa Vasal.
+//    Visitor photos show white walls and trusses, pale tile, black metal furniture, a buffet, a Devi image, and cone-shaped dosa. The exterior is inferred.
 function createMoondramPirai() {
   const g = new THREE.Group(),
     W = 34,
@@ -6735,7 +6735,7 @@ function createMoondramPirai() {
     tbox(W + 2, Y, D + 10, MAT.granite, 0, Y / 2, 4),
     tbox(W - 0.4, 0.04, D - 0.4, tile, 0, Y + 0.02, 0),
   );
-  // 四面白墙：正面中间是 9 m 宽的敞开门洞，墙上一条横向长窗
+  // Four white walls, with a 9 m entrance and a long horizontal window in front.
   g.add(tbox(W, H, 0.3, MAT.white, 0, Y + H / 2, -D / 2));
   for (const sx of [-1, 1])
     g.add(
@@ -6761,7 +6761,7 @@ function createMoondramPirai() {
       ),
     );
   g.add(tbox(9, 1.0, 0.3, MAT.white, 0, Y + H - 0.5, D / 2));
-  // 屋顶：白色钢桁架 + 浅色屋面板（低坡）
+  // White steel trusses with pale low-pitch panels.
   const roof = new THREE.Group();
   asRoof(roof);
   roof.add(gableRoof(D + 3, W + 3, 2.6, Y + H, MAT.metalRoof, MAT.white));
@@ -6793,7 +6793,7 @@ function createMoondramPirai() {
         M(x, Y + H - 0.25, z, 0.05, 0.5, 0.05),
       );
   g.add(instanced(new THREE.BoxGeometry(1, 1, 1), MAT.metalRoof, fans, false));
-  // 黑色铁艺桌椅（四人桌），桌上摆着锥形 dosa、不锈钢杯和盘子
+  // Black metal tables for four with cone-shaped dosa, steel cups, and plates.
   const iron = new THREE.MeshStandardMaterial({
       color: 0x18181b,
       roughness: 0.45,
@@ -6834,7 +6834,7 @@ function createMoondramPirai() {
       false,
     ),
   );
-  // 摆着 dosa 的桌子坐了一到三个人，面朝桌子
+  // One to three diners face each table that has dosa.
   const eat = [];
   for (const [x, z] of sets)
     if (hash((x * 3) | 0, (z * 3) | 0) < 0.6) {
@@ -6856,7 +6856,7 @@ function createMoondramPirai() {
         );
     }
   g.add(crowd(eat));
-  // 自助取餐台（靠后墙）：一排保温餐盘、果汁桶、水果；台后是厨房隔墙和传菜窗；上方吊着黑板
+  // Buffet against the rear wall with warming trays, juice dispensers, fruit, a kitchen partition and pass-through, and a hanging chalkboard.
   const CZ = -D / 2 + 4.6;
   g.add(
     tbox(22, 0.95, 1.1, MAT.white, -2, Y + 0.48, CZ),
@@ -6932,8 +6932,8 @@ function createMoondramPirai() {
   g.add(
     tbox(3.4, 0.9, 0.9, MAT.white, 13, Y + 0.47, CZ),
     tbox(1.2, 0.5, 0.5, MAT.metalRoof, 13, Y + 1.2, CZ),
-  ); // 收银台
-  // 东墙上的 Devi 像与红色供桌
+  ); // Checkout counter.
+  // Devi image and red offering table on the east wall.
   const dv = new THREE.Group();
   dv.position.set(W / 2 - 0.25, Y, 2);
   dv.rotation.y = -Math.PI / 2;
@@ -6961,7 +6961,7 @@ function createMoondramPirai() {
     ),
   );
   g.add(dv);
-  // 洗手池、入口门廊与室外座位；招牌与月牙；旁边的 ATM
+  // Washbasins, entrance porch, outdoor seating, crescent sign, and nearby ATM.
   g.add(
     tbox(5, 0.85, 0.6, MAT.white, -W / 2 + 3.2, Y + 0.43, D / 2 - 0.7),
     tbox(4.8, 0.05, 0.5, MAT.metalRoof, -W / 2 + 3.2, Y + 0.88, D / 2 - 0.7),
@@ -7028,7 +7028,7 @@ function createMoondramPirai() {
   ab.position.set(W / 2 + 6, 3.4, D / 2 - 0.6);
   g.add(ab);
   const il = new THREE.PointLight(0xfff0dc, 70, 30, 1.1);
-  il.position.set(0, Y + 3.6, 1); // 室内常亮
+  il.position.set(0, Y + 3.6, 1); // Indoor light stays on.
   g.add(
     il,
     glowPoints(
@@ -7046,10 +7046,10 @@ function createMoondramPirai() {
   return g;
 }
 
-// —— Velliangiri Unavagam：Suryakund 东南、Surya Vasal 内侧的餐厅（Google 地图定位；造型参照 Google 地图上的访客照片）。
-//    后面是一栋芥末黄的厨房楼，正面一排不锈钢取餐窗口，墙上写着 “Velliangiri Unnavagam”；
-//    前面是一座敞开的大钢棚：灰色钢门架、双坡金属屋面、深色光面石材地坪，棚下一排排木面钢腿的站食长桌，窗口前有排队的钢栏杆。
-//    厨房楼东头隔出一间小 Isha Life 店（货架和一个甜点玻璃柜；位置是推测）。棚前是铺砖小广场、花坛和椰子树。正面朝 +Z ——
+// Velliangiri Unavagam sits inside Surya Vasal southeast of Suryakund. The location and appearance follow Google Maps and visitor photos.
+//    A mustard-yellow kitchen building behind it has stainless service windows and a sign reading “Velliangiri Unnavagam.”
+//    The open steel canopy has gray portals, a metal gable roof, polished dark stone flooring, standing tables, and rails for the queue.
+//    A small Isha Life shop with a pastry case is modeled at the east end, where its location is inferred. The front plaza has brick paving, planters, and palms. +Z faces front.
 function createUnavagam() {
   const g = new THREE.Group(),
     W = 36,
@@ -7082,7 +7082,7 @@ function createUnavagam() {
     metalness: 0.8,
   });
   g.add(tbox(W + 1, 0.3, D, floorM, 0, 0.15, 0));
-  // 厨房楼
+  // Kitchen building.
   const KD = 7,
     KZ = -D / 2 + KD / 2,
     KH = 4.4,
@@ -7113,7 +7113,7 @@ function createUnavagam() {
     false,
   );
   g.add(sign);
-  // 排队栏杆（窗口前的钢管）
+  // Steel queue rails in front of the windows.
   const rail = [];
   for (const x of [-13, -7, -1, 5])
     for (const sx of [-1, 1])
@@ -7122,7 +7122,7 @@ function createUnavagam() {
         M(x + sx * 1.9, F + 0.5, fz + 4.1, 0.05, 0.9, 0.05),
       );
   g.add(instanced(new THREE.BoxGeometry(1, 1, 1), steel, rail, false));
-  // 小 Isha Life 店：厨房楼东头，玻璃门面
+  // Small glass-fronted Isha Life shop at the east end of the kitchen.
   const LX = 13.5;
   g.add(
     mesh(
@@ -7143,7 +7143,7 @@ function createUnavagam() {
   const sl = signBoard('Isha Life', 3.2, 0.6, '#2b2016', '#f3e6c8');
   sl.position.set(LX, F + 3.1, fz + 0.12);
   g.add(sl);
-  g.add(tbox(6.6, 2.6, 0.1, MAT.plaster, LX, F + 1.3, fz - 0.15)); // 店内的后墙（挡住厨房）
+  g.add(tbox(6.6, 2.6, 0.1, MAT.plaster, LX, F + 1.3, fz - 0.15)); // Rear wall of the shop, concealing the kitchen.
   const goods = [];
   for (let s = 0; s < 4; s++)
     for (let i = 0; i < 9; i++)
@@ -7169,8 +7169,8 @@ function createUnavagam() {
       fz + 1.6,
       false,
     ),
-  ); // 甜点玻璃柜
-  // 大钢棚
+  ); // Glass pastry case.
+  // Large steel canopy.
   const SZ0 = fz + 0.4,
     SZ1 = D / 2 - 0.3,
     SD = SZ1 - SZ0,
@@ -7194,7 +7194,7 @@ function createUnavagam() {
     truss.push(M(x, F + EH - 0.1, SZ, 0.18, 0.22, SD));
   shed.add(r1, r2, instanced(new THREE.BoxGeometry(1, 1, 1), steel, truss));
   g.add(shed);
-  // 站食长桌：木面、钢腿，一排排顺着棚子
+  // Rows of standing tables with timber tops and steel legs.
   const tops = [],
     legs = [];
   for (let r = 0; r < 3; r++)
@@ -7209,7 +7209,7 @@ function createUnavagam() {
     instanced(new THREE.BoxGeometry(1, 1, 1), MAT.wood, tops),
     instanced(new THREE.BoxGeometry(1, 1, 1), steel, legs, false),
   );
-  // 人：长桌两边站着吃，窗口前的栏杆里排着队
+  // Diners stand at the long tables, and others queue by the windows.
   const eat = [];
   for (let r = 0; r < 3; r++)
     for (let c = 0; c < 5; c++)
@@ -7232,14 +7232,14 @@ function createUnavagam() {
         ),
       );
   g.add(crowd(eat));
-  // 吊扇
+  // Ceiling fans.
   const fans = [];
   for (let c = 0; c < 4; c++)
     for (let r = 0; r < 2; r++)
       fans.push(M(-12 + c * 8, F + EH - 0.6, SZ0 + 6 + r * 5, 1.4, 0.03, 0.12));
   g.add(instanced(new THREE.BoxGeometry(1, 1, 1), MAT.black, fans, false));
-  // 棚前小广场：铺砖、两个带钢栏杆的方花坛
-  g.add(tbox(W, 0.12, 6, MAT.redPaver, 0, 0.06, D / 2 + 3)); // 棚前铺砖（再往前就是 Surya Vasal 门楼）
+  // Paved forecourt with two square, fenced planters.
+  g.add(tbox(W, 0.12, 6, MAT.redPaver, 0, 0.06, D / 2 + 3)); // Paving outside the canopy, immediately before Surya Vasal.
   for (const x of [-10, 10]) {
     g.add(
       tbox(6, 0.6, 2.4, MAT.concrete, x, 0.3, D / 2 + 3.2),
@@ -7280,11 +7280,11 @@ function createUnavagam() {
     const pl = new THREE.PointLight(0xffe2b0, 40, 32, 1.4);
     pl.position.set(x, F + EH - 0.6, SZ);
     g.add(pl);
-  } // 棚下常亮的灯
+  } // Lights under the canopy stay on.
   return g;
 }
 
-// —— Metal Bridge：Bhiksha Hall 东北、通往 Velliangiri Prashala 的钢桁架步行桥，跨过一条山溪（牛车线的终点）。局部 X 为桥的走向 ——
+// The steel truss footbridge northeast of Bhiksha Hall crosses a stream toward Velliangiri Prashala and marks the end of the bullock cart route. Local X follows the bridge.
 function createMetalBridge() {
   const g = new THREE.Group(),
     L = 26,
@@ -7294,7 +7294,7 @@ function createMetalBridge() {
       roughness: 0.5,
       metalness: 0.6,
     });
-  // 山溪：浅沟、溪水、乱石
+  // Shallow streambed with water and rocks.
   const bed = tbox(13, 0.1, 60, MAT.darkPlaster, 0, 0.1, 0);
   bed.castShadow = false;
   bed.rotation.y = 0.12;
@@ -7321,7 +7321,7 @@ function createMetalBridge() {
     wtr,
     instanced(new THREE.IcosahedronGeometry(1, 0), MAT.rock, rocks),
   );
-  // 桥面（钢格板）+ 两侧华伦式桁架
+  // Steel deck grating and Warren trusses on both sides.
   const DY = 2.1;
   g.add(
     tbox(L, 0.16, Wd, steel, 0, DY, 0),
@@ -7353,7 +7353,7 @@ function createMetalBridge() {
   for (let i = 1; i < N; i++)
     bars.push(M(-L / 2 + i * seg, DY + TH, 0, 0.12, 0.12, Wd));
   g.add(instanced(new THREE.BoxGeometry(1, 1, 1), steel, bars));
-  // 桥墩与两端的坡道
+  // Piers and ramps at both ends.
   for (const sx of [-1, 1]) {
     g.add(
       tbox(2.4, DY, Wd + 1.2, MAT.sandstone, sx * (L / 2 + 0.6), DY / 2, 0),
@@ -7383,8 +7383,8 @@ function createMetalBridge() {
   return g;
 }
 
-// —— 园区其余建筑（不单列导航）：Yoga Vasal、Surya Vasal、路边摊位、洗手间、Maatu Mane 牛棚、Nirkaya Sthanam、
-//    Spanda 北侧的长屋、Nadi Cottages、诊所、百货店、银行与邮局。本组件不旋转，位置直接写实测 (东, 北) 坐标 ——
+// Other campus buildings include Yoga Vasal, Surya Vasal, roadside stalls, restrooms, Maatu Mane, Nirkaya Sthanam,
+//    the long building north of Spanda Hall, Nadi Cottages, the clinic, shops, bank, and post office. This group is unrotated and uses surveyed east/north coordinates.
 function createCampus() {
   const g = new THREE.Group();
   const put = (o, e, n, f = 0) => {
@@ -7399,7 +7399,7 @@ function createCampus() {
     o.add(s);
     return o;
   };
-  // 两道门：木梁瓦顶的门楼
+  // Two gateways with timber beams and tile roofs.
   const gate = (name, w) => {
     const o = new THREE.Group();
     o.add(
@@ -7412,7 +7412,7 @@ function createCampus() {
   };
   put(gate('Yoga Vasal', 6), 66, 31, AX - Math.PI / 2 + Math.PI);
   put(gate('Surya Vasal', 9), 250, -102, face(0.68, -0.73));
-  // Sarpa Vasal 与 Surya Vasal 之间沿路的一排小摊位（位置取自 OSM）
+  // Stalls along the road between Sarpa Vasal and Surya Vasal, positioned from OSM.
   const stall = [];
   for (let i = 0; i < 10; i++) stall.push([199 + i * 3.8, -145 + i * 4.25]);
   for (const [e, n] of stall) {
@@ -7448,8 +7448,8 @@ function createCampus() {
     157.5,
     -78,
     face(0, 1),
-  ); // 原先 e=150 压在 Sarpa Vasal → Nandi 的路上，第十轮往东挪
-  // Maatu Mane（牛棚）：50 × 22 m 的敞棚 + 围栏；Nirkaya Sthanam：一排小石龛
+  ); // Moved east from e=150 to clear the Sarpa Vasal to Nandi road.
+  // Maatu Mane is a 50 × 22 m open cattle shed with pens. Nirkaya Sthanam is a row of small stone shrines.
   const mm = pavilion(48, 20, 3.4, {
     nx: 9,
     nz: 3,
@@ -7484,7 +7484,7 @@ function createCampus() {
     );
     put(s, 12 + i * 9, 150 + i * 6, 0);
   }
-  // Spanda Hall 北侧的长屋（73 × 26 m）
+  // Long 73 × 26 m building north of Spanda Hall.
   put(
     house(68, 22, 5, {
       rise: 3.4,
@@ -7496,8 +7496,8 @@ function createCampus() {
     190,
     247,
     face(-0.16, -0.99),
-  ); // 第十轮由 n=250 南移：北墙原先伸进了去 Bhiksha Hall 的路
-  // Nadi Cottages：五排砖墙瓦顶的小屋
+  ); // Moved south from n=250 so the north wall clears the road to Bhiksha Hall.
+  // Nadi Cottages: five rows of brick cottages with tile roofs.
   for (let r = 0; r < 5; r++)
     for (let k = 0; k < 2; k++)
       put(
@@ -7506,7 +7506,7 @@ function createCampus() {
         292 + r * 21,
         face(k ? 1 : -1, 0.04),
       );
-  // 诊所、百货店、银行与邮局（Bhiksha Hall 一带）
+  // Clinic, general store, bank, and post office near Bhiksha Hall.
   put(
     label(
       house(8, 14, 3.2, {
@@ -7523,7 +7523,7 @@ function createCampus() {
     168,
     280.5,
     face(0, -1),
-  ); // 原先 n=268 压在通往 Bhiksha Hall 的路上，第十轮挪到路北
+  ); // Moved from n=268 to the north of the Bhiksha Hall road.
   put(
     label(
       house(16, 10, 3.6, { rise: 2.2, win: 4, veranda: 2.6 }),
@@ -7548,7 +7548,7 @@ function createCampus() {
     362,
     face(0.16, -0.99),
   );
-  // Alayam Cottages：Adiyogi Alayam 东侧的一列小屋
+  // Alayam Cottages, a row of buildings east of Adiyogi Alayam.
   for (let i = 0; i < 4; i++)
     put(
       house(8, 7, 3, { roof: 'hip', rise: 1.8, win: 2, wall: MAT.brick }),
@@ -7559,12 +7559,12 @@ function createCampus() {
   return g;
 }
 
-// —— Malai Vasal（主入口，蛇门外）：位置取自 Google 地图（Adi Yogi Isha Rd 上，Adiyogi 以南约 1 公里），造型对照 2026 年 8 月的街景：
-//    道路直接从门洞穿过；两根叠砌的巨石门柱，门楣是一块天然巨石，石顶一个金色小林伽；门洞里两扇深棕色木格大门向外敞开；
-//    两侧墙下段是巨石、上段是红砖，墙头一排铁艺装饰。门内西侧是一方池塘，池边一排鸡蛋花树。局部 +Z 朝南（门外），+X 朝东 ——
+// Malai Vasal is the main outer gate, roughly 1 km south of Adiyogi on Adi Yogi Isha Rd. The model uses Google Maps and August 2026 street imagery.
+//    The road runs between stacked stone piers, under a natural boulder lintel topped by a gold linga. Two dark timber lattice gates open outward.
+//    The walls have boulders below, brick above, and wrought iron on top. A pond and frangipani trees sit inside the gate on the west. +Z faces south and +X east.
 function createMalaiVasal() {
   const g = new THREE.Group();
-  // 门柱：三块叠砌的粗凿巨石
+  // Gate piers of three stacked rough stone blocks.
   for (const sx of [-1, 1]) {
     [
       [2.8, 1.8, 2.6, 0.9],
@@ -7573,7 +7573,7 @@ function createMalaiVasal() {
     ].forEach(([w, h, d, y]) =>
       g.add(tbox(w, h, d, MAT.granite, sx * 5.0, y, 0)),
     );
-    // 两侧墙：下段巨石、上段红砖，墙头铁艺
+    // Side walls with boulders below, red brick above, and wrought iron on top.
     g.add(
       tbox(18, 3.0, 1.6, MAT.granite, sx * 15.2, 1.5, 0),
       tbox(18, 1.6, 1.0, MAT.brick, sx * 15.2, 3.8, -0.1),
@@ -7584,7 +7584,7 @@ function createMalaiVasal() {
         M(sx * x, 5.0, -0.1, 0.05, 0.7 + (Math.round(x * 5) % 3) * 0.15, 0.05),
       );
     g.add(instanced(new THREE.BoxGeometry(1, 1, 1), MAT.black, orn, false));
-    // 敞开的深棕色木格大门
+    // Open dark brown timber lattice gates.
     const door = new THREE.Group();
     door.position.set(sx * 3.7, 0, 1.2);
     door.rotation.y = sx * -1.2;
@@ -7601,7 +7601,7 @@ function createMalaiVasal() {
     );
     g.add(door);
   }
-  // 门楣：一块天然巨石，顶上一个金色小林伽
+  // Natural boulder lintel topped by a small gold linga.
   const rg = new THREE.IcosahedronGeometry(1, 2),
     rp = rg.attributes.position;
   for (let i = 0; i < rp.count; i++) {
@@ -7618,7 +7618,7 @@ function createMalaiVasal() {
   const lg = linga(0.32, 0.5, MAT.gold);
   lg.position.y += 8.0;
   g.add(lg);
-  // 门内：灰色石块路面、红灰相间的人行道、西侧池塘与鸡蛋花树（池塘轮廓取自 OSM）
+  // Stone paving, red and gray sidewalks, the west pond traced from OSM, and frangipani trees.
   const L = ([e, n]) => [e - 747, -(n + 1653)];
   const pond = [
     [697, -1585],
@@ -7682,9 +7682,9 @@ function createMalaiVasal() {
   return g;
 }
 
-// —— Kalabhairava Sthanam（蛇门外）：位置取自 Google 地图，在 Adi Yogi Isha Rd 西侧、Malai Vasal 以北约 120 米。
-//    外观参照 Wikimedia Commons 照片（Isha yoga centre-2）与 2026 年 8 月的街景：灰色抹灰的方正殿身、正面一对雕花石柱门廊和铜色檐板，
-//    檐上是黑色的 Kalabhairava 像，殿顶后部一座深色灯亭、亭顶黑色宝顶；前面是灰色铺石的前庭、白色栏杆围墙，路边一道黑色铁艺花栏。局部 +Z 朝东（朝路） ——
+// Kalabhairava Sthanam sits west of Adi Yogi Isha Rd, about 120 m north of Malai Vasal, using Google Maps coordinates.
+//    Wikimedia Commons and August 2026 street imagery show the square gray plaster shrine, two carved porch columns, and copper-colored fascia.
+//    The fascia supports a black Kalabhairava figure, with a dark finial pavilion behind. The forecourt has gray paving, white balustrades, and a wrought-iron road fence. +Z faces east.
 function createKalabhairava() {
   const g = new THREE.Group(),
     W = 16,
@@ -7703,7 +7703,7 @@ function createKalabhairava() {
     tbox(0.06, H - 2.4, 0.5, MAT.black, W / 2 + 0.03, Y + H / 2, -3),
     tbox(0.5, H - 2.4, 0.06, MAT.black, W / 2 - 2, Y + H / 2, D / 2 - 0.97),
   );
-  // 门廊：两根分节的雕花石柱、门洞、铜色檐板、台阶
+  // Porch with segmented carved pillars, opening, copper fascia, and steps.
   const P = new THREE.Group();
   P.position.set(-1.5, Y, D / 2 - 1);
   g.add(P);
@@ -7722,7 +7722,7 @@ function createKalabhairava() {
     tbox(7.2, 0.35, 3.4, MAT.copper, 0, 4.55, 1.5),
     stairs(6.4, 3, 0.17, 0.4, MAT.granite, 0, 0, 3.4, 1, -Y),
   );
-  // 檐上的黑色像：蹲坐、双臂撑在檐边
+  // Black figure crouched above the fascia with arms resting on the edge.
   const K = new THREE.Group();
   K.position.set(0, 4.75, 1.2);
   P.add(K);
@@ -7757,7 +7757,7 @@ function createKalabhairava() {
   mala.scale.y = 1.25;
   mala.rotation.x = -0.35;
   K.add(mala);
-  // 殿顶后部的深色灯亭与宝顶
+  // Dark pavilion and finial on the rear roof.
   const T = new THREE.Group();
   T.position.set(1.5, Y + H + 0.4, -3);
   g.add(T);
@@ -7769,7 +7769,7 @@ function createKalabhairava() {
   const top = linga(0.9, 0.9, B);
   top.position.y += 2.9;
   T.add(top);
-  // 前庭、白色栏杆围墙、路边铁艺花栏、红色告示牌
+  // Forecourt, white balustrade, roadside iron fence, and red noticeboard.
   const fc = tbox(30, 0.1, 18, MAT.paving, 0, 0.05, 15);
   fc.castShadow = false;
   g.add(fc);
@@ -7805,11 +7805,11 @@ function createKalabhairava() {
   return g;
 }
 
-// ───────────────────────────── [6] 组件注册表 ─────────────────────────────
-/* at:    实测位置 (e, n)，单位米，以 Dhyanalinga 穹顶为原点向东 / 向北（来源：OpenStreetMap）
- * rotY:  朝向，用 face(东分量, 北分量) 书写；后面加的小数是建筑相对正方位的实际偏角
- * view:  导航镜头 { d: 距离, yaw: 相对正面的偏角, ph: 俯仰角, h: 目标点高度 }
- * clear: 植被避让圈 [局部x, 局部z, 半径]；pit: 地形开洞 [局部x, 局部z, 半宽, 半深] */
+// ───────────────────────────── [6] Component registry ─────────────────────────────
+/* at: Surveyed position (e, n) in meters east and north of the Dhyanalinga dome, from OpenStreetMap.
+ * rotY: Heading as face(east, north), with an optional offset for the building's measured angle.
+ * view: Camera { d: distance, yaw: heading relative to the front, ph: pitch, h: target height }.
+ * clear: Vegetation exclusion [local x, local z, radius]. pit: Terrain opening [local x, local z, half-width, half-depth]. */
 const COMPONENTS = [
   {
     id: 'adiyogi',
@@ -8212,7 +8212,7 @@ for (const c of COMPONENTS) {
 }
 const OVERVIEW = { t: [-80, 0, -110], th: 0.62, ph: 1.12, r: 620 };
 
-// ───────────────────────────── [7] 渲染器、相机控制、时段、主流程 ─────────────────────────────
+// ───────────────────────────── [7] Renderer, camera controls, lighting, and render loop ─────────────────────────────
 const canvas = $('#scene');
 const renderer = new THREE.WebGLRenderer({
   canvas,
@@ -8225,7 +8225,7 @@ renderer.setSize(innerWidth, innerHeight);
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-renderer.shadowMap.autoUpdate = false; // 场景静态：阴影只在光照变化时重算
+renderer.shadowMap.autoUpdate = false; // The scene is static. Refresh shadows when lighting or the view changes.
 
 const scene = new THREE.Scene();
 scene.fog = new THREE.FogExp2(0xe4c5a2, 0.0005);
@@ -8250,8 +8250,8 @@ Object.assign(sun.shadow.camera, {
 });
 sun.shadow.bias = -0.0005;
 sun.shadow.normalBias = 0.7;
-// 阴影范围跟着视点走：园区南北跨度近 2 公里，一张固定的阴影图盖不全（Malai Vasal、Kalabhairava 原先没有阴影）。
-// 范围随镜头距离缩放：近看时阴影更清晰。只在视点明显移动或缩放时才重算阴影图。
+// Move the shadow bounds with the view to cover destinations across the nearly 2 km north-south span.
+// Scale the bounds with viewing distance for sharper close-up shadows. Refresh when the view moves or zooms appreciably.
 const SH = { x: 1e9, z: 1e9, half: 1, t: 0 };
 function fitShadow(x, z, radius, force = false) {
   const half = clamp(radius * 1.2, 110, 900);
@@ -8271,7 +8271,7 @@ function fitShadow(x, z, radius, force = false) {
     bottom: -half,
   });
   sun.shadow.camera.updateProjectionMatrix();
-  sun.shadow.normalBias = half / 1100; // 阴影贴图一个像素约 half/2048 米，偏移量跟着缩放
+  sun.shadow.normalBias = half / 1100; // Each shadow-map pixel covers about half / 2048 meters. Scale the bias accordingly.
   sun.target.position.set(SH.x, 0, SH.z);
   sun.target.updateMatrixWorld();
   sun.position.copy(sunDir).multiplyScalar(1500).add(sun.target.position);
@@ -8283,7 +8283,7 @@ const terrain = { groundHeight: groundH, pits: PITS };
 const controls = createControls(camera, canvas, OVERVIEW, terrain);
 const walker = createWalker(camera, canvas, scene, terrain);
 
-// —— 时段切换 ——
+// Lighting transitions.
 const cloneMood = (m) => {
   const o = {};
   for (const k in m) o[k] = m[k].isColor ? m[k].clone() : m[k];
@@ -8331,12 +8331,11 @@ function applyMood() {
     );
   renderer.shadowMap.needsUpdate = true;
 }
+const moodSelect = $('#mood');
 function setMood(key) {
   moodTarget = MOODS[key];
   moodT = 4;
-  document
-    .querySelectorAll('#moods button[data-k]')
-    .forEach((b) => b.classList.toggle('on', b.dataset.k === key));
+  moodSelect.value = key;
 }
 function stepMood(dt) {
   if (moodT <= 0) return;
@@ -8349,7 +8348,7 @@ function stepMood(dt) {
   }
   applyMood();
 }
-// —— 剖视：隐藏所有标记为屋顶的物体 ——
+// Cutaway hides all objects marked as roofs.
 let roofsHidden = false;
 function setRoofs(hidden) {
   roofsHidden = hidden;
@@ -8358,7 +8357,7 @@ function setRoofs(hidden) {
   });
   renderer.shadowMap.needsUpdate = true;
 }
-// —— 行人与牛车开关：所有标记 userData.npc 的人群、走动的行人和牛车 ——
+// The People toggle controls crowds, moving pedestrians, and bullock carts marked userData.npc.
 let peopleOn = true;
 function setPeople(on) {
   peopleOn = on;
@@ -8373,7 +8372,7 @@ function setPeople(on) {
   }
 }
 
-// —— 界面 ——
+// Interface.
 let activeInfo = () => ({
   name: message('overview'),
   description: message('overviewDescription'),
@@ -8391,14 +8390,18 @@ onLanguageChange(renderInfo);
 
 function buildUI() {
   $('#language').disabled = false;
-  for (const k in MOODS) {
-    const b = document.createElement('button');
-    bindMessage(b, k);
-    b.dataset.k = k;
-    b.onclick = () => setMood(k);
-    if (k === 'dawn') b.classList.add('on');
-    $('#moods').append(b);
+  const moodKeys = Object.keys(MOODS);
+  for (const key of moodKeys) {
+    const option = new Option('', key);
+    bindMessage(option, key);
+    moodSelect.add(option);
   }
+  onLanguageChange(() => {
+    moodSelect.setAttribute('aria-label', moodKeys.map(message).join(' / '));
+  });
+  moodSelect.value = 'dawn';
+  moodSelect.onchange = () => setMood(moodSelect.value);
+  moodSelect.disabled = false;
   const cut = document.createElement('button');
   bindMessage(cut, 'cutaway');
   bindMessage(cut, 'cutawayTip', 'title');
@@ -8407,8 +8410,9 @@ function buildUI() {
     cut.classList.toggle('on', roofsHidden);
   };
   $('#moods').append(cut);
-  // 漫步：从当前视点前方落地，以第一人称走动
+  // Start first-person mode below the current camera.
   const walk = document.createElement('button');
+  const touchRise = $('#touch-rise');
   bindMessage(walk, 'walk');
   bindMessage(walk, 'walkTip', 'title');
   const walkHint = () => {
@@ -8418,19 +8422,18 @@ function buildUI() {
         : 'walkHint'
       : 'orbitHint';
     $('#hint').textContent = message(key);
+    touchRise.textContent = walker.fly ? '↑' : message('flight');
+    touchRise.classList.toggle('touch-arrow', walker.fly);
+    touchRise.setAttribute(
+      'aria-label',
+      message(walker.fly ? 'ascend' : 'flight'),
+    );
   };
   onLanguageChange(walkHint);
   const startWalk = () => {
-    const back = Math.min(controls.radius * 0.5, 14),
-      th = controls.theta;
     controls.enabled = false;
-    walker.enter(
-      controls.target.x + Math.sin(th) * back,
-      controls.target.z + Math.cos(th) * back,
-      th,
-    );
+    walker.enter(camera.position.x, camera.position.z, controls.theta);
     walk.classList.add('on');
-    walkHint();
     showInfo(() => ({
       name: message('walk'),
       description: message('walkDescription'),
@@ -8460,7 +8463,7 @@ function buildUI() {
   walker.onMode = walkHint;
   walk.onclick = () => (walker.on ? stopWalk() : startWalk());
   $('#moods').append(walk);
-  // 行人：显示 / 隐藏园区里的人群和牛车（会记住上次的选择）
+  // Show or hide people and bullock carts and save the setting.
   const ppl = document.createElement('button');
   bindMessage(ppl, 'people');
   bindMessage(ppl, 'peopleTip', 'title');
@@ -8496,7 +8499,7 @@ function buildUI() {
     return b;
   };
   add(activeInfo, OVERVIEW).classList.add('on');
-  // 分区：蛇门外（公开区域，资料来自公开照片与地图）/ 蛇门内（园区，只依据已公开的照片）
+  // Group public locations outside Sarpa Vasal and campus locations inside it. The model uses public photos and maps.
   for (const [zone, heading] of [
     ['out', 'outsideHeading'],
     ['in', 'insideHeading'],
@@ -8511,32 +8514,10 @@ function buildUI() {
       }
     }
   }
-  const ZV = {
-    out: { t: [300, 0, 820], th: 0.35, ph: 0.95, r: 1100 },
-    in: { t: [-150, 0, -260], th: 0.62, ph: 1.05, r: 520 },
-  };
-  const zb = {};
-  ['all', 'out', 'in'].forEach((k) => {
-    const b = document.createElement('button');
-    bindMessage(b, k);
-    bindMessage(b, `${k}Tip`, 'title');
-    zb[k] = b;
-    b.onclick = () => {
-      for (const c of COMPONENTS)
-        if (c.object && c.id !== 'campus')
-          c.object.visible =
-            k === 'all' || (c.zone === 'out') === (k === 'out');
-      Object.values(zb).forEach((x) => x.classList.toggle('on', x === b));
-      renderer.shadowMap.needsUpdate = true;
-      if (ZV[k] && !walker.on) controls.flyTo(ZV[k]);
-    };
-  });
-  zb.all.classList.add('on');
-  $('#moods').prepend($('#language-picker'), zb.all, zb.out, zb.in);
   $('#navBtn').onclick = () => document.body.classList.toggle('navOpen');
 }
 
-// —— 分步构建（每步之间让出一帧，进度条才能真实刷新） ——
+// Yield between build steps so the progress bar can render.
 const updaters = [];
 const addToScene = (o) => {
   scene.add(o);
@@ -8569,7 +8550,7 @@ const steps = [
       g.name = c.id;
       g.position.set(...c.pos);
       g.rotation.y = c.rotY;
-      c.object = addToScene(g);
+      addToScene(g);
     },
   ]),
   [message('vegetation'), () => addToScene(createVegetation())],
@@ -8614,7 +8595,7 @@ window.ISHA = {
   setPeople,
   geo,
   fitShadow,
-}; // 方便在控制台里调试 / 修改
+}; // Expose scene controls for debugging in the console.
 await nextFrame();
 $('#loader').classList.add('done');
 document.body.classList.add('ready');
@@ -8625,7 +8606,7 @@ addEventListener('resize', () => {
   renderer.setSize(innerWidth, innerHeight);
 });
 
-// —— 主循环（含自适应分辨率：帧率不足时自动降低像素比） ——
+// Render loop with adaptive pixel ratio when frame rate drops.
 const clock = new THREE.Clock();
 let acc = 0,
   frames = 0;

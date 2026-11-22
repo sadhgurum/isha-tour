@@ -14,12 +14,12 @@ Translations are bundled with the tour as static files. Most locales contain mac
 
 ## Tour controls
 
-| Mode             | Controls                                                                                                                                                            |
-| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Overview         | Drag to orbit, scroll or pinch to zoom, and right-drag or Shift-drag to pan. Select a landmark in the navigation list to fly to it.                                 |
-| Walking (`漫步`) | Use WASD or arrow keys to move, drag to look around, hold Shift to run, and press Esc to return to the overview. On touchscreens, move with the on-screen joystick. |
-| Flight           | Press F while walking to toggle flight. Press Space or E to ascend and Q or C to descend.                                                                           |
-| Cutaway (`剖视`) | Toggle roofs to view modeled interiors.                                                                                                                             |
+| Mode             | Controls                                                                                                                                                                                                                                            |
+| ---------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Overview         | Drag to orbit, scroll or pinch to zoom, and right-drag or Shift-drag to pan. Select a landmark in the navigation list to fly to it.                                                                                                                 |
+| Walking (`漫步`) | Walk starts beneath the camera or at a nearby spot with footing and room to stand. Use WASD, the arrow keys, or the touch joystick to move. Keep moving to build speed, hold Shift to sprint, drag to look, or press Esc to return to the overview. |
+| Flight           | Double-tap Space or press F to toggle flight. Hold Space or E to ascend and Shift, Q, or C to descend. On touchscreens, press Flight to take off, hold ↑ or ↓ to change altitude, and double-tap ↓ to land.                                         |
+| Cutaway (`剖视`) | Toggle roofs to view modeled interiors.                                                                                                                                                                                                             |
 
 ## Local development
 
