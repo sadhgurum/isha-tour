@@ -108,12 +108,42 @@ export function createControls(
   let touchStart: TouchTap | undefined;
   let lastTouchTap: TouchTap | undefined;
   let touchPanPointer: number | undefined;
-  const pan = (dx: number, dy: number) => {
-    const k = goal.radius * 0.0016,
-      th = c.theta;
-    goal.target.x += (-Math.cos(th) * dx - Math.sin(th) * dy) * k;
-    goal.target.z += (Math.sin(th) * dx - Math.cos(th) * dy) * k;
+  const arrowKeys = new Set([
+    'ArrowLeft',
+    'ArrowRight',
+    'ArrowUp',
+    'ArrowDown',
+  ]);
+  const heldArrows = new Set<string>();
+  const arrowPanSpeed = 86.4; // 24 times the starting walking speed.
+  const shiftTarget = (right: number, forward: number) => {
+    const cos = Math.cos(c.theta);
+    const sin = Math.sin(c.theta);
+    goal.target.x += cos * right - sin * forward;
+    goal.target.z -= sin * right + cos * forward;
   };
+  const pan = (dx: number, dy: number) => {
+    const k = goal.radius * 0.0016;
+    shiftTarget(-dx * k, dy * k);
+  };
+  addEventListener('keydown', (e) => {
+    if (
+      !c.enabled ||
+      !arrowKeys.has(e.code) ||
+      e.defaultPrevented ||
+      e.altKey ||
+      e.ctrlKey ||
+      e.metaKey ||
+      (e.target instanceof HTMLElement &&
+        (e.target.closest('input, select, textarea') ||
+          e.target.isContentEditable))
+    )
+      return;
+    e.preventDefault();
+    heldArrows.add(e.code);
+  });
+  addEventListener('keyup', (e) => heldArrows.delete(e.code));
+  addEventListener('blur', () => heldArrows.clear());
   el.addEventListener('pointerdown', (e) => {
     if (!c.enabled) return;
     el.setPointerCapture(e.pointerId);
@@ -230,6 +260,7 @@ export function createControls(
     goal.theta = th;
   }
   function jump(v: CameraView) {
+    heldArrows.clear();
     c.flyTo(v);
     c.fly = 0;
     c.target.copy(goal.target);
@@ -238,6 +269,19 @@ export function createControls(
     c.radius = goal.radius;
   }
   function update(dt: number) {
+    if (c.enabled && heldArrows.size) {
+      const right =
+        Number(heldArrows.has('ArrowRight')) -
+        Number(heldArrows.has('ArrowLeft'));
+      const forward =
+        Number(heldArrows.has('ArrowUp')) - Number(heldArrows.has('ArrowDown'));
+      const magnitude = Math.hypot(right, forward);
+      if (magnitude) {
+        const distance = (arrowPanSpeed * dt) / magnitude;
+        c.auto = false;
+        shiftTarget(right * distance, forward * distance);
+      }
+    }
     if (c.auto) goal.theta += dt * 0.015;
     c.fly = Math.max(0, c.fly - dt);
     goal.target.x = clamp(goal.target.x, -800, 900);
