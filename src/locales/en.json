@@ -29,7 +29,7 @@
     "flight": "Flight",
     "ascend": "Ascend",
     "descend": "Descend",
-    "orbitHint": "Drag to orbit, scroll or pinch to zoom, and right-drag or Shift-drag to pan. Select Walk for first-person controls.",
+    "orbitHint": "Drag to orbit. Pinch or use the mouse wheel to zoom. Pan with a two-finger touchpad drag, right-drag, or Shift-drag. Select Walk for first-person controls.",
     "walkDescription": "Explore on foot using WASD, the arrow keys, or the touch joystick. Keep moving to build speed or hold Shift to sprint. Drag to look around. Double-tap Space or press F to toggle flight. Press Esc or select Walk again to return to the aerial view.",
     "aerial": "Aerial view",
     "aerialDescription": "Select a landmark in the navigation list to fly to it, or select Walk to explore on foot.",

@@ -243,7 +243,18 @@ export function createControls(
       e.preventDefault();
       if (!c.enabled) return;
       c.auto = false;
-      goal.radius = clamp(goal.radius * Math.exp(e.deltaY * 0.0012), 6, 2200);
+      const mode = e.deltaMode;
+      const wheelDeltaY = (e as WheelEvent & { wheelDeltaY?: number })
+        .wheelDeltaY;
+      // Browsers share wheel events between touchpads and mice. Use the legacy
+      // tick value to recognize stepped mouse wheels that report pixel deltas.
+      const steppedWheel =
+        wheelDeltaY && wheelDeltaY % 120 === 0 && e.deltaX === 0;
+      if (e.ctrlKey || mode !== WheelEvent.DOM_DELTA_PIXEL || steppedWheel) {
+        goal.radius = clamp(goal.radius * Math.exp(e.deltaY * 0.0012), 6, 2200);
+      } else {
+        pan(-e.deltaX, -e.deltaY);
+      }
     },
     { passive: false },
   );
