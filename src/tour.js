@@ -134,6 +134,8 @@ const MOODS = {
  * face(fe, fn) converts a heading to rotY, with local +Z facing forward. */
 const geo = (e, n) => [e - 250, 0, -n - 150];
 const face = (fe, fn) => Math.atan2(fe, -fn);
+const MALAI_AT = [747, -1653];
+const [malaiX, , malaiZ] = geo(...MALAI_AT);
 const AX = face(0.992, -0.126); // The axis from Dhyanalinga through Nandi and the Lotus Ponds bridge to Suryakund runs about 7° south of east.
 
 // Road polylines use [[e, n], ...] and a width. PATHS expands them to [x1, z1, x2, z2, w] segments.
@@ -193,6 +195,30 @@ const ROADS = [
       [196, -196],
     ],
   }, // Adiyogi to Sarpa Vasal footpath.
+  {
+    w: 7,
+    pts: [
+      [526.8, -580],
+      [560, -579],
+      [620, -580],
+      [665, -582],
+      [680, -586],
+      [688, -595],
+      [692, -620],
+      [688, -697],
+      [691, -730],
+      [696, -751],
+      [694, -765],
+      [676, -778],
+      [676, -823],
+      [680, -958],
+      [687, -1053],
+      [683, -1096],
+      [673, -1118],
+      [634, -1128],
+      [577, -1142],
+    ],
+  }, // Satellite imagery shows a service road behind Adiyogi and along the eastern lawn.
   {
     w: 6,
     pts: [
@@ -597,7 +623,8 @@ function groundH(x, z) {
     smooth(160, 320, dCor) *
     (fbm(x * 0.012, z * 0.012, 3) - 0.5) *
     10;
-  return h;
+  // The gate, pond and paved forecourt share the flat ground at Malai Vasal.
+  return h * smooth(74, 145, Math.hypot(x - malaiX, z - malaiZ));
 }
 
 // Procedural textures
@@ -6519,6 +6546,196 @@ function createSpandaHall() {
   return g;
 }
 
+// Isha's visitor guide shows a dark cobra carved against the central granite pillar.
+function createSarpaCobra() {
+  const g = new THREE.Group();
+  g.name = 'Sarpa Vasal cobra';
+  g.add(
+    tbox(3.8, 0.38, 3.8, MAT.darkStone, 0, 0.19, 0.4),
+    tbox(3.18, 8.05, 3.25, MAT.granite, 0, 4.39, 0.4),
+    tbox(3.48, 0.26, 3.45, MAT.granite, 0, 8.28, 0.4),
+  );
+
+  const carving = canvasTex(256, (ctx) => {
+    ctx.fillStyle = '#d4d4d4';
+    ctx.fillRect(0, 0, 256, 256);
+    ctx.strokeStyle = '#737373';
+    ctx.lineWidth = 2;
+    // The belly plates wrap over the UV seam and scalloped scales cover the flanks.
+    for (let x = -32; x < 256; x += 32) {
+      for (const seam of [0, 256]) {
+        ctx.beginPath();
+        ctx.moveTo(x, seam - 22);
+        ctx.quadraticCurveTo(x + 15, seam, x, seam + 22);
+        ctx.stroke();
+      }
+    }
+    for (let y = 32; y <= 224; y += 16) {
+      const offset = ((y - 32) / 16) % 2 ? 16 : 0;
+      for (let x = offset - 32; x < 256; x += 32) {
+        ctx.beginPath();
+        ctx.moveTo(x, y - 7);
+        ctx.quadraticCurveTo(x + 32, y, x, y + 7);
+        ctx.stroke();
+      }
+    }
+  });
+  const stone = new THREE.MeshStandardMaterial({
+    color: 0x424447,
+    roughness: 0.73,
+    map: carving,
+    bumpMap: carving,
+    bumpScale: 0.1,
+  });
+  const faceStone = stone.clone();
+  faceStone.map = null;
+  faceStone.bumpMap = null;
+
+  const body = makeCobraRelief(
+    [
+      // [x, height, half-width, depth] from the tapered tail to the upper right.
+      [0.96, 0.52, 0.025, 0.025],
+      [0.68, 0.7, 0.065, 0.09],
+      [0.22, 0.96, 0.12, 0.15],
+      [0.02, 1.27, 0.17, 0.22],
+      [0.02, 1.68, 0.2, 0.28],
+      [0.51, 2.02, 0.24, 0.33],
+      [0.88, 2.52, 0.28, 0.37],
+      [0.82, 2.86, 0.32, 0.4],
+      [0.28, 3.2, 0.36, 0.42],
+      [-0.33, 3.61, 0.39, 0.45],
+      [-0.53, 3.96, 0.42, 0.46],
+      [-0.24, 4.35, 0.43, 0.46],
+      [0.4, 4.79, 0.44, 0.47],
+      [0.91, 5.22, 0.41, 0.45],
+      [1.0, 5.67, 0.33, 0.37],
+      [0.83, 5.95, 0.035, 0.035],
+    ],
+    0.26,
+  );
+  const hood = makeCobraRelief(
+    [
+      // The returning coil curls left and thickens into the hood under the head.
+      [-0.41, 4.69, 0.035, 0.045],
+      [-0.61, 4.82, 0.22, 0.29],
+      [-0.7, 5.13, 0.34, 0.49],
+      [-0.41, 5.61, 0.36, 0.48],
+      [-0.19, 6.12, 0.35, 0.48],
+      [0.01, 6.52, 0.38, 0.45],
+      [0.06, 6.88, 0.64, 0.46],
+      [0.06, 7.16, 1.0, 0.48],
+      [0.04, 7.51, 1.32, 0.53],
+      [0.02, 7.85, 1.3, 0.52],
+      [0, 8.09, 1.06, 0.46],
+      [0, 8.25, 0.49, 0.41],
+      [0, 8.29, 0.02, 0.025],
+    ],
+    0,
+  );
+  g.add(mesh(body, stone), mesh(hood, stone));
+
+  const head = mesh(
+    new THREE.SphereGeometry(1, 32, 20),
+    faceStone,
+    0,
+    8.04,
+    2.46,
+  );
+  head.scale.set(0.49, 0.31, 0.63);
+  head.rotation.x = 0.18;
+  g.add(head);
+  const muzzle = mesh(
+    new THREE.SphereGeometry(1, 24, 16),
+    faceStone,
+    0,
+    7.98,
+    2.86,
+  );
+  muzzle.scale.set(0.42, 0.18, 0.34);
+  g.add(muzzle);
+  for (const sx of [-1, 1]) {
+    const brow = mesh(
+      new THREE.SphereGeometry(1, 16, 10),
+      faceStone,
+      sx * 0.32,
+      8.13,
+      2.9,
+    );
+    brow.scale.set(0.15, 0.09, 0.16);
+    brow.rotation.z = sx * 0.26;
+    const eye = mesh(
+      new THREE.SphereGeometry(0.065, 12, 8),
+      MAT.darkStone,
+      sx * 0.36,
+      8.09,
+      3.016,
+    );
+    const nostril = mesh(
+      new THREE.SphereGeometry(0.032, 8, 6),
+      MAT.black,
+      sx * 0.17,
+      8.05,
+      3.18,
+    );
+    g.add(brow, eye, nostril);
+  }
+  return g;
+}
+
+function makeCobraRelief(profile, scaleOffset) {
+  const centerline = new THREE.CatmullRomCurve3(
+    profile.map(([x, y]) => new V3(x, y, 2.03)),
+  );
+  const crossSection = new THREE.CatmullRomCurve3(
+    profile.map(([, , width, depth]) => new V3(width, depth, 0)),
+    false,
+    'catmullrom',
+  );
+  const segments = 128,
+    sides = 32;
+  const relief = new THREE.TubeGeometry(centerline, segments, 1, sides);
+  const { position, uv } = relief.attributes;
+  const center = new V3(),
+    tangent = new V3(),
+    section = new V3(),
+    previous = new V3();
+  let length = 0;
+  for (let i = 0; i <= segments; i++) {
+    const t = i / segments;
+    centerline.getPoint(t, center);
+    centerline.getTangent(t, tangent);
+    crossSection.getPoint(t, section);
+    if (i) length += previous.distanceTo(center);
+    previous.copy(center);
+    for (let j = 0; j <= sides; j++) {
+      const angle = (j / sides) * Math.PI * 2;
+      const offset = Math.sin(angle) * section.x;
+      const v = i * (sides + 1) + j;
+      position.setXYZ(
+        v,
+        center.x - tangent.y * offset,
+        center.y + tangent.x * offset,
+        center.z + Math.cos(angle) * section.y,
+      );
+      uv.setXY(v, length / 1.45, j / sides + scaleOffset);
+    }
+  }
+  relief.computeVertexNormals();
+  // The two vertices at the seam share a normal for continuous shading.
+  const normal = relief.attributes.normal;
+  for (let i = 0; i <= segments; i++) {
+    const a = i * (sides + 1),
+      b = a + sides;
+    center
+      .fromBufferAttribute(normal, a)
+      .add(tangent.fromBufferAttribute(normal, b))
+      .normalize();
+    normal.setXYZ(a, center.x, center.y, center.z);
+    normal.setXYZ(b, center.x, center.y, center.z);
+  }
+  return relief;
+}
+
 // Sarpa Vasal (Serpent Gate) stands by Narasipuram Road, with stepped gray granite, red brick trim, rubble walls, a terracotta barrel arch, and a black cobra centered in the opening.
 function createSarpaVasal() {
   const g = new THREE.Group(),
@@ -6535,10 +6752,10 @@ function createSarpaVasal() {
     );
     const gate = [];
     for (let i = 0; i < 9; i++)
-      gate.push(M(sx * (2.4 + i * 0.5), 2.2, -0.4, 0.09, 4.4, 0.09));
+      gate.push(M(sx * 6.18, 2.2, -0.4 - i * 0.5, 0.09, 4.4, 0.09));
     g.add(
       instanced(new THREE.BoxGeometry(1, 1, 1), MAT.black, gate),
-      tbox(4.4, 0.12, 0.12, MAT.black, sx * 4.4, 4.4, -0.4),
+      tbox(0.12, 0.12, 4.4, MAT.black, sx * 6.18, 4.4, -2.4),
     );
   }
   g.add(
@@ -6550,63 +6767,7 @@ function createSarpaVasal() {
   v.rotation.y = Math.PI / 2;
   v.position.set(0, 11, 0);
   g.add(v);
-  // The serpent spirals up from the ground, with its hood higher than the lintel.
-  const sp = [];
-  for (let i = 0; i <= 14; i++) {
-    const a = (i / 14) * Math.PI * 2.2;
-    sp.push(
-      new V3(
-        Math.sin(a) * (1.9 - i * 0.07),
-        0.55 + i * 0.03,
-        2.6 + Math.cos(a) * (1.3 - i * 0.05),
-      ),
-    );
-  } // Ground coil.
-  for (let i = 1; i <= 16; i++) {
-    const t = i / 16;
-    sp.push(
-      new V3(
-        Math.sin(t * 5.2 + 1.2) * 0.95 * (1 - t * 0.75),
-        1.0 + t * 6.2,
-        2.6 + (1 - t) * 0.4,
-      ),
-    );
-  } // S-shaped rise of the body.
-  g.add(
-    mesh(
-      new THREE.TubeGeometry(new THREE.CatmullRomCurve3(sp), 110, 0.6, 10),
-      MAT.black,
-    ),
-  );
-  const hood = mesh(
-    new THREE.SphereGeometry(1, 16, 12),
-    MAT.black,
-    0,
-    8.0,
-    2.75,
-  );
-  hood.scale.set(2.1, 2.5, 0.5);
-  hood.rotation.x = 0.1;
-  const cobraFace = mesh(
-    new THREE.SphereGeometry(1, 12, 10),
-    MAT.black,
-    0,
-    9.3,
-    3.25,
-  );
-  cobraFace.scale.set(0.75, 0.6, 0.85);
-  g.add(hood, cobraFace, tcyl(2.6, 2.9, 0.35, 24, MAT.darkStone, 0, 0.17, 2.6));
-  for (const sx of [-1, 1])
-    g.add(
-      mesh(
-        new THREE.TorusGeometry(0.42, 0.07, 6, 16),
-        MAT.goldTrim,
-        sx * 0.85,
-        8.3,
-        3.22,
-        false,
-      ),
-    ); // Spectacle marking on the cobra's hood.
+  g.add(createSarpaCobra());
   const pvm = tbox(40, 0.14, 26, MAT.paving, 0, 0.09, 6);
   pvm.castShadow = false;
   g.add(pvm);
@@ -6629,7 +6790,6 @@ function createSarpaVasal() {
         [7, 3.4, 2.6],
         [-16, 3.4, 1.2],
         [16, 3.4, 1.2],
-        [0, 9.2, 3.2],
       ],
       4.5,
     ),
@@ -8206,46 +8366,289 @@ function createCampus() {
   return g;
 }
 
-// Malai Vasal is the main outer gate, roughly 1 km south of Adiyogi on Adi Yogi Isha Rd. The model uses Google Maps and August 2026 street imagery.
-//    The road runs between stacked stone piers, under a natural boulder lintel topped by a gold linga. Two dark timber lattice gates open outward.
-//    The walls have boulders below, brick above, and wrought iron on top. A pond and frangipani trees sit inside the gate on the west. +Z faces south and +X east.
-function createMalaiVasal() {
-  const g = new THREE.Group();
-  // Gate piers of three stacked rough stone blocks.
-  for (const sx of [-1, 1]) {
-    [
-      [2.8, 1.8, 2.6, 0.9],
-      [2.4, 1.8, 2.3, 2.7],
-      [2.7, 1.6, 2.5, 4.4],
-    ].forEach(([w, h, d, y]) =>
-      g.add(tbox(w, h, d, MAT.granite, sx * 5.0, y, 0)),
-    );
-    // Side walls with boulders below, red brick above, and wrought iron on top.
-    g.add(
-      tbox(18, 3.0, 1.6, MAT.granite, sx * 15.2, 1.5, 0),
-      tbox(18, 1.6, 1.0, MAT.brick, sx * 15.2, 3.8, -0.1),
-    );
-    const orn = [];
-    for (let x = 6.8; x <= 24; x += 0.6)
-      orn.push(
-        M(sx * x, 5.0, -0.1, 0.05, 0.7 + (Math.round(x * 5) % 3) * 0.15, 0.05),
+// The ashram wall runs follow field edges where the route is visible in satellite imagery.
+function createPerimeterWalls() {
+  const group = new THREE.Group();
+  group.name = 'Perimeter walls';
+  const sarpa = COMPONENTS.find(({ id }) => id === 'sarpa');
+  const routes = [
+    {
+      gate: sarpa,
+      wing: [-23, -0.6],
+      points: [
+        [147, -215],
+        [124, -235],
+        [105, -245],
+        [57, -247],
+        [46, -235],
+        [43, -61],
+        [-57, -61],
+        [-69, -59],
+        [-74, -57],
+      ],
+    },
+    {
+      // Chandra Vasal and the Metal Bridge have separate pedestrian openings.
+      points: [
+        [-80, -51],
+        [-111, -56],
+        [-185, -66],
+        [-230, -49],
+        [-244, 90],
+        [-240, 240],
+        [-234, 379],
+        [-211, 418],
+        [-130, 440],
+        [-45, 444],
+        [37, 442],
+        [144, 440],
+        [252, 432],
+        [332, 413],
+        [354, 389],
+        [352, 364],
+      ],
+    },
+    {
+      gate: sarpa,
+      wing: [23, -0.6],
+      points: [
+        [214, -155],
+        [240, -124],
+        [256, -110],
+        [274, -95],
+        [316, -44],
+        [354, 10],
+        [390, 40],
+        [414, 62],
+        [408, 125],
+        [418, 238],
+        [397, 303],
+        [367, 330],
+        [351, 348],
+      ],
+    },
+  ];
+
+  for (const { gate, wing, points } of routes) {
+    const path = points.map(([e, n]) => {
+      const [x, , z] = geo(e, n);
+      return [x, z];
+    });
+    if (gate) path.unshift(gate.toWorld(...wing));
+    let distance = 0;
+    for (let i = 1; i < path.length; i++) {
+      const [x1, z1] = path[i - 1];
+      const [x2, z2] = path[i];
+      const length = Math.hypot(x2 - x1, z2 - z1);
+      const panels = Math.ceil(length / 16);
+      const panelLength = length / panels;
+      const yaw = -Math.atan2(z2 - z1, x2 - x1);
+      const stoneSections = [],
+        brickSections = [];
+      for (let panel = 0; panel < panels; panel++) {
+        const t = (panel + 0.5) / panels;
+        const x = lerp(x1, x2, t);
+        const z = lerp(z1, z2, t);
+        const startY = groundH(
+          lerp(x1, x2, panel / panels),
+          lerp(z1, z2, panel / panels),
+        );
+        const endY = groundH(
+          lerp(x1, x2, (panel + 1) / panels),
+          lerp(z1, z2, (panel + 1) / panels),
+        );
+        const rise = endY - startY;
+        const y = (startY + endY) / 2;
+        const pitch = Math.atan2(rise, panelLength);
+        const span = Math.hypot(panelLength, rise);
+        const blend = gate ? smooth(4, 38, distance + panelLength / 2) : 1;
+        const depth = lerp(2.2, 0.95, blend);
+        const base = lerp(5.6, 2.65, blend);
+        const brick = lerp(1.6, 0.4, blend);
+        for (const [height, offset, thickness, material] of [
+          [base + 0.5, (base - 0.5) / 2, depth, MAT.sandstone],
+          [brick, base + brick / 2, depth - 0.26, MAT.brick],
+          [0.18, base + brick + 0.09, depth + 0.08, MAT.sandstone],
+        ]) {
+          // The small overlap closes joints where a panel turns or changes grade.
+          const section = tbox(
+            span + depth * 0.65,
+            height,
+            thickness,
+            material,
+            x,
+            y + offset,
+            z,
+          );
+          section.rotation.set(0, yaw, pitch);
+          section.updateMatrix();
+          section.geometry.applyMatrix4(section.matrix);
+          (material === MAT.brick ? brickSections : stoneSections).push(
+            section.geometry,
+          );
+        }
+
+        for (const offset of [-0.25, 0.25]) {
+          // Overlapping clearings keep trunk origins clear of the wall.
+          const clearX = lerp(x1, x2, t + offset / panels);
+          const clearZ = lerp(z1, z2, t + offset / panels);
+          EXCLUDE.push([
+            clearX,
+            clearZ,
+            Math.hypot(panelLength / 4, depth / 2),
+          ]);
+        }
+        distance += panelLength;
+      }
+      group.add(
+        mesh(mergeGeos(stoneSections), MAT.sandstone),
+        mesh(mergeGeos(brickSections), MAT.brick),
       );
-    g.add(instanced(new THREE.BoxGeometry(1, 1, 1), MAT.black, orn, false));
-    // Open dark brown timber lattice gates.
-    const door = new THREE.Group();
-    door.position.set(sx * 3.7, 0, 1.2);
-    door.rotation.y = sx * -1.2;
-    door.add(
-      tbox(2.9, 5.2, 0.16, MAT.wood, sx * 1.45, 2.7, 0),
-      mesh(
-        new THREE.PlaneGeometry(2.5, 4.7),
-        MAT.jali,
-        sx * 1.45,
-        2.7,
-        0.1,
-        false,
+    }
+  }
+  return group;
+}
+
+const MALAI_WALL_ENDS = [
+  [-22, 13],
+  [19, 11],
+];
+
+// The reference photos show stepped brick wings, large granite insets, and two side entrances.
+function createMalaiWallWing(
+  startX,
+  endX,
+  endZ,
+  brick,
+  granite,
+  jali,
+  ironwork,
+) {
+  const wing = new THREE.Group();
+  wing.name = 'Malai Vasal wall wing';
+  const span = Math.hypot(endX - startX, endZ);
+  const outerFace = Math.sign(endX) * 0.62;
+  wing.position.x = startX;
+  wing.rotation.y = -Math.atan2(endZ, endX - startX);
+  const steps = [
+    [0, 1.35, 4.85],
+    [1.35, 3.35, 4.18],
+    [3.35, 5.55, 3.67],
+    [5.55, span * 0.68, 4.43],
+    [span * 0.68, span, 4.05],
+  ];
+  const openingHeight = 2.75;
+  const posts = [];
+  for (const [start, end, top] of steps) {
+    const bottom = start < 3.35 ? openingHeight : 0;
+    wing.add(
+      tbox(
+        end - start,
+        top - bottom,
+        1.22,
+        brick,
+        (start + end) / 2,
+        (top + bottom) / 2,
       ),
     );
+    const count = Math.floor((end - start) / 0.48);
+    for (let i = 0; i < count; i++) {
+      const x = lerp(start, end, (i + 0.5) / count);
+      posts.push(
+        M(x, top, 0, 1, i % 3 === 0 ? 1.12 : 0.84, 1, i % 2 ? Math.PI : 0),
+      );
+    }
+  }
+  wing.add(
+    instanced(ironwork, MAT.black, posts, false),
+    tbox(0.8, openingHeight, 1.3, granite, 3.15, openingHeight / 2),
+    tbox(3.55, 0.28, 1.38, granite, 1.75, openingHeight + 0.1),
+  );
+
+  // A narrow lattice leaf stands open against the outside jamb.
+  const door = new THREE.Group();
+  door.position.set(2.72, 0, 0);
+  door.rotation.y = (Math.sign(endX) * Math.PI) / 2;
+  door.add(
+    mesh(new THREE.PlaneGeometry(1.3, 2.56), jali, 0.65, 1.36),
+    tbox(0.08, 2.65, 0.1, MAT.black, 0, 1.36),
+    tbox(0.08, 2.65, 0.1, MAT.black, 1.3, 1.36),
+    tbox(1.3, 0.08, 0.1, MAT.black, 0.65, 2.65),
+  );
+  wing.add(door);
+
+  for (const [x, y, w, h] of [
+    [span * 0.45, 2.48, 2.9, 2.03],
+    [span * 0.48, 0.65, 1.12, 1.3],
+    [span * 0.76, 1.64, 2.4, 3.28],
+    [span - 0.65, 0.9, 1.28, 1.8],
+  ]) {
+    wing.add(tbox(w, h, 0.15, granite, x, y, outerFace));
+  }
+  return wing;
+}
+
+function createMalaiVasal() {
+  const g = new THREE.Group();
+  const brick = MAT.brick.clone();
+  brick.color.multiplyScalar(0.68);
+  brick.userData.s = 3;
+  const granite = MAT.granite.clone();
+  granite.color.setHex(0xbab7ac);
+  const jali = MAT.jali.clone();
+  jali.color.setHex(0x242728);
+  // The iron crest has bowed stems with small, three-pronged tips.
+  const stem = new THREE.CatmullRomCurve3([
+    new V3(0, 0, 0),
+    new V3(0.075, 0.25, 0),
+    new V3(0.1, 0.44, 0),
+    new V3(0.012, 0.66, 0),
+    new V3(0, 0.9, 0),
+  ]);
+  const fork = new THREE.CatmullRomCurve3([
+    new V3(0.012, 0.66, 0),
+    new V3(0.13, 0.7, 0),
+    new V3(0.15, 0.83, 0),
+  ]);
+  const tine = new THREE.TubeGeometry(fork, 8, 0.024, 5);
+  const leftFork = tine.clone().rotateY(Math.PI).translate(0.024, 0, 0);
+  const ironwork = mergeGeos([
+    new THREE.TubeGeometry(stem, 14, 0.03, 5),
+    tine,
+    leftFork,
+  ]);
+  for (const [endX, endZ] of MALAI_WALL_ENDS) {
+    const sx = Math.sign(endX);
+    for (const [w, h, d, y] of [
+      [2.95, 1.12, 2.7, 0.56],
+      [3.0, 1.97, 2.55, 2.13],
+      [2.8, 1.88, 2.5, 4.07],
+      [1.45, 0.8, 1.85, 5.38],
+    ]) {
+      g.add(tbox(w, h, d, granite, sx * 5, y, 0));
+    }
+    g.add(
+      createMalaiWallWing(
+        sx * 6.05,
+        endX,
+        endZ,
+        brick,
+        granite,
+        jali,
+        ironwork,
+      ),
+    );
+    // The main iron leaves sit open along the inside of the piers.
+    const door = new THREE.Group();
+    door.position.set(sx * 3.68, 0, -0.8);
+    door.rotation.y = sx * 1.35;
+    door.add(mesh(new THREE.PlaneGeometry(2.76, 4.74), jali, sx * 1.45, 2.58));
+    for (const x of [0, 2.9]) {
+      door.add(tbox(0.14, 4.9, 0.16, MAT.black, sx * x, 2.58));
+    }
+    for (const y of [0.15, 4.99]) {
+      door.add(tbox(2.9, 0.14, 0.16, MAT.black, sx * 1.45, y));
+    }
     g.add(door);
   }
   // Natural boulder lintel topped by a small gold linga.
@@ -8265,16 +8668,34 @@ function createMalaiVasal() {
   const lg = linga(0.32, 0.5, MAT.gold);
   lg.position.y += 8.0;
   g.add(lg);
-  // Stone paving, red and gray sidewalks, the west pond traced from OSM, and frangipani trees.
-  const L = ([e, n]) => [e - 747, -(n + 1653)];
+  const plaza = polyPlane(
+    [
+      [-6, -1.5],
+      [6, -1.5],
+      [19, 11],
+      [18, 29],
+      [8, 38],
+      [-7, 31],
+      [-22, 13],
+    ],
+    MAT.paving,
+    0.17,
+  );
+  g.add(plaza);
+  // The pond's south and east banks meet the west edge of the forecourt.
   const pond = [
-    [697, -1585],
-    [674, -1627],
-    [675, -1664],
-    [738, -1664],
-    [737, -1593],
-    [725, -1570],
-  ].map(L);
+    [703, -1585],
+    [688, -1597],
+    [687, -1622],
+    [677, -1645],
+    [682, -1657],
+    [699, -1663],
+    [718, -1660],
+    [727, -1647],
+    [729, -1614],
+    [728, -1600],
+    [721, -1587],
+  ].map(([e, n]) => [e - MALAI_AT[0], MALAI_AT[1] - n]);
   g.add(polyPlane(pond, MAT.pondWater, 0.12));
   const walk = [];
   for (let i = 0; i < 18; i++)
@@ -8314,10 +8735,7 @@ function createMalaiVasal() {
     ),
     instanced(new THREE.IcosahedronGeometry(1, 0), flower, frC),
   );
-  const sb = signBoard('Malai Vasal', 4.4, 0.8);
-  sb.position.set(-11, 3.1, 1.0);
   g.add(
-    sb,
     glowPoints(
       [
         [-5, 5.4, 1.5],
@@ -8500,7 +8918,7 @@ const COMPONENTS = [
     labelHeight: 9,
     zone: 'out',
     create: createMalaiVasal,
-    at: [747, -1653],
+    at: MALAI_AT,
     rotY: 0,
     view: { d: 36, yaw: 0.35, ph: 1.36, h: 4 },
     clear: [
@@ -9296,7 +9714,13 @@ const steps = [
       addToScene(createTerrain());
     },
   ],
-  [message('roads'), () => addToScene(createPaths())],
+  [
+    message('roads'),
+    () => {
+      addToScene(createPaths());
+      addToScene(createPerimeterWalls());
+    },
+  ],
   ...COMPONENTS.filter((c) => c.create).map((c) => [
     placeText(c.id).name,
     () => {
