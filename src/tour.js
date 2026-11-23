@@ -373,23 +373,61 @@ const FIELDS = [
   return { x, z, hw: w / 2, hd: d / 2, color: new Color(color), blend };
 });
 const SPANDA_GARDEN = { width: 68, depth: 34, start: 26.2 };
-const BRIDGE_STREAM = [
-  [-3.5, -31],
-  [-0.5, -25],
-  [0.3, -17],
-  [1.8, -8],
-  [3.1, 1],
-  [4.3, 11],
-  [5.8, 20],
-  [5, 27],
-  [3.8, 33],
-  [2.5, 27],
-  [1, 20],
-  [-1.6, 11],
-  [-2.8, 1],
-  [-4.3, -8],
-  [-5.3, -17],
-  [-5.5, -25],
+const METAL_BRIDGE_AT = [372, 356];
+const TERRAIN_SIZE = 5600;
+const TERRAIN_SEGMENTS = 250;
+// [east, north, water width] in meters, ordered from the foothills downstream.
+// Esri World Imagery shows the wooded corridor at the bridge and on either side
+// of campus. The headwater and bends hidden by canopy are approximate.
+const CAMPUS_STREAM = [
+  [-1170, 1200, 2],
+  [-1030, 1145, 3],
+  [-900, 1120, 4],
+  [-775, 1075, 4.5],
+  [-665, 1030, 4],
+  [-545, 1005, 5],
+  [-432, 976, 5],
+  [-340, 944, 5.5],
+  [-230, 923, 5],
+  [-140, 926, 5],
+  [-35, 902, 5.5],
+  [52, 867, 6],
+  [135, 848, 5.5],
+  [208, 819, 6],
+  [265, 785, 6],
+  [280, 738, 5.5],
+  [285, 686, 6],
+  [304, 639, 6.5],
+  [311, 586, 5.5],
+  [330, 539, 6],
+  [351, 509, 7],
+  [374, 473, 6],
+  [386, 426, 6],
+  [371, 391, 5.5],
+  [...METAL_BRIDGE_AT, 6.5],
+  [393, 329, 7.5],
+  [428, 308, 6.5],
+  [438, 277, 6],
+  [432, 240, 6],
+  [443, 199, 6.5],
+  [434, 163, 6.5],
+  [444, 126, 6],
+  [431, 91, 6.5],
+  [443, 56, 7],
+  [483, 31, 7.5],
+  [550, 19, 6.5],
+  [609, 5, 7],
+  [692, 3, 8],
+  [752, -8, 7],
+  [809, 0, 7],
+  [870, 12, 8],
+  [926, 2, 8.5],
+  [990, -24, 7.5],
+  [1045, -37, 8],
+  [1118, -38, 8],
+  [1209, -58, 9],
+  [1315, -78, 8],
+  [1400, -113, 7],
 ];
 
 function groundFootprint(points, color, blend, opacity = 0.8) {
@@ -1308,8 +1346,202 @@ function createFieldTint() {
   return { texture, bounds };
 }
 
+// Match the two rendered terrain triangles in each grid cell.
+function terrainSurface(x, z) {
+  const step = TERRAIN_SIZE / TERRAIN_SEGMENTS;
+  const origin = -TERRAIN_SIZE / 2;
+  const ax = origin + Math.floor((x - origin) / step) * step;
+  const az = origin + Math.floor((z - origin) / step) * step;
+  const u = (x - ax) / step;
+  const v = (z - az) / step;
+  const east = groundH(ax + step, az);
+  const south = groundH(ax, az + step);
+  return u + v < 1
+    ? groundH(ax, az) * (1 - u - v) + east * u + south * v
+    : groundH(ax + step, az + step) * (u + v - 1) +
+        east * (1 - v) +
+        south * (1 - u);
+}
+
+function streamStrip(rows) {
+  const positions = [];
+  const uvs = [];
+  const indices = [];
+  const columns = rows[0].points.length;
+  for (const [i, { distance, points }] of rows.entries()) {
+    for (const [j, point] of points.entries()) {
+      positions.push(...point);
+      uvs.push(distance / 10, j / (columns - 1));
+      if (i === 0 || j === 0) continue;
+      const c = i * columns + j;
+      const a = c - columns - 1;
+      indices.push(a, a + 1, c - 1, c - 1, a + 1, c);
+    }
+  }
+  const geometry = new THREE.BufferGeometry();
+  geometry.setAttribute(
+    'position',
+    new THREE.Float32BufferAttribute(positions, 3),
+  );
+  geometry.setAttribute('uv', new THREE.Float32BufferAttribute(uvs, 2));
+  geometry.setIndex(indices);
+  geometry.computeVertexNormals();
+  return geometry;
+}
+
+// The terrain grid is wider than the stream. Cut the opening along the strip
+// with a mask so that the banks can meet the existing terrain between vertices.
+function createStreamCut(outline) {
+  const minX = Math.floor(Math.min(...outline.map(([x]) => x))) - 2;
+  const maxX = Math.ceil(Math.max(...outline.map(([x]) => x))) + 2;
+  const minZ = Math.floor(Math.min(...outline.map(([, z]) => z))) - 2;
+  const maxZ = Math.ceil(Math.max(...outline.map(([, z]) => z))) + 2;
+  const width = maxX - minX;
+  const height = maxZ - minZ;
+  const canvas = document.createElement('canvas');
+  canvas.width = width;
+  canvas.height = height;
+  const ctx = canvas.getContext('2d');
+  ctx.fillStyle = '#000';
+  ctx.fillRect(0, 0, width, height);
+  ctx.fillStyle = '#fff';
+  ctx.beginPath();
+  for (const [x, z] of outline) ctx.lineTo(x - minX, z - minZ);
+  ctx.closePath();
+  ctx.fill();
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.flipY = false;
+  texture.generateMipmaps = false;
+  texture.minFilter = THREE.LinearFilter;
+  const pixels = ctx.getImageData(0, 0, width, height).data;
+  return {
+    texture,
+    bounds: new THREE.Vector4(minX, minZ, 1 / width, 1 / height),
+    contains(x, z) {
+      const i = Math.floor(x - minX);
+      const j = Math.floor(z - minZ);
+      return (
+        i >= 0 &&
+        i < width &&
+        j >= 0 &&
+        j < height &&
+        pixels[(j * width + i) * 4] > 127
+      );
+    },
+  };
+}
+
+let streamCut;
+
+function createStream() {
+  const group = new THREE.Group();
+  group.name = 'Campus Stream';
+  const centerline = new THREE.CatmullRomCurve3(
+    CAMPUS_STREAM.map(([e, n, width]) => {
+      const [x, , z] = geo(e, n);
+      return new V3(x, width, z);
+    }),
+  );
+  centerline.arcLengthDivisions = CAMPUS_STREAM.length * 16;
+  const length = centerline.getLength();
+  const segments = Math.ceil(length / 3);
+  const waterRows = [];
+  const bankRows = [];
+  const leftCut = [];
+  const rightCut = [];
+  const rocks = [];
+  const random = mulberry(291);
+  let waterLevel = Infinity;
+  for (let i = 0; i <= segments; i++) {
+    const t = i / segments;
+    const distance = t * length;
+    const { x, y: width, z } = centerline.getPointAt(t);
+    const tangent = centerline.getTangentAt(t);
+    const horizontal = Math.hypot(tangent.x, tangent.z);
+    const acrossX = -tangent.z / horizontal;
+    const acrossZ = tangent.x / horizontal;
+    const taper = smooth(0, 75, distance) * smooth(0, 55, length - distance);
+    const halfWidth = (width / 2) * taper;
+    const bankEdge = halfWidth + 3 * taper;
+    const point = (offset, y) => [
+      x + acrossX * offset,
+      y,
+      z + acrossZ * offset,
+    ];
+    const shoulder = (offset) => {
+      const p = point(offset, 0);
+      p[1] = terrainSurface(p[0], p[2]) - 0.05;
+      return p;
+    };
+    const leftBank = shoulder(-bankEdge);
+    const rightBank = shoulder(bankEdge);
+    waterLevel = Math.min(
+      waterLevel,
+      terrainSurface(x, z) - 0.85 * taper,
+      Math.min(leftBank[1], rightBank[1]) - 0.25 * taper,
+    );
+    waterRows.push({
+      distance,
+      points: [point(-bankEdge, waterLevel), point(bankEdge, waterLevel)],
+    });
+    bankRows.push({
+      distance,
+      points: [
+        leftBank,
+        point(-halfWidth * 0.72, waterLevel - 0.35 * taper),
+        point(halfWidth * 0.72, waterLevel - 0.35 * taper),
+        rightBank,
+      ],
+    });
+    const cutEdge = halfWidth + 2.2 * taper;
+    leftCut.push([x - acrossX * cutEdge, z - acrossZ * cutEdge]);
+    rightCut.push([x + acrossX * cutEdge, z + acrossZ * cutEdge]);
+    if (taper > 0.5 && random() < 0.6) {
+      const side = random() < 0.5 ? -1 : 1;
+      const [rx, ry, rz] = point(
+        side * halfWidth * (0.7 + random() * 0.5),
+        waterLevel,
+      );
+      const size = 0.35 + random() * 0.9;
+      rocks.push(
+        M(rx, ry + 0.08, rz, size * 1.3, size * 0.65, size, random() * 6),
+      );
+    }
+  }
+  streamCut = createStreamCut(leftCut.concat(rightCut.reverse()));
+
+  const map = TEX.water.clone();
+  const water = new THREE.MeshStandardMaterial({
+    map,
+    color: 0x4a8d82,
+    roughness: 0.25,
+    emissive: 0x264938,
+    emissiveIntensity: 0.3,
+  });
+  const gravel = new THREE.MeshLambertMaterial({
+    map: TEX.ground,
+    color: 0x887957,
+  });
+  group.add(
+    mesh(streamStrip(waterRows), water, 0, 0, 0, false),
+    mesh(streamStrip(bankRows), gravel, 0, 0, 0, false),
+    instanced(new THREE.IcosahedronGeometry(1, 0), MAT.rock, rocks, false),
+  );
+  // UVs increase downstream in ten-meter repeats. Move the ripples at 1.1 m/s.
+  group.userData.update = (t) => {
+    map.offset.x = -((t * 0.11) % 1);
+  };
+  return group;
+}
+
 function createTerrain() {
-  const geo = new THREE.PlaneGeometry(5600, 5600, 250, 250);
+  const geo = new THREE.PlaneGeometry(
+    TERRAIN_SIZE,
+    TERRAIN_SIZE,
+    TERRAIN_SEGMENTS,
+    TERRAIN_SEGMENTS,
+  );
   geo.rotateX(-Math.PI / 2);
   const p = geo.attributes.position,
     col = new Float32Array(p.count * 3);
@@ -1346,6 +1578,8 @@ function createTerrain() {
   mat.onBeforeCompile = (sh) => {
     sh.uniforms.fieldTint = { value: fieldTint.texture };
     sh.uniforms.fieldBounds = { value: fieldTint.bounds };
+    sh.uniforms.streamCut = { value: streamCut.texture };
+    sh.uniforms.streamBounds = { value: streamCut.bounds };
     sh.uniforms.pits = {
       value: PITS.length
         ? PITS.map((q) => new THREE.Vector4(q.x, q.z, q.hw, q.hd))
@@ -1365,12 +1599,16 @@ function createTerrain() {
         varying vec3 vWp;
         uniform sampler2D fieldTint;
         uniform vec4 fieldBounds;
+        uniform sampler2D streamCut;
+        uniform vec4 streamBounds;
         uniform vec4 pits[${N}];
         uniform float pitRot[${N}];`,
       )
       .replace(
         'void main() {',
         `void main() {
+        vec2 streamUV = (vWp.xz - streamBounds.xy) * streamBounds.zw;
+        if (texture2D(streamCut, streamUV).r > 0.5) discard;
         for (int i = 0; i < ${N}; i++) { vec2 d = vWp.xz - pits[i].xy; float c = cos(pitRot[i]), s = sin(pitRot[i]);
           vec2 l = vec2(c * d.x - s * d.y, s * d.x + c * d.y); if (abs(l.x) < pits[i].z && abs(l.y) < pits[i].w) discard; }`,
       )
@@ -1413,7 +1651,7 @@ function clearOfBuildings(x, z, pad) {
 }
 
 function blocked(x, z, pad = 0) {
-  if (!clearOfBuildings(x, z, pad)) return true;
+  if (streamCut.contains(x, z) || !clearOfBuildings(x, z, pad)) return true;
   for (const [x1, z1, x2, z2, w] of PATHS) {
     const dx = x2 - x1,
       dz = z2 - z1,
@@ -1621,7 +1859,7 @@ function createVegetation() {
     const x = rr(-2300, 900),
       z = rr(-2400, 1500),
       h = groundH(x, z);
-    if (h > 1.5 && h < 420) {
+    if (h > 1.5 && h < 420 && !streamCut.contains(x, z)) {
       const s = rr(6, 13);
       far.push(
         M(x, h + s * 0.2, z, s * 1.3, s * rr(0.8, 1.2), s * 1.3, rnd() * 6),
@@ -7730,18 +7968,6 @@ function createMetalBridge() {
       roughness: 0.5,
       metalness: 0.6,
     });
-  // The water sits inside the stream banks painted on the terrain.
-  const wtr = polyPlane(BRIDGE_STREAM, MAT.water, 0.18);
-  const rocks = [];
-  for (let i = 0; i < 70; i++) {
-    const z = rr(-29, 29),
-      s = rr(0.4, 1.3),
-      sd = rnd() < 0.5 ? -1 : 1;
-    rocks.push(
-      M(sd * rr(2.6, 6.2) + z * 0.12, 0.25, z, s * 1.3, s * 0.7, s, rnd() * 6),
-    );
-  }
-  g.add(wtr, instanced(new THREE.IcosahedronGeometry(1, 0), MAT.rock, rocks));
   // Steel deck grating and Warren trusses on both sides.
   const DY = 2.1;
   g.add(
@@ -8595,14 +8821,9 @@ const COMPONENTS = [
     id: 'metalbridge',
     labelHeight: 5,
     create: createMetalBridge,
-    at: [372, 356],
+    at: METAL_BRIDGE_AT,
     rotY: 0.161,
     view: { d: 52, yaw: 0.6, ph: 1.2, h: 2 },
-    ground: {
-      points: BRIDGE_STREAM.map(([x, z]) => [x + (x - z * 0.12) * 1.1, z]),
-      color: 0x91866c,
-      blend: 4,
-    },
     clear: [
       [0, 0, 17],
       [0, -22, 9],
@@ -9068,7 +9289,13 @@ const steps = [
       applyMood();
     },
   ],
-  [message('terrain'), () => addToScene(createTerrain())],
+  [
+    message('terrain'),
+    () => {
+      addToScene(createStream());
+      addToScene(createTerrain());
+    },
+  ],
   [message('roads'), () => addToScene(createPaths())],
   ...COMPONENTS.filter((c) => c.create).map((c) => [
     placeText(c.id).name,
