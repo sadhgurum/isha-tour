@@ -136,9 +136,30 @@ const geo = (e, n) => [e - 250, 0, -n - 150];
 const face = (fe, fn) => Math.atan2(fe, -fn);
 const MALAI_AT = [747, -1653];
 const [malaiX, , malaiZ] = geo(...MALAI_AT);
+// Simplified roadside and residential buildings: [local x, z, width, depth, wall height, roof, heading].
+const MALAI_VILLAGE_HOUSES = [
+  [-15, 70, 9, 7, 2.8, 'gable', Math.PI / 2],
+  [35, 34, 8, 6, 2.9, 'gable', 0.12],
+  [45, 65, 10, 7, 3.1, 'flat', Math.PI],
+  [68, 66, 9, 7, 2.8, 'gable', 3.1],
+  [84, 66, 10, 7, 2.9, 'flat', 3.2],
+  [136, 69, 10, 8, 3, 'gable', 3.22],
+  [150, 70, 9, 7, 3.2, 'flat', 3.2],
+  [170, 70, 10, 7, 2.9, 'gable', 3.08],
+  [190, 71, 10, 8, 3, 'flat', 3.2],
+  [222, 72, 10, 7, 3, 'flat', Math.PI],
+  [134, 79, 9, 7, 2.9, 'flat', 0.05],
+  [180, 80, 9, 7, 3.1, 'gable', 0.1],
+  [143, 95, 9, 6, 3.1, 'flat', 3.16],
+  [174, 96, 10, 7, 3.2, 'gable', 3.25],
+  [191, 97, 9, 7, 3, 'flat', 3.12],
+  [138, 115, 11, 8, 3.1, 'gable', 3.18],
+  [162, 116, 10, 8, 3, 'flat', 3.18],
+  [190, 118, 10, 8, 2.9, 'gable', 3.22],
+];
 const AX = face(0.992, -0.126); // The axis from Dhyanalinga through Nandi and the Lotus Ponds bridge to Suryakund runs about 7° south of east.
 
-// Road polylines use [[e, n], ...] and a width. PATHS expands them to [x1, z1, x2, z2, w] segments.
+// Road polylines use [[e, n], ...] and a width. PATHS expands them to [x1, z1, x2, z2, w, followTerrain] segments.
 const ROADS = [
   {
     w: 8,
@@ -380,13 +401,75 @@ const ROADS = [
       [188, -212],
     ],
   }, // → Moondram Pirai
+  {
+    w: 8,
+    followTerrain: true,
+    pts: [
+      [769, -1705],
+      [800, -1707],
+      [905, -1711],
+      [952, -1714],
+      [1018, -1717],
+    ],
+  }, // Route 876 runs east from the Malai Vasal junction.
+  {
+    w: 7,
+    followTerrain: true,
+    pts: [
+      [769, -1705],
+      [768, -1725],
+      [769, -1776],
+      [772, -1812],
+    ],
+  }, // Poondi Road continues south.
+  {
+    w: 6,
+    followTerrain: true,
+    pts: [
+      [724, -1562],
+      [740, -1578],
+      [765, -1599],
+      [768, -1620],
+      [773, -1649],
+      [774, -1677],
+      [769, -1695],
+      [769, -1705],
+    ],
+  }, // Road bypassing the gate and forecourt on the east.
+  {
+    w: 4.5,
+    followTerrain: true,
+    pts: [
+      [905, -1711],
+      [904, -1740],
+      [867, -1738],
+    ],
+  }, // North entrance to the residential lanes.
+  {
+    w: 4.5,
+    followTerrain: true,
+    pts: [
+      [952, -1714],
+      [951, -1742],
+      [950, -1759],
+      [869, -1754],
+    ],
+  }, // East entrance and the southern lane.
+  {
+    w: 4.5,
+    followTerrain: true,
+    pts: [
+      [904, -1740],
+      [951, -1742],
+    ],
+  }, // Internal connection between the residential lanes.
 ];
 const PATHS = [];
 for (const r of ROADS)
   for (let i = 0; i < r.pts.length - 1; i++) {
     const a = geo(...r.pts[i]),
       b = geo(...r.pts[i + 1]);
-    PATHS.push([a[0], a[2], b[0], b[2], r.w]);
+    PATHS.push([a[0], a[2], b[0], b[2], r.w, r.followTerrain]);
   }
 // Ground cover patches, broad fields first: [e, n, width, length, color, edge blend in meters].
 const FIELDS = [
@@ -401,6 +484,9 @@ const FIELDS = [
   [630, -914, 110, 300, 0x93ad5a, 18], // Lawns on either side of the Adiyogi approach.
   [627, -1200, 80, 110, 0x8e8a82, 8],
   [633, -1098, 70, 85, 0x8e8a82, 8],
+  [814, -1717, 75, 20, 0xa79872, 8], // Roadside yards.
+  [912, -1747, 95, 65, 0xa79872, 10], // Residential blocks south of Route 876.
+  [820, -1772, 89, 96, 0x868262, 9], // Open field between Poondi Road and the residential lanes.
 ].map(([e, n, w, d, color, blend]) => {
   const [x, , z] = geo(e, n);
   return { x, z, hw: w / 2, hd: d / 2, color: new Color(color), blend };
@@ -481,6 +567,59 @@ function groundFootprint(points, color, blend, opacity = 0.8) {
     opacity,
   };
 }
+
+// Tree blocks traced from the aerial reference around Malai Vasal. Leave the
+// pond, the gate forecourt and the field southwest of the houses open.
+const MALAI_GROVES = [
+  [
+    [
+      [776, -1629],
+      [852, -1624],
+      [949, -1627],
+      [979, -1634],
+      [977, -1699],
+      [935, -1705],
+      [856, -1700],
+      [781, -1697],
+    ],
+    9,
+  ],
+  [
+    [
+      [632, -1700],
+      [661, -1688],
+      [710, -1694],
+      [724, -1733],
+      [758, -1741],
+      [759, -1809],
+      [649, -1810],
+      [637, -1775],
+    ],
+    10,
+  ],
+  [
+    [
+      [771, -1591],
+      [792, -1568],
+      [963, -1572],
+      [978, -1622],
+      [900, -1625],
+      [779, -1622],
+    ],
+    12,
+  ],
+].map(([points, spacing]) => ({
+  ...groundFootprint(
+    points.map(([e, n]) => {
+      const [x, , z] = geo(e, n);
+      return [x, z];
+    }),
+    0x4d6437,
+    7,
+  ),
+  spacing,
+}));
+FIELDS.push(...MALAI_GROVES);
 
 // Map footprints in meters east and north of Dhyanalinga, rounded to the nearest meter.
 const campusFootprints = [
@@ -1662,18 +1801,40 @@ function createTerrain() {
 function createPaths() {
   const g = new THREE.Group();
   g.name = 'Paths';
-  PATHS.forEach(([x1, z1, x2, z2, w], i) => {
+  const villageRoad = new THREE.MeshLambertMaterial({
+    map: TEX.ground,
+    color: 0x8f8980,
+  });
+  PATHS.forEach(([x1, z1, x2, z2, w, followTerrain], i) => {
     const len = Math.hypot(x2 - x1, z2 - z1);
-    const b = tbox(
-      len + w * 0.5,
-      0.12,
-      w,
-      MAT.paving,
-      (x1 + x2) / 2,
-      0.07 + (i % 7) * 0.004,
-      (z1 + z2) / 2,
-    );
-    b.rotation.y = -Math.atan2(z2 - z1, x2 - x1);
+    const length = len + w * 0.5;
+    const x = (x1 + x2) / 2;
+    const z = (z1 + z2) / 2;
+    const rotation = -Math.atan2(z2 - z1, x2 - x1);
+    const height = 0.13 + (i % 7) * 0.004;
+    if (followTerrain) {
+      const surface = new THREE.PlaneGeometry(
+        length,
+        w,
+        Math.ceil(length / 2),
+        4,
+      );
+      surface
+        .rotateX(-Math.PI / 2)
+        .rotateY(rotation)
+        .translate(x, 0, z);
+      const points = surface.attributes.position;
+      for (let j = 0; j < points.count; j++) {
+        points.setY(j, terrainSurface(points.getX(j), points.getZ(j)) + height);
+      }
+      surface.computeVertexNormals();
+      g.add(
+        mesh(scaleUV(surface, length / 7, w / 7), villageRoad, 0, 0, 0, false),
+      );
+      return;
+    }
+    const b = tbox(length, 0.12, w, MAT.paving, x, height - 0.06, z);
+    b.rotation.y = rotation;
     b.castShadow = false;
     g.add(b);
   });
@@ -1698,7 +1859,7 @@ function blocked(x, z, pad = 0) {
 
 function wildlifeGround(x, z) {
   let height = groundH(x, z);
-  for (const [i, [x1, z1, x2, z2, width]] of PATHS.entries()) {
+  for (const [i, [x1, z1, x2, z2, width, followTerrain]] of PATHS.entries()) {
     const dx = x2 - x1;
     const dz = z2 - z1;
     const length = Math.hypot(dx, dz);
@@ -1708,10 +1869,12 @@ function wildlifeGround(x, z) {
       length / 2 + width / 4 - Math.abs(px * dx + pz * dz) / length,
       width / 2 - Math.abs(px * dz - pz * dx) / length,
     );
-    height = Math.max(
-      height,
-      (0.13 + (i % 7) * 0.004) * smooth(-0.25, 0, edge),
-    );
+    const offset = (0.13 + (i % 7) * 0.004) * smooth(-0.25, 0, edge);
+    if (offset > 0)
+      height = Math.max(
+        height,
+        offset + (followTerrain ? terrainSurface(x, z) : 0),
+      );
   }
   return height;
 }
@@ -1840,6 +2003,20 @@ function createVegetation() {
     z,
     rr(0.8, 1.8),
   ]);
+  // The groves use their own seed and follow the visible canopy edges.
+  const groveRandom = mulberry(20261124);
+  for (const { x, z, hw, hd, points, spacing } of MALAI_GROVES) {
+    for (let gx = x - hw + spacing / 2; gx < x + hw; gx += spacing) {
+      for (let gz = z - hd + spacing / 2; gz < z + hd; gz += spacing) {
+        const tx = gx + (groveRandom() - 0.5) * spacing * 0.6;
+        const tz = gz + (groveRandom() - 0.5) * spacing * 0.6;
+        if (inPoly(tx, tz, points) && !blocked(tx, tz, 2)) {
+          const scale = lerp(0.82, 1.3, groveRandom());
+          trees.push([tx, tz, scale, terrainSurface(tx, tz)]);
+        }
+      }
+    }
+  }
   g.userData.trees = trees;
   g.userData.palms = palms;
   const tTrunk = new THREE.CylinderGeometry(0.28, 0.42, 1, 6);
@@ -1848,13 +2025,15 @@ function createVegetation() {
     instanced(
       tTrunk,
       new THREE.MeshLambertMaterial({ color: 0x5c4634 }),
-      trees.map(([x, z, s]) => M(x, 0, z, s, 3.6 * s, s)),
+      trees.map(([x, z, s, y = 0]) => M(x, y, z, s, 3.6 * s, s)),
     ),
   );
   const crowns = instanced(
     leafCrownGeo(),
     new THREE.MeshLambertMaterial({ color: 0xffffff, flatShading: true }),
-    trees.map(([x, z, s]) => M(x, 4.6 * s, z, s, s, s, rnd() * 6.28)),
+    trees.map(([x, z, s, y = 0]) =>
+      M(x, y + 4.6 * s, z, s, s, s, rnd() * 6.28),
+    ),
   );
   trees.forEach((_, i) =>
     crowns.setColorAt(
@@ -1936,7 +2115,8 @@ function createLamps() {
   const posts = [],
     flames = [],
     glows = [];
-  for (const [x1, z1, x2, z2, w] of PATHS) {
+  for (const [x1, z1, x2, z2, w, followTerrain] of PATHS) {
+    if (followTerrain) continue;
     const len = Math.hypot(x2 - x1, z2 - z1),
       dx = (x2 - x1) / len,
       dz = (z2 - z1) / len,
@@ -8751,7 +8931,47 @@ function createMalaiVasal() {
       4,
     ),
   );
+  g.add(createMalaiVillageEdge());
   return g;
+}
+
+function createMalaiVillageEdge() {
+  const group = new THREE.Group();
+  group.name = 'Malai Vasal village edge';
+  const walls = [0xd9c29d, 0xbdbbae, 0xc79977, 0xcac7a6].map((color) => {
+    const wall = MAT.plaster.clone();
+    wall.color.setHex(color);
+    return wall;
+  });
+  const concrete = MAT.granite.clone();
+  concrete.color.setHex(0x969389);
+  const origin = new THREE.Vector2();
+  const footprint = new THREE.Vector2();
+  MALAI_VILLAGE_HOUSES.forEach(([x, z, w, d, h, roof, rotation], i) => {
+    const heights = [];
+    for (const sx of [-1, 1])
+      for (const sz of [-1, 1]) {
+        footprint
+          .set((sx * (w + 1)) / 2, (sz * (d + 1)) / 2)
+          .rotateAround(origin, -rotation);
+        heights.push(
+          terrainSurface(malaiX + x + footprint.x, malaiZ + z + footprint.y),
+        );
+      }
+    const base = Math.min(...heights);
+    const building = house(w, d, h, {
+      wall: walls[i % walls.length],
+      roof,
+      roofMat: roof === 'flat' ? concrete : MAT.tile,
+      plinth: Math.max(...heights) - base + 0.25,
+      rise: 1.45,
+      win: 2,
+    });
+    building.position.set(x, base - 0.1, z);
+    building.rotation.y = rotation;
+    group.add(building);
+  });
+  return group;
 }
 
 // Kalabhairava Sthanam sits west of Adi Yogi Isha Rd, about 120 m north of Malai Vasal, using Google Maps coordinates.
@@ -9086,10 +9306,15 @@ const COMPONENTS = [
     create: createMalaiVasal,
     at: MALAI_AT,
     rotY: 0,
-    view: { d: 36, yaw: 0.35, ph: 1.36, h: 4 },
+    view: { d: 104, yaw: -1.08, ph: 1.09, h: 3, tz: 24 },
     clear: [
       [0, 0, 16],
       [-40, -36, 34],
+      ...MALAI_VILLAGE_HOUSES.map(([x, z, w, d]) => [
+        x,
+        z,
+        Math.hypot(w, d) / 2 + 1,
+      ]),
     ],
   },
   {

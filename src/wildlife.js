@@ -568,22 +568,27 @@ function treePair(trees, x, z, used, canCross, anchor) {
   return pair;
 }
 
-function squirrelTrail([a, b]) {
+function squirrelTrail([a, b], groundHeight) {
   const heading = Math.atan2(b[1] - a[1], b[0] - a[0]);
   const climb = 2.5;
   const gap = Math.hypot(b[0] - a[0], b[1] - a[1]);
   const jump = gap / 6.5;
   const run = gap / 3.25;
-  const trunk = ([x, z, scale], angle, u, out) => {
+  const trunk = ([x, z, scale, base = 0], angle, u, out) => {
     const radius = lerp(0.42, 0.33, u) * scale + 0.045;
     return out.set(
       x + Math.cos(angle) * radius,
-      lerp(0.06, 2.25 * scale, u),
+      base + lerp(0.06, 2.25 * scale, u),
       z + Math.sin(angle) * radius,
     );
   };
   const footA = trunk(a, heading, 0, new Vector3());
   const footB = trunk(b, heading + Math.PI, 0, new Vector3());
+  const runBetween = (u, out) => {
+    out.lerpVectors(footA, footB, u);
+    if (a[3] || b[3]) out.y = groundHeight(out.x, out.z) + 0.06;
+    return out;
+  };
   if (gap > 6.8) {
     // When the next trunk is too far to jump, climb back down and dash across.
     const half = 2 * climb + run;
@@ -595,7 +600,7 @@ function squirrelTrail([a, b]) {
         const elapsed = time % half;
         if (elapsed >= 2 * climb) {
           const u = (elapsed - 2 * climb) / run;
-          return out.lerpVectors(footA, footB, returning ? 1 - u : u);
+          return runBetween(returning ? 1 - u : u, out);
         }
         const height = 1 - Math.abs(elapsed / climb - 1);
         const angle = heading + (returning ? Math.PI : 0) + height * TAU;
@@ -624,7 +629,7 @@ function squirrelTrail([a, b]) {
         return trunk(b, heading + Math.PI - u * TAU, 1 - u, out);
       }
       const u = (time - 2 * climb - jump) / run;
-      return out.lerpVectors(footB, footA, u);
+      return runBetween(1 - u, out);
     },
   };
 }
@@ -861,7 +866,7 @@ export function createWildlife({
   const addSquirrel = (pair) => {
     const rig = makeSquirrel();
     group.add(rig.root);
-    const trail = squirrelTrail(pair);
+    const trail = squirrelTrail(pair, groundHeight);
     squirrels.push({ ...rig, trail, offset: random() * trail.period });
   };
   for (const [e, n] of squirrelAreas) {
