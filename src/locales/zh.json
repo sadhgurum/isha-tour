@@ -55,8 +55,12 @@
       "description": "Adiyogi 像前的 Yogeshwar Linga：代表五个主要脉轮，信众可以向它献水和苦楝叶，并绕行一周。"
     },
     "kalabhairava": {
-      "name": "Kalabhairava Sthanam",
-      "description": "蛇门外、从 Adiyogi 继续往 Malai Vasal 走，在 Adi Yogi Isha Rd 西侧（坐标取自 Google 地图）。灰色的方正殿身，正面一对雕花石柱门廊、铜色檐板，檐上是黑色的 Kalabhairava 像，殿顶后部一座深色灯亭。前面是灰色铺石的前庭和白色栏杆围墙，路边是黑色铁艺花栏（参照 Wikimedia Commons 照片与 2026 年 8 月的街景）。"
+      "name": "Kalabhairava",
+      "description": "这座漆成黑色的石殿位于 Adiyogi 与 Malai Vasal 之间、Adi Yogi Isha Rd 西侧。侧墙开有高而窄的窗。正门雕花石柱托着铜色檐板，上方是黑色的 Kalabhairava 像。石铺前庭四周有矮墙和黑色铁栏杆。"
+    },
+    "kalabhairava-in": {
+      "name": "Kalabhairava 殿内",
+      "description": "殿内中央的粗石基座上卧着一块深色巨石，石面有一道细长的朱红色印记。巨石后方不远处垂着黑绳，绳上贴着红色火焰纹样。巨石四周和黑绳后方都留有走动或静坐的空间。"
     },
     "malai": {
       "name": "Malai Vasal 主入口",

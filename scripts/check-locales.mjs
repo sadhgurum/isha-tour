@@ -5,6 +5,7 @@ import { languages } from '../src/languages.ts';
 const codes = languages.map(([code]) => code);
 // These places use English until a locale has a translation for them.
 const englishFallbackPlaces = [
+  'kalabhairava-in',
   'roadside-food',
   'c-section',
   'neem-point',

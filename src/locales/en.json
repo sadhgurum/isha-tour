@@ -55,8 +55,12 @@
       "description": "The linga in front of Adiyogi represents five major chakras. Visitors can offer water and neem leaves and walk around it."
     },
     "kalabhairava": {
-      "name": "Kalabhairava Sthanam",
-      "description": "This square stone shrine stands to the west of Adi Yogi Isha Road, between Adiyogi and Malai Vasal. Its front has carved columns, a copper-toned fascia, and a dark figure of Kalabhairava above the entrance. A low stone wall and black iron railing border the paved forecourt."
+      "name": "Kalabhairava",
+      "description": "This black-painted stone shrine stands west of Adi Yogi Isha Road, between Adiyogi and Malai Vasal. Tall, narrow windows line the side wall. Carved columns support a copper-toned fascia beneath a dark figure of Kalabhairava. A low stone wall and black iron railing border the paved forecourt."
+    },
+    "kalabhairava-in": {
+      "name": "Kalabhairava interior",
+      "description": "A dark boulder with a narrow vermilion mark rests on a rough stone base. Red flame shapes are attached to the black cords hanging just behind it. There is room to walk or sit around the rock and behind the cords."
     },
     "malai": {
       "name": "Malai Vasal main entrance",

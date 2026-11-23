@@ -8974,33 +8974,120 @@ function createMalaiVillageEdge() {
   return group;
 }
 
-// Kalabhairava Sthanam sits west of Adi Yogi Isha Rd, about 120 m north of Malai Vasal, using Google Maps coordinates.
-//    Wikimedia Commons and August 2026 street imagery show the square gray plaster shrine, two carved porch columns, and copper-colored fascia.
-//    The fascia supports a black Kalabhairava figure, with a dark finial pavilion behind. The forecourt has gray paving, white balustrades, and a wrought-iron road fence. +Z faces east.
+// Kalabhairava sits west of Adi Yogi Isha Rd, about 120 m north of Malai Vasal. +Z faces east.
 function createKalabhairava() {
   const g = new THREE.Group(),
     W = 16,
     D = 13,
     H = 8.5,
     Y = 0.5;
-  const grey = MAT.concrete.clone();
-  grey.color.set(0xa9a6a0);
-  grey.userData = { s: 5 };
+  const wall = MAT.concrete.clone();
+  wall.color.set(0x292a2e);
+  const wallDepth = 0.4,
+    insideWidth = W - wallDepth * 2,
+    front = D / 2 - 1,
+    doorWidth = 3.2,
+    doorHeight = 4,
+    pierWidth = (insideWidth - doorWidth) / 2;
   g.add(
     tbox(W + 3, Y, D + 4, MAT.granite, 0, Y / 2, 0),
-    tbox(W, H, D, grey, 0, Y + H / 2, -1),
-    tbox(W + 0.4, 0.4, D + 0.4, grey, 0, Y + H + 0.2, -1),
+    tbox(insideWidth, 0.04, D - 2 * wallDepth, MAT.darkStone, 0, Y, -1),
+    tbox(wallDepth, H, D, wall, -W / 2 + wallDepth / 2, Y + H / 2, -1),
+    tbox(
+      insideWidth,
+      H,
+      wallDepth,
+      wall,
+      0,
+      Y + H / 2,
+      front - D + wallDepth / 2,
+    ),
+    tbox(
+      doorWidth,
+      H - doorHeight,
+      wallDepth,
+      wall,
+      0,
+      Y + (H + doorHeight) / 2,
+      front - wallDepth / 2,
+    ),
+    asRoof(tbox(W + 0.4, 0.22, D + 0.4, wall, 0, Y + H + 0.11, -1)),
   );
-  g.add(
-    tbox(0.06, H - 2.4, 0.5, MAT.black, W / 2 + 0.03, Y + H / 2, -3),
-    tbox(0.5, H - 2.4, 0.06, MAT.black, W / 2 - 2, Y + H / 2, D / 2 - 0.97),
+
+  // Tall, narrow openings in the side wall, with stone sills and overhanging lintels.
+  const side = new THREE.Shape();
+  side.moveTo(-D / 2, 0);
+  side.lineTo(D / 2, 0);
+  side.lineTo(D / 2, H);
+  side.lineTo(-D / 2, H);
+  side.closePath();
+  const sill = 0.85,
+    lintel = 7,
+    halfWindow = 0.25;
+  for (const z of [-3.5, 3.5]) {
+    const opening = new THREE.Path();
+    opening.moveTo(z - halfWindow, sill);
+    opening.lineTo(z - halfWindow, lintel);
+    opening.lineTo(z + halfWindow, lintel);
+    opening.lineTo(z + halfWindow, sill);
+    opening.closePath();
+    side.holes.push(opening);
+    g.add(
+      tbox(
+        0.56,
+        0.09,
+        0.72,
+        MAT.darkStone,
+        W / 2 - 0.15,
+        Y + sill - 0.045,
+        z - 1,
+      ),
+      tbox(
+        0.65,
+        0.13,
+        0.8,
+        MAT.darkStone,
+        W / 2 - 0.1,
+        Y + lintel + 0.065,
+        z - 1,
+      ),
+    );
+  }
+  const windowWall = mesh(
+    scaleUV(
+      new THREE.ExtrudeGeometry(side, {
+        depth: wallDepth,
+        bevelEnabled: false,
+      }),
+      0.2,
+      0.2,
+    ),
+    wall,
+    W / 2,
+    Y,
+    -1,
   );
+  windowWall.rotation.y = -Math.PI / 2;
+  g.add(windowWall, createKalabhairavaInterior(Y));
+
   // Porch with segmented carved pillars, opening, copper fascia, and steps.
   const P = new THREE.Group();
-  P.position.set(-1.5, Y, D / 2 - 1);
+  P.position.set(0, Y, front);
   g.add(P);
+  const pillarOffset = 2.4;
   for (const sx of [-1, 1]) {
-    const x = sx * 2.4;
+    g.add(
+      tbox(
+        pierWidth,
+        H,
+        wallDepth,
+        wall,
+        (sx * (doorWidth + pierWidth)) / 2,
+        Y + H / 2,
+        front - wallDepth / 2,
+      ),
+    );
+    const x = sx * pillarOffset;
     P.add(
       tbox(1.5, 0.6, 1.5, MAT.granite, x, 0.3, 2.2),
       tbox(1.1, 1.3, 1.1, MAT.granite, x, 1.25, 2.2),
@@ -9010,7 +9097,7 @@ function createKalabhairava() {
     );
   }
   P.add(
-    tbox(3.2, 4.0, 0.1, MAT.doorGlow, 0, 2.0, 0.06),
+    tbox(6.4, Y, 3.4, MAT.granite, 0, -Y / 2, 1.7),
     tbox(7.2, 0.35, 3.4, MAT.copper, 0, 4.55, 1.5),
     stairs(6.4, 3, 0.17, 0.4, MAT.granite, 0, 0, 3.4, 1, -Y),
   );
@@ -9049,14 +9136,14 @@ function createKalabhairava() {
   mala.scale.y = 1.25;
   mala.rotation.x = -0.35;
   K.add(mala);
-  // Dark pavilion and finial on the rear roof.
-  const T = new THREE.Group();
-  T.position.set(1.5, Y + H + 0.4, -3);
+  // Dark pavilion and finial centered on the main roof.
+  const T = asRoof(new THREE.Group());
+  T.position.set(0, Y + H + 0.22, -1);
   g.add(T);
   T.add(
     tbox(5.6, 2.6, 5.6, MAT.black, 0, 1.3, 0),
     mesh(new THREE.PlaneGeometry(5.2, 2.2), MAT.jali, 0, 1.3, 2.85, false),
-    tbox(7, 0.25, 7, MAT.concrete, 0, 2.75, 0),
+    tbox(7, 0.25, 7, wall, 0, 2.75, 0),
   );
   const top = linga(0.9, 0.9, B);
   top.position.y += 2.9;
@@ -9081,20 +9168,190 @@ function createKalabhairava() {
     instanced(new THREE.BoxGeometry(1, 1, 1), MAT.black, orn, false),
     tbox(4.6, 2.6, 1.2, MAT.brick, -6, 1.3, 23.4),
   );
-  const sb = signBoard('Kalabhairava Sthanam', 5.6, 0.9, '#7a1418', '#f6e3c0');
+  const sb = signBoard('Kalabhairava', 5.6, 0.9, '#7a1418', '#f6e3c0');
   sb.position.set(4.6, 1.8, 24.2);
   g.add(sb, tbox(0.12, 1.6, 0.12, MAT.black, 4.6, 0.8, 24.2));
   g.add(
     glowPoints(
       [
-        [-3.9, Y + 4.4, D / 2 + 1.5],
-        [0.9, Y + 4.4, D / 2 + 1.5],
+        [-pillarOffset, Y + 4.4, D / 2 + 1.5],
+        [pillarOffset, Y + 4.4, D / 2 + 1.5],
       ],
       3.5,
       0xff9040,
     ),
   );
   return g;
+}
+
+function createKalabhairavaInterior(floor) {
+  const g = new THREE.Group();
+  g.position.set(0, floor, -1);
+
+  const random = mulberry(428);
+  const stoneMap = canvasTex(
+    512,
+    (ctx, size) => {
+      ctx.fillStyle = '#2d2c31';
+      ctx.fillRect(0, 0, size, size);
+      for (let i = 0; i < 18000; i++) {
+        const grit = random();
+        ctx.fillStyle = grit > 0.65 ? '#88847e' : '#17161a';
+        ctx.globalAlpha = 0.12 + random() * 0.42;
+        ctx.fillRect(
+          random() * size,
+          random() * size,
+          0.7 + random() * 2,
+          0.7 + random() * 1.5,
+        );
+      }
+    },
+    false,
+  );
+  const paintedStone = canvasTex(
+    512,
+    (ctx) => {
+      ctx.drawImage(stoneMap.image, 0, 0);
+      // A narrow, slightly uneven vermilion streak on the mostly bare rock.
+      ctx.fillStyle = '#8d251d';
+      ctx.beginPath();
+      ctx.moveTo(126, 191);
+      ctx.bezierCurveTo(134, 188, 130, 231, 134, 251);
+      ctx.bezierCurveTo(137, 270, 132, 298, 130, 306);
+      ctx.bezierCurveTo(126, 292, 130, 271, 127, 251);
+      ctx.bezierCurveTo(125, 231, 128, 211, 126, 191);
+      ctx.fill();
+    },
+    false,
+  );
+  const stone = new THREE.MeshStandardMaterial({
+    map: paintedStone,
+    bumpMap: stoneMap,
+    bumpScale: 0.085,
+    roughness: 0.83,
+  });
+  const boulder = new THREE.SphereGeometry(1, 64, 40);
+  const vertices = boulder.attributes.position;
+  for (let i = 0; i < vertices.count; i++) {
+    const x = vertices.getX(i),
+      y = vertices.getY(i),
+      z = vertices.getZ(i);
+    const irregularity =
+      1 +
+      0.09 * Math.sin(4 * x + 3 * y - z) +
+      0.06 * Math.sin(7 * y - 5 * z) +
+      0.035 * Math.sin(11 * x + 9 * z + y);
+    vertices.setXYZ(
+      i,
+      x * 1.7 * irregularity * (1 - 0.14 * y) - 0.16 * y,
+      Math.max(
+        -1.28,
+        Math.sign(y) * Math.pow(Math.abs(y), 0.76) * 1.45 * irregularity,
+      ),
+      z * 1.36 * irregularity + 0.09 * y,
+    );
+  }
+  boulder.computeVertexNormals();
+
+  // Rough stone courses support the boulder above the floor.
+  const plinth = stone.clone();
+  plinth.map = stoneMap;
+  const rockZ = -0.55;
+  g.add(
+    mesh(
+      new THREE.CylinderGeometry(1.9, 1.8, 0.35, 10).scale(1.2, 1, 0.9),
+      plinth,
+      0.05,
+      0.175,
+      rockZ,
+    ),
+    mesh(
+      new THREE.CylinderGeometry(2.05, 1.82, 0.53, 9).scale(1.22, 1, 0.85),
+      plinth,
+      0.27,
+      0.58,
+      rockZ,
+    ),
+    mesh(boulder, stone, 0, 2.06, rockZ),
+    createKalabhairavaBackdrop(rockZ - 3),
+  );
+  const lamp = new THREE.PointLight(0xffdbc0, 16, 11, 2);
+  lamp.position.set(-2, 3.8, 3.4);
+  g.add(lamp);
+  return g;
+}
+
+function createKalabhairavaBackdrop(z) {
+  const backdrop = new THREE.Group();
+  backdrop.position.set(0, 0.75, z);
+  const height = 5.75;
+  backdrop.add(
+    tbox(8.25, 0.38, 0.48, MAT.granite, 0, height + 0.17, 0),
+    tbox(0.08, 1.64, 0.08, MAT.black, -3.55, height + 1.18, 0),
+    tbox(0.08, 1.64, 0.08, MAT.black, 3.55, height + 1.18, 0),
+  );
+
+  const rope = new THREE.MeshStandardMaterial({
+    color: 0x161313,
+    roughness: 0.97,
+  });
+  const random = mulberry(931);
+  const cords = [];
+  for (let i = 0; i < 59; i++) {
+    const x = (i - 29) * 0.128;
+    const points = [];
+    const drift = random() * 0.05;
+    for (let j = 0; j <= 9; j++) {
+      const t = j / 9;
+      points.push(
+        new V3(
+          x + Math.sin(i + t * 17) * drift,
+          height * (1 - t),
+          Math.sin(i + t * 23) * 0.012,
+        ),
+      );
+    }
+    cords.push(
+      new THREE.TubeGeometry(
+        new THREE.CatmullRomCurve3(points),
+        28,
+        0.044 + random() * 0.012,
+        6,
+      ),
+    );
+  }
+  backdrop.add(mesh(mergeGeos(cords), rope, 0, 0, 0, false));
+
+  // Vermilion flame cutouts sit against the front of the hanging cords.
+  const flame = new THREE.Shape();
+  flame.moveTo(-0.37, 0);
+  flame.bezierCurveTo(-0.89, 1.24, 0.62, 1.9, 0.18, 2.9);
+  flame.bezierCurveTo(-0.3, 4, -0.63, 4.62, -0.18, 5.4);
+  flame.bezierCurveTo(-0.38, 4.12, 0.46, 3.93, 0.68, 2.9);
+  flame.bezierCurveTo(0.99, 1.79, -0.08, 0.87, 0.37, 0);
+  flame.closePath();
+  const flameGeometry = new THREE.ShapeGeometry(flame, 18);
+  const vermilion = new THREE.MeshStandardMaterial({
+    color: 0xa81812,
+    emissive: 0x46100a,
+    emissiveIntensity: 0.3,
+    side: THREE.DoubleSide,
+  });
+  for (const [x, widthScale, heightScale] of [
+    [-3.05, 0.82, 0.83],
+    [-1.95, -1.22, 1.02],
+    [-0.48, 1.15, 0.98],
+    [1.08, -1.1, 1.06],
+    [2.71, 1.13, 0.92],
+  ]) {
+    const ribbon = mesh(flameGeometry, vermilion, x, 0, 0.071, false);
+    ribbon.scale.set(widthScale, heightScale, 1);
+    const branch = mesh(flameGeometry, vermilion, x, 0, 0.076, false);
+    branch.scale.set(-widthScale * 0.7, heightScale * 0.91, 1);
+    branch.rotation.z = widthScale * 0.13;
+    backdrop.add(ribbon, branch);
+  }
+  return backdrop;
 }
 
 // Food kiosks share an open serving window, a counter and a projecting roof.
@@ -9293,11 +9550,19 @@ const COMPONENTS = [
     create: createKalabhairava,
     at: [683, -1539],
     rotY: face(1, 0.12),
-    view: { d: 42, yaw: 0.45, ph: 1.3, h: 4 },
+    view: { d: 42, yaw: 0.72, ph: 1.3, h: 4 },
     clear: [
       [0, 0, 22],
       [0, 18, 10],
     ],
+  },
+  {
+    id: 'kalabhairava-in',
+    zone: 'out',
+    detail: true,
+    at: [683, -1539],
+    rotY: face(1, 0.12),
+    view: { d: 5.95, yaw: 0, ph: 1.52, h: 2.7, tz: -1.2 },
   },
   {
     id: 'malai',
