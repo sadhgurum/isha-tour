@@ -5912,9 +5912,6 @@ function createBhikshaHall() {
       false,
     ),
   );
-  const sb = signBoard('Bhiksha Hall', 7, 1.1);
-  sb.position.set(0, Y + 5.9, D / 2 + 15.9);
-  g.add(sb);
   for (const sx of [-1, 1]) {
     g.add(
       tbox(12, 0.9, 0.9, MAT.granite, sx * 19, 0.6, D / 2 + 4),
@@ -6030,9 +6027,6 @@ function createIshaLife() {
     tbox(2.6, 1.0, 0.9, MAT.wood, 11, Y + 0.5, 1.5),
     tbox(2.8, 0.05, 1.1, MAT.darkStone, 11, Y + 1.02, 1.5),
   ); // Checkout counter.
-  const sb = signBoard('Isha Life', 6, 1.2);
-  sb.position.set(0, Y + H + 0.5, D / 2 + 3.3);
-  g.add(sb);
   for (const x of [-13.3, 13.3])
     g.add(
       tcyl(0.5, 0.36, 0.7, 10, MAT.tile, x, Y + 0.35, D / 2 + 3.6),
@@ -6157,13 +6151,6 @@ function createIshaLife() {
       );
     });
   pv.add(mesh(mergeGeos(vines), MAT.pad));
-  const ps = signBoard('Peppervine Eatery', 7, 1.0);
-  ps.position.set(0, 3.3, PD / 2 + 2.3);
-  pv.add(
-    ps,
-    tbox(0.14, 3.3, 0.14, MAT.wood, -3.3, 1.65, PD / 2 + 2.3),
-    tbox(0.14, 3.3, 0.14, MAT.wood, 3.3, 1.65, PD / 2 + 2.3),
-  );
   // Stone trough with water lilies and a wooden arrow sign in front.
   const lil = [];
   for (let i = 0; i < 7; i++)
@@ -6274,10 +6261,7 @@ function createNalanda() {
         tables.push(M(cx - 6.6 + i * 4.4, 0.75, 6 + k * 5.6, 1.6, 0.08, 1.6));
   }
   b.add(instanced(new THREE.BoxGeometry(1, 1, 1), MAT.wood, tables));
-  const sb = signBoard('Nalanda', 6, 1.1);
-  sb.position.set(0, 4.2, 30.6);
   b.add(
-    sb,
     glowPoints(
       [
         [-34.5, 8.5, 15],
@@ -6967,9 +6951,6 @@ function createSarpaVasal() {
   const info = house(7, 5, 3, { roof: 'hip', rise: 1.8, win: 2, plinth: 0.3 });
   info.position.set(-14, 0, -9);
   g.add(info);
-  const ib = signBoard('Information Center', 5.6, 0.8);
-  ib.position.set(-14, 3.2, -6.3);
-  g.add(ib);
   g.add(
     glowPoints(
       [
@@ -7320,9 +7301,6 @@ function createDepositCounter() {
     for (let k = 0; k < 4; k++)
       lock.push(M(-5 + i * 0.9, 0.9 + k * 0.55, 2.4, 0.8, 0.48, 0.5));
   g.add(instanced(new THREE.BoxGeometry(1, 1, 1), MAT.metalRoof, lock, false));
-  const sb = signBoard('Deposit Counter', 6.4, 1.0);
-  sb.position.set(0, 3.75, 5.7);
-  g.add(sb);
   // Three rows of wooden shoe racks under a tiled roof.
   const rk = new THREE.Group();
   rk.position.set(0, 0, 10);
@@ -7515,12 +7493,6 @@ function createWelcomePoint() {
   );
   mask.scale.set(0.28, 0.38, 0.08);
   g.add(mask);
-  g.add(
-    signBoard('Welcome Point', 4.2, 0.8)
-      .translateX(-6)
-      .translateY(3.9)
-      .translateZ(7.4),
-  );
   // Roadside pickup shelter with a timber ceiling and dark metal fascia.
   const C = new THREE.Group();
   C.position.set(4, 0, 10.5);
@@ -8023,9 +7995,7 @@ function createMoondramPirai() {
     false,
   );
   moon.rotation.z = Math.PI + 1.0;
-  const sb = signBoard('Moondram Pirai Eatery', 9.5, 1.15);
-  sb.position.set(1.2, Y + 4.7, D / 2 + 7.7);
-  g.add(moon, sb, tbox(18.5, 0.3, 0.2, MAT.white, 0, Y + 3.85, D / 2 + 7.6));
+  g.add(moon, tbox(18.5, 0.3, 0.2, MAT.white, 0, Y + 3.85, D / 2 + 7.6));
   for (const x of [-10.5, 10.5])
     g.add(
       tcyl(0.55, 0.4, 0.75, 10, MAT.tile, x, Y + 0.4, D / 2 + 8),
@@ -8045,9 +8015,6 @@ function createMoondramPirai() {
   });
   atm.position.set(W / 2 + 6, 0, D / 2 - 2);
   g.add(atm);
-  const ab = signBoard('ATM', 1.8, 0.6, '#1d3a6b', '#ffffff');
-  ab.position.set(W / 2 + 6, 3.4, D / 2 - 0.6);
-  g.add(ab);
   const il = new THREE.PointLight(0xfff0dc, 70, 30, 1.1);
   il.position.set(0, Y + 3.6, 1); // Indoor light stays on.
   g.add(
@@ -8122,18 +8089,6 @@ function createUnavagam() {
     );
   }
   g.add(instanced(new THREE.BoxGeometry(1, 1, 1), MAT.window, svc, false));
-  const sign = mesh(
-    new THREE.PlaneGeometry(10, 1.1),
-    new THREE.MeshStandardMaterial({
-      map: signTex('Velliangiri Unnavagam', '#dcae3c', '#3a2814'),
-      roughness: 0.8,
-    }),
-    -4,
-    F + 3.45,
-    fz + 0.03,
-    false,
-  );
-  g.add(sign);
   // Steel queue rails in front of the windows.
   const rail = [];
   for (const x of [-13, -7, -1, 5])
@@ -8161,9 +8116,6 @@ function createUnavagam() {
       false,
     ),
   );
-  const sl = signBoard('Isha Life', 3.2, 0.6, '#2b2016', '#f3e6c8');
-  sl.position.set(LX, F + 3.1, fz + 0.12);
-  g.add(sl);
   g.add(tbox(6.6, 2.6, 0.1, MAT.plaster, LX, F + 1.3, fz - 0.15)); // Rear wall of the shop, concealing the kitchen.
   const goods = [];
   for (let s = 0; s < 4; s++)
@@ -8360,10 +8312,6 @@ function createMetalBridge() {
     tbox(1.2, DY - 0.2, 1.2, MAT.concrete, -5, (DY - 0.2) / 2, 0),
     tbox(1.2, DY - 0.2, 1.2, MAT.concrete, 5, (DY - 0.2) / 2, 0),
   );
-  const sb = signBoard('Metal Bridge', 4, 0.7);
-  sb.position.set(-L / 2 - 9, 2.2, -3);
-  sb.rotation.y = Math.PI / 2;
-  g.add(sb, tbox(0.12, 2, 0.12, MAT.wood, -L / 2 - 9, 1, -3));
   g.add(
     glowPoints(
       [
@@ -8387,14 +8335,8 @@ function createCampus() {
     g.add(o);
     return o;
   };
-  const label = (o, text, w, y, z) => {
-    const s = signBoard(text, w, 0.8);
-    s.position.set(0, y, z);
-    o.add(s);
-    return o;
-  };
   // Two gateways with timber beams and tile roofs.
-  const gate = (name, w) => {
+  const gate = (w) => {
     const o = new THREE.Group();
     o.add(
       tbox(1, 4.4, 1, MAT.granite, -w / 2, 2.2, 0),
@@ -8402,10 +8344,10 @@ function createCampus() {
       tbox(w + 3, 0.5, 1.4, MAT.wood, 0, 4.6, 0),
       gableRoof(3.4, w + 4, 1.2, 4.85),
     );
-    return label(o, name, 4.6, 3.7, 0.75);
+    return o;
   };
-  put(gate('Yoga Vasal', 6), 66, 31, AX - Math.PI / 2 + Math.PI);
-  put(gate('Surya Vasal', 9), 250, -102, face(0.68, -0.73));
+  put(gate(6), 66, 31, AX - Math.PI / 2 + Math.PI);
+  put(gate(9), 250, -102, face(0.68, -0.73));
   // Stalls along the road between Sarpa Vasal and Surya Vasal, positioned from OSM.
   const stall = [];
   for (let i = 0; i < 10; i++) stall.push([199 + i * 3.8, -145 + i * 4.25]);
@@ -8420,25 +8362,13 @@ function createCampus() {
     put(s, e, n, face(0.68, -0.73));
   }
   put(
-    label(
-      house(9, 5, 2.8, { rise: 1.6, win: 3, plinth: 0.3, wall: MAT.brick }),
-      'Restroom',
-      3,
-      3.3,
-      2.6,
-    ),
+    house(9, 5, 2.8, { rise: 1.6, win: 3, plinth: 0.3, wall: MAT.brick }),
     12,
     86,
     AX,
   );
   put(
-    label(
-      house(8, 5, 2.8, { rise: 1.6, win: 2, plinth: 0.3, wall: MAT.brick }),
-      'Restroom',
-      3,
-      3.3,
-      2.6,
-    ),
+    house(8, 5, 2.8, { rise: 1.6, win: 2, plinth: 0.3, wall: MAT.brick }),
     157.5,
     -78,
     face(0, 1),
@@ -8461,7 +8391,7 @@ function createCampus() {
     instanced(new THREE.SphereGeometry(1, 10, 8), MAT.white, cows),
     asRoof(gableRoof(23, 51, 2.6, 4.1)),
   );
-  put(label(mm, 'Maatu Mane', 4.6, 3.2, 10.6), -43, 134, 0);
+  put(mm, -43, 134, 0);
   for (let i = 0; i < 4; i++) {
     const s = new THREE.Group();
     s.add(
@@ -8502,42 +8432,24 @@ function createCampus() {
       );
   // Clinic, general store, bank, and post office near Bhiksha Hall.
   put(
-    label(
-      house(8, 14, 3.2, {
-        roof: 'flat',
-        win: 2,
-        wall: MAT.white,
-        roofMat: MAT.concrete,
-      }),
-      'Clinic',
-      2.6,
-      3.4,
-      7.1,
-    ),
+    house(8, 14, 3.2, {
+      roof: 'flat',
+      win: 2,
+      wall: MAT.white,
+      roofMat: MAT.concrete,
+    }),
     168,
     280.5,
     face(0, -1),
   ); // Moved from n=268 to the north of the Bhiksha Hall road.
   put(
-    label(
-      house(16, 10, 3.6, { rise: 2.2, win: 4, veranda: 2.6 }),
-      'Departmental Store',
-      7,
-      4.1,
-      7.5,
-    ),
+    house(16, 10, 3.6, { rise: 2.2, win: 4, veranda: 2.6 }),
     300,
     356,
     face(0.16, -0.99),
   );
   put(
-    label(
-      house(10, 8, 3.2, { rise: 2, win: 3, veranda: 2 }),
-      'Bank & Post Office',
-      6.4,
-      3.7,
-      6.1,
-    ),
+    house(10, 8, 3.2, { rise: 2, win: 3, veranda: 2 }),
     330,
     362,
     face(0.16, -0.99),
@@ -9168,9 +9080,6 @@ function createKalabhairava() {
     instanced(new THREE.BoxGeometry(1, 1, 1), MAT.black, orn, false),
     tbox(4.6, 2.6, 1.2, MAT.brick, -6, 1.3, 23.4),
   );
-  const sb = signBoard('Kalabhairava', 5.6, 0.9, '#7a1418', '#f6e3c0');
-  sb.position.set(4.6, 1.8, 24.2);
-  g.add(sb, tbox(0.12, 1.6, 0.12, MAT.black, 4.6, 0.8, 24.2));
   g.add(
     glowPoints(
       [
