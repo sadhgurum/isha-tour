@@ -3,6 +3,13 @@ import { readFile } from 'node:fs/promises';
 import { languages } from '../src/languages.ts';
 
 const codes = languages.map(([code]) => code);
+// These places use English until a locale has a translation for them.
+const englishFallbackPlaces = [
+  'roadside-food',
+  'c-section',
+  'neem-point',
+  'adiyogi-parking',
+];
 assert.equal(new Set(codes).size, codes.length, 'Duplicate language code');
 const englishNames = languages.map(([, name]) => name.toLocaleLowerCase('en'));
 assert.equal(
@@ -34,5 +41,12 @@ function checkMessages(expected, actual, path) {
 }
 
 const source = await load('en');
-for (const code of codes) checkMessages(source, await load(code), code);
+for (const code of codes) {
+  const locale = await load(code);
+  const expected = { ...source, places: { ...source.places } };
+  for (const place of englishFallbackPlaces) {
+    if (!Object.hasOwn(locale.places, place)) delete expected.places[place];
+  }
+  checkMessages(expected, locale, code);
+}
 console.log(`Checked message coverage for ${codes.length} tour languages.`);

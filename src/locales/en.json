@@ -74,6 +74,22 @@
       "name": "Restaurant interior",
       "description": "The interior has white walls, white steel roof trusses, pale floor tiles, and four-seat iron tables. A Devi image hangs on the east wall. Visitor photographs show cone-shaped dosas and baby corn. The other food in the model is illustrative."
     },
+    "roadside-food": {
+      "name": "Roadside food stalls",
+      "description": "Small food stalls line the right side of the road as you walk from Moondram Pirai toward Adiyogi. The stalls are shown in approximate locations."
+    },
+    "c-section": {
+      "name": "C Section",
+      "description": "Partway to Adiyogi, three rows of food stalls form a square-cornered C around an open courtyard. The tour shows the approximate location and layout."
+    },
+    "neem-point": {
+      "name": "Neem Point",
+      "description": "This food stop is near the large parking lot on the road from Adiyogi to Malai Vasal. The stalls are shown in an approximate location."
+    },
+    "adiyogi-parking": {
+      "name": "Adiyogi parking",
+      "description": "A large surface lot near Neem Point serves visitors arriving at Adiyogi from the Malai Vasal side. The parked cars and motorbikes are illustrative."
+    },
     "unavagam": {
       "name": "Velliangiri Unavagam",
       "description": "A South Indian vegetarian restaurant southeast of Suryakund and just inside Surya Vasal. Stainless-steel serving windows line the mustard-yellow kitchen building behind an open shelter with rows of standing tables. The small Isha Life shop at the east end is shown in an approximate location."

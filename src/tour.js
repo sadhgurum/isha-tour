@@ -196,6 +196,13 @@ const ROADS = [
     ],
   }, // Adiyogi to Sarpa Vasal footpath.
   {
+    w: 3,
+    pts: [
+      [490, -455],
+      [509, -454],
+    ],
+  }, // Entrance to the C Section courtyard.
+  {
     w: 7,
     pts: [
       [526.8, -580],
@@ -8870,8 +8877,167 @@ function createKalabhairava() {
   return g;
 }
 
+// Food kiosks share an open serving window, a counter and a projecting roof.
+function createFoodStalls(placements, roofMaterial) {
+  const group = new THREE.Group();
+  const fascias = [0x9a4834, 0x496656, 0xb28142, 0x46606a].map(
+    (color) => new THREE.MeshStandardMaterial({ color, roughness: 0.85 }),
+  );
+  for (const [index, [x, z, rotation]] of placements.entries()) {
+    const stall = new THREE.Group();
+    stall.position.set(x, 0, z);
+    stall.rotation.y = rotation;
+    stall.add(
+      tbox(4.6, 0.18, 4.1, MAT.granite, 0, 0.09),
+      tbox(4.5, 2.65, 0.16, MAT.plaster, 0, 1.48, -1.88),
+      tbox(0.16, 2.65, 3.8, MAT.plaster, -2.16, 1.48),
+      tbox(0.16, 2.65, 3.8, MAT.plaster, 2.16, 1.48),
+      tbox(4.4, 0.82, 0.14, MAT.wood, 0, 0.59, 1.63),
+      tbox(4.45, 0.13, 0.85, MAT.granite, 0, 1.06, 1.57),
+      tbox(0.9, 0.35, 0.46, MAT.white, -1.45, 1.28, 1.51),
+      tbox(1.1, 0.14, 0.52, MAT.wood, 1.25, 1.19, 1.51),
+      tbox(4.45, 0.46, 0.12, fascias[index % fascias.length], 0, 2.56, 2.28),
+    );
+    const roof = tbox(4.6, 0.18, 4.8, roofMaterial, 0, 3.05, 0.15);
+    roof.rotation.x = -0.09;
+    stall.add(asRoof(roof));
+    group.add(stall);
+  }
+  return group;
+}
+
+function createRoadsideFoodStalls() {
+  return createFoodStalls(
+    [-52, -44, -36, -16, -8, 0, 21, 29, 37].map((x) => [x, 0, 0]),
+    MAT.tile,
+  );
+}
+
+function createCSection() {
+  const stalls = [
+    ...[-11.5, -6.9, -2.3, 2.3, 6.9, 11.5].map((x) => [x, -10, 0]),
+    ...[-11.5, 11.5].flatMap((x) =>
+      [-5.45, -0.85, 3.75, 8.35].map((z) => [
+        x,
+        z,
+        (-Math.sign(x) * Math.PI) / 2,
+      ]),
+    ),
+  ];
+  return createFoodStalls(stalls, MAT.tile);
+}
+
+function createNeemPoint() {
+  return createFoodStalls(
+    [-12, -7.4, -2.8, 4.5, 9.1, 13.7].map((x) => [x, 0, 0]),
+    MAT.tile,
+  );
+}
+
+function createAdiyogiParking() {
+  const group = new THREE.Group();
+  const box = new THREE.BoxGeometry(1, 1, 1);
+  const wheel = new THREE.CylinderGeometry(1, 1, 1, 12).rotateZ(Math.PI / 2);
+  const rubber = new THREE.MeshStandardMaterial({
+    color: 0x292828,
+    roughness: 0.95,
+  });
+  const glass = new THREE.MeshStandardMaterial({
+    color: 0x495761,
+    roughness: 0.29,
+  });
+  const paint = new THREE.MeshStandardMaterial({ roughness: 0.48 });
+  const colors = [0xe4dfd3, 0xaaaeb0, 0x52636b, 0x8b3f39, 0x41444a];
+  const bodies = [],
+    bodyColors = [],
+    windows = [],
+    tires = [],
+    trim = [];
+  const random = mulberry(813);
+  const gravel = new THREE.MeshStandardMaterial({
+    map: TEX.plaster,
+    color: 0x9f937f,
+    roughness: 1,
+  });
+  group.add(polyPlane(ADIYOGI_PARKING_FOOTPRINT, gravel, 0.025));
+
+  // Paired rows leave drive aisles between them, with open space at both ends.
+  for (const x of [-19, -8, -3, 9, 14, 26, 31]) {
+    for (let z = -30; z <= 25; z += 3.1) {
+      if (random() > 0.42) continue;
+      const frame = M(
+        x,
+        0.03,
+        z,
+        1,
+        1,
+        1,
+        (Math.PI / 2) *
+          (x === -19 || x === -3 || x === 14 || x === 31 ? -1 : 1),
+      );
+      const length = 3.7 + random() * 0.7;
+      const color = colors[Math.floor(random() * colors.length)];
+      bodies.push(
+        frame.clone().multiply(M(0, 0.65, 0, 1.78, 0.72, length)),
+        frame.clone().multiply(M(0, 1.35, -0.22, 1.38, 0.12, 1.6)),
+      );
+      bodyColors.push(color, color);
+      windows.push(frame.clone().multiply(M(0, 1.13, -0.22, 1.5, 0.43, 1.9)));
+      for (const side of [-1, 1]) {
+        for (const axle of [-1, 1]) {
+          tires.push(
+            frame
+              .clone()
+              .multiply(
+                M(side * 0.83, 0.32, axle * length * 0.32, 0.2, 0.32, 0.32),
+              ),
+          );
+        }
+      }
+    }
+  }
+  // Motorbikes line the edge closest to the food stalls.
+  for (let z = -25; z <= 22; z += 2.1) {
+    if (random() > 0.82) continue;
+    const frame = M(-28, 0.03, z, 1, 1, 1, -Math.PI / 2 + random() * 0.24);
+    bodies.push(frame.clone().multiply(M(0, 0.65, 0.23, 0.38, 0.32, 0.64)));
+    bodyColors.push(colors[Math.floor(random() * colors.length)]);
+    trim.push(
+      frame.clone().multiply(M(0, 0.64, -0.4, 0.34, 0.16, 0.62)),
+      frame.clone().multiply(M(0, 0.96, 0.54, 0.72, 0.07, 0.12)),
+      frame.clone().multiply(M(0, 0.55, 0.57, 0.12, 0.78, 0.14, 0, -0.22)),
+    );
+    for (const axle of [-1, 1]) {
+      tires.push(
+        frame.clone().multiply(M(0, 0.27, axle * 0.66, 0.15, 0.27, 0.27)),
+      );
+    }
+  }
+
+  const painted = instanced(box, paint, bodies);
+  bodyColors.forEach((color, index) =>
+    painted.setColorAt(index, new Color(color)),
+  );
+  group.add(
+    painted,
+    instanced(box, glass, windows),
+    instanced(box, rubber, trim),
+    instanced(wheel, rubber, tires),
+  );
+  return group;
+}
+
+// Esri World Imagery shows the lot between the main approach and the eastern service road.
+const ADIYOGI_PARKING_FOOTPRINT = [
+  [-37, -39],
+  [40, -42],
+  [46, 32],
+  [8, 42],
+  [-35, 40],
+];
+
 // ───────────────────────────── [6] Component registry ─────────────────────────────
-/* at: Surveyed position (e, n) in meters east and north of the Dhyanalinga dome, from OpenStreetMap.
+/* at: Position (e, n) in meters east and north of the Dhyanalinga dome.
  * rotY: Heading as face(east, north), with an optional offset for the building's measured angle.
  * view: Camera { d: distance, yaw: heading relative to the front, ph: pitch, h: target height }.
  * clear: Vegetation exclusion [local x, local z, radius]. pit: Terrain opening [local x, local z, half-width, half-depth].
@@ -8960,6 +9126,93 @@ const COMPONENTS = [
     at: [195, -228],
     rotY: face(-0.29, 0.956),
     view: { d: 13, yaw: 0.35, ph: 1.32, h: 1.6, tz: -3 },
+  },
+  // Satellite imagery and visitor accounts place these eating areas along
+  // the Adiyogi approaches. The names and the courtyard layout are local descriptions.
+  {
+    id: 'roadside-food',
+    zone: 'out',
+    labelHeight: 5.5,
+    create: createRoadsideFoodStalls,
+    at: [288, -276],
+    rotY: face(0.47, 0.88),
+    view: { d: 69, yaw: 0.23, ph: 1.13, h: 2 },
+    clear: [
+      [-44, 0, 14],
+      [-8, 0, 14],
+      [29, 0, 14],
+    ],
+    ground: {
+      points: [
+        [-57, -3],
+        [42, -3],
+        [42, 8],
+        [-57, 8],
+      ],
+      color: 0xa08e76,
+      blend: 4,
+    },
+  },
+  {
+    id: 'c-section',
+    zone: 'out',
+    labelHeight: 5.5,
+    create: createCSection,
+    at: [518, -447],
+    rotY: face(-0.8, -0.6),
+    view: { d: 48, yaw: 0.26, ph: 0.95, h: 1.5 },
+    clear: [[0, 0, 20]],
+    ground: {
+      points: [
+        [-15, -13],
+        [15, -13],
+        [15, 12],
+        [-15, 12],
+      ],
+      color: 0xa08e76,
+      blend: 4,
+    },
+  },
+  {
+    id: 'neem-point',
+    zone: 'out',
+    labelHeight: 5.5,
+    create: createNeemPoint,
+    at: [580, -1088],
+    rotY: face(-1, 0),
+    view: { d: 42, yaw: -0.38, ph: 1.14, h: 2 },
+    clear: [
+      [-9, 0, 10],
+      [9, 0, 10],
+    ],
+    ground: {
+      points: [
+        [-16, -4],
+        [17, -4],
+        [17, 13],
+        [-16, 13],
+      ],
+      color: 0xa08e76,
+      blend: 4,
+    },
+  },
+  {
+    id: 'adiyogi-parking',
+    zone: 'out',
+    labelHeight: 4,
+    create: createAdiyogiParking,
+    at: [628, -1090],
+    rotY: 0,
+    view: { d: 106, yaw: -0.28, ph: 0.83, h: 1 },
+    clear: [
+      [0, -24, 45],
+      [0, 23, 45],
+    ],
+    ground: {
+      points: ADIYOGI_PARKING_FOOTPRINT,
+      color: 0xa59a85,
+      blend: 5,
+    },
   },
   {
     id: 'unavagam',

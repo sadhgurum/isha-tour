@@ -5,21 +5,26 @@ type Language = (typeof languages)[number][0];
 type Messages = typeof english;
 type MessageKey = keyof Messages['ui'];
 type Place = keyof Messages['places'];
+type LocalizedMessages = {
+  ui: Messages['ui'];
+  places: Partial<Messages['places']>;
+};
 
 const storageKey = 'isha.language';
 const rightToLeft = new Set<Language>(['ar', 'fa', 'he', 'ur']);
-const loaders = import.meta.glob<Messages>(
+const loaders = import.meta.glob<LocalizedMessages>(
   ['./locales/*.json', '!./locales/en.json'],
   { import: 'default' },
 );
 const listeners = new Set<() => void>();
 
-let messages = english;
+let messages: LocalizedMessages = english;
 let current: Language = 'en';
 let request = 0;
 
 export const message = (key: MessageKey) => messages.ui[key];
-export const placeText = (place: Place) => messages.places[place];
+export const placeText = (place: Place) =>
+  messages.places[place] ?? english.places[place];
 
 export function onLanguageChange(render: () => void) {
   listeners.add(render);
@@ -58,7 +63,7 @@ function preferredLanguage() {
 
 async function activate(language: Language) {
   const revision = ++request;
-  let next = english;
+  let next: LocalizedMessages = english;
   if (language !== 'en') {
     const load = loaders[`./locales/${language}.json`];
     if (!load) throw new Error(`Missing tour locale: ${language}`);
