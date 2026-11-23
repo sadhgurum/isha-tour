@@ -37,6 +37,10 @@ interface PointerPosition {
   y: number;
 }
 
+interface TouchTap extends PointerPosition {
+  time: number;
+}
+
 interface Walker {
   on: boolean;
   fly: boolean;
@@ -98,6 +102,12 @@ export function createControls(
   >();
   let pinch = 0;
   let doubleClickDrag = false;
+  const doubleTapMs = 300;
+  const tapSlop = 10;
+  const doubleTapSlop = 24;
+  let touchStart: TouchTap | undefined;
+  let lastTouchTap: TouchTap | undefined;
+  let touchPanPointer: number | undefined;
   const pan = (dx: number, dy: number) => {
     const k = goal.radius * 0.0016,
       th = c.theta;
@@ -108,8 +118,25 @@ export function createControls(
     if (!c.enabled) return;
     el.setPointerCapture(e.pointerId);
     const touch = e.pointerType === 'touch';
+    if (touch) {
+      pinch = 0;
+      touchStart = undefined;
+      touchPanPointer = undefined;
+      if (![...ptrs.values()].some((pointer) => pointer.touch)) {
+        const { clientX: x, clientY: y, timeStamp: time } = e;
+        if (
+          lastTouchTap &&
+          time - lastTouchTap.time <= doubleTapMs &&
+          Math.hypot(x - lastTouchTap.x, y - lastTouchTap.y) <= doubleTapSlop
+        ) {
+          touchPanPointer = e.pointerId;
+        } else {
+          touchStart = { x, y, time };
+        }
+      }
+      lastTouchTap = undefined;
+    }
     ptrs.set(e.pointerId, { x: e.clientX, y: e.clientY, b: e.button, touch });
-    if (touch) pinch = 0;
     if (e.pointerType === 'mouse') doubleClickDrag = false;
     c.auto = false;
   });
@@ -124,6 +151,13 @@ export function createControls(
       dy = e.clientY - p.y;
     p.x = e.clientX;
     p.y = e.clientY;
+    if (
+      p.touch &&
+      touchStart &&
+      Math.hypot(p.x - touchStart.x, p.y - touchStart.y) > tapSlop
+    ) {
+      touchStart = undefined;
+    }
     if (p.touch && ptrs.size > 1) {
       const touches = [...ptrs.values()].filter((pointer) => pointer.touch);
       if (touches.length >= 3) {
@@ -143,6 +177,7 @@ export function createControls(
     if (
       p.b === 2 ||
       e.shiftKey ||
+      e.pointerId === touchPanPointer ||
       (p.b === 0 && e.pointerType === 'mouse' && doubleClickDrag)
     )
       pan(dx, dy);
@@ -152,7 +187,21 @@ export function createControls(
     }
   });
   const up = (e: PointerEvent) => {
-    if (ptrs.get(e.pointerId)?.touch) pinch = 0;
+    if (ptrs.get(e.pointerId)?.touch) {
+      pinch = 0;
+      const { clientX: x, clientY: y, timeStamp: time } = e;
+      if (
+        e.type === 'pointerup' &&
+        c.enabled &&
+        touchStart &&
+        time - touchStart.time <= doubleTapMs &&
+        Math.hypot(x - touchStart.x, y - touchStart.y) <= tapSlop
+      ) {
+        lastTouchTap = { x, y, time };
+      }
+      touchStart = undefined;
+      touchPanPointer = undefined;
+    }
     ptrs.delete(e.pointerId);
   };
   el.addEventListener('pointerup', up);

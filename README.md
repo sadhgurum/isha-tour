@@ -25,7 +25,7 @@ The tour bundles Isha Tour Hand for headings. It extends the original Custom Han
 | Flight           | Double-tap Space or press F to toggle flight. Hold Space or E to ascend and Shift, Q, or C to descend. On touchscreens, press Flight to take off, hold ↑ or ↓ to change altitude, and double-tap ↓ to land.                                         |
 | Cutaway (`剖视`) | Toggle roofs to view modeled interiors.                                                                                                                                                                                                             |
 
-On a touchpad with tap-and-drag enabled, tap once over the overview, then hold the second tap and drag to pan. With a mouse, click once, then hold the second click and drag.
+On a touchscreen or a touchpad with tap-and-drag enabled, tap once over the overview, then hold the second tap and drag to pan. With a mouse, click once, then hold the second click and drag.
 
 ## Local development
 
