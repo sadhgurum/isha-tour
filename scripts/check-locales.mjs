@@ -4,6 +4,12 @@ import { languages } from '../src/languages.ts';
 
 const codes = languages.map(([code]) => code);
 assert.equal(new Set(codes).size, codes.length, 'Duplicate language code');
+const englishNames = languages.map(([, name]) => name.toLocaleLowerCase('en'));
+assert.equal(
+  new Set(englishNames).size,
+  englishNames.length,
+  'Duplicate English language name',
+);
 
 async function load(code) {
   const file = new URL(`../src/locales/${code}.json`, import.meta.url);

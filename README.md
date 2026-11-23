@@ -8,7 +8,7 @@ Explore a procedural Three.js model of the Isha Yoga Center near Coimbatore, Ind
 
 ## Languages
 
-Use the globe menu beside the controls to change the language without restarting the tour. The menu shows the active language code and lists the supported languages by their native names. Existing Tagalog (`tl`) and Norwegian Bokmål (`nb`) links and preferences open Filipino (`fil`) and Norwegian (`no`), respectively.
+Use the globe menu beside the controls to change the language without restarting the tour. Options are alphabetized by their English names and also show the native names where they differ. The globe control shows the active language code.
 
 Share the URL to open the tour in the selected language, for example `?lang=ta` for Tamil. The English selection clears the language parameter. Links without a supported language parameter use the visitor's saved choice or preferred browser language, with English as the fallback.
 

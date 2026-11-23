@@ -90,10 +90,15 @@ export async function initializeLanguage(
     }
   }
 
-  for (const [language, nativeName] of languages) {
-    const option = new Option(`${nativeName} (${language})`, language);
-    option.lang = language === 'zh' ? 'zh-Hans' : language;
-    option.dir = rightToLeft.has(language) ? 'rtl' : 'ltr';
+  const byEnglishName = new Intl.Collator('en');
+  const sortedLanguages = [...languages].sort((left, right) =>
+    byEnglishName.compare(left[1], right[1]),
+  );
+  for (const [language, englishName, nativeName] of sortedLanguages) {
+    const label = nativeName ? `${englishName} (${nativeName})` : englishName;
+    const option = new Option(label, language);
+    option.lang = 'en';
+    option.dir = 'ltr';
     select.add(option);
   }
 
