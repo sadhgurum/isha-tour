@@ -7,7 +7,7 @@
  *    [1] Engine loading: import('three')
  *    [2] Configuration: MOODS (lighting), geo() (coordinates), ROADS, and FIELDS
  *    [3] Shared utilities: noise, textures, tbox/tcyl/mesh, merging, and instancing
- *    [4] Environment: createSky / createTerrain / createPaths / createVegetation / createLamps / createDust / createPeople
+ *    [4] Environment: createSky / createTerrain / createPaths / createVegetation / createWildlife / createLamps / createDust / createPeople
  *    [5] Buildings: createAdiyogi / createDhyanalinga / createNandi / createLingaBhairavi / createSadhanaHalls /
  *                        createSuryakund / createNagaShrine / createChandrakund / createLotusPonds / createAdiyogiAlayam /
  *                        createSpandaHall / createBhikshaHall / createIshaLife / createDepositCounter / createWelcomePoint /
@@ -54,12 +54,14 @@ const nextFrame = () =>
     setTimeout(r, 60);
   }); // The timer keeps loading moving when a background tab suspends requestAnimationFrame.
 
-let THREE, createControls, createWalker;
+let THREE, createControls, createWalker, createWildlife;
 try {
-  [THREE, { createControls, createWalker }] = await Promise.all([
-    import('three'),
-    import('./camera-controls'),
-  ]);
+  [THREE, { createControls, createWalker }, { createWildlife }] =
+    await Promise.all([
+      import('three'),
+      import('./camera-controls'),
+      import('./wildlife'),
+    ]);
 } catch (error) {
   $('#step').textContent = message('engineError');
   throw error;
@@ -1406,9 +1408,12 @@ function createPaths() {
   return g;
 }
 
+function clearOfBuildings(x, z, pad) {
+  return !EXCLUDE.some(([ex, ez, r]) => Math.hypot(x - ex, z - ez) < r + pad);
+}
+
 function blocked(x, z, pad = 0) {
-  for (const [ex, ez, r] of EXCLUDE)
-    if (Math.hypot(x - ex, z - ez) < r + pad) return true;
+  if (!clearOfBuildings(x, z, pad)) return true;
   for (const [x1, z1, x2, z2, w] of PATHS) {
     const dx = x2 - x1,
       dz = z2 - z1,
@@ -1417,6 +1422,26 @@ function blocked(x, z, pad = 0) {
       return true;
   }
   return false;
+}
+
+function wildlifeGround(x, z) {
+  let height = groundH(x, z);
+  for (const [i, [x1, z1, x2, z2, width]] of PATHS.entries()) {
+    const dx = x2 - x1;
+    const dz = z2 - z1;
+    const length = Math.hypot(dx, dz);
+    const px = x - (x1 + x2) / 2;
+    const pz = z - (z1 + z2) / 2;
+    const edge = Math.min(
+      length / 2 + width / 4 - Math.abs(px * dx + pz * dz) / length,
+      width / 2 - Math.abs(px * dz - pz * dx) / length,
+    );
+    height = Math.max(
+      height,
+      (0.13 + (i % 7) * 0.004) * smooth(-0.25, 0, edge),
+    );
+  }
+  return height;
 }
 
 function palmCrownGeo() {
@@ -1543,6 +1568,8 @@ function createVegetation() {
     z,
     rr(0.8, 1.8),
   ]);
+  g.userData.trees = trees;
+  g.userData.palms = palms;
   const tTrunk = new THREE.CylinderGeometry(0.28, 0.42, 1, 6);
   tTrunk.translate(0, 0.5, 0);
   g.add(
@@ -9053,7 +9080,26 @@ const steps = [
       addToScene(g);
     },
   ]),
-  [message('vegetation'), () => addToScene(createVegetation())],
+  [
+    message('vegetation'),
+    () => {
+      const vegetation = addToScene(createVegetation());
+      const { trees, palms } = vegetation.userData;
+      addToScene(
+        createWildlife({
+          camera,
+          geo,
+          trees,
+          palms,
+          groundHeight: wildlifeGround,
+          clear: clearOfBuildings,
+          openGround: (x, z, pad) => !blocked(x, z, pad),
+          random: mulberry(20261123),
+          isNight: () => moodTarget === MOODS.night,
+        }),
+      );
+    },
+  ],
   [message('peopleStep'), () => addToScene(createPeople())],
   [
     message('lamps'),

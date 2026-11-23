@@ -344,6 +344,8 @@ export function createWalker(
     maxZ = 1900;
   const bodyRadius = 0.35;
   const doubleTapMs = 300;
+  const walkSpeed = 3.6;
+  const flightSpeed = 14;
   const touchVerticalSpeed = 6;
   const risePointers = new Set<number>();
   const descendPointers = new Map<number, number>();
@@ -368,6 +370,7 @@ export function createWalker(
     'Lamps',
     'Dust',
     'People',
+    'Wildlife',
   ]);
   function build() {
     built = true;
@@ -680,25 +683,30 @@ export function createWalker(
       f /= m;
       r /= m;
     }
-    movingFor = !w.fly && m > 0.05 ? Math.min(movingFor + dt, 5) : 0;
+    const rise = w.fly && (K.has('Space') || K.has('KeyE'));
+    const descend = w.fly && (shift || K.has('KeyQ') || K.has('KeyC'));
+    const rising = rise || risePointers.size > 0;
+    const descending = descend || descendPointers.size > 0;
+    const vertical = Number(rising) - Number(descending);
+    movingFor =
+      m > 0.05 || (w.fly && vertical !== 0) ? Math.min(movingFor + dt, 5) : 0;
     const pace =
-      lerp(3.6, 7.2, clamp((movingFor - 0.35) / 1.65, 0, 1)) +
+      lerp(walkSpeed, 7.2, clamp((movingFor - 0.35) / 1.65, 0, 1)) +
       lerp(0, 7.2, clamp((movingFor - 2) / 2, 0, 1)) +
       lerp(0, 14.4, clamp(movingFor - 4, 0, 1));
-    const speed = w.fly ? 14 : Math.max(pace, shift ? 10.8 : 0),
-      sy = Math.sin(w.yaw),
+    const speed = w.fly
+      ? flightSpeed + (pace - walkSpeed)
+      : Math.max(pace, shift ? 10.8 : 0);
+    const sy = Math.sin(w.yaw),
       cy = Math.cos(w.yaw);
     const dx = (-sy * f + cy * r) * speed * dt,
       dz = (-cy * f - sy * r) * speed * dt;
     if (w.fly) {
       w.pos.x += dx;
       w.pos.z += dz;
-      const rise = K.has('Space') || K.has('KeyE');
-      const descend = shift || K.has('KeyQ') || K.has('KeyC');
-      const rising = rise || risePointers.size > 0;
-      const descending = descend || descendPointers.size > 0;
-      const verticalSpeed = rise || descend ? speed : touchVerticalSpeed;
-      w.pos.y += (Number(rising) - Number(descending)) * verticalSpeed * dt;
+      const verticalSpeed =
+        rise || descend ? speed : (touchVerticalSpeed / flightSpeed) * speed;
+      w.pos.y += vertical * verticalSpeed * dt;
       w.pos.y = Math.max(
         w.pos.y,
         isInPit(w.pos.x, w.pos.z, terrain.pits)
