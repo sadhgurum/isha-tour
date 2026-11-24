@@ -102,6 +102,7 @@ export function createControls(
     PointerPosition & { b: number; touch: boolean }
   >();
   let pinch = 0;
+  const pinchZoomSensitivity = 2;
   let doubleClickDrag = false;
   const doubleTapMs = 300;
   const tapSlop = 10;
@@ -199,7 +200,13 @@ export function createControls(
       if (touches.length === 2) {
         const [a, b] = touches;
         const d = Math.hypot(a.x - b.x, a.y - b.y);
-        if (pinch && d) goal.radius = clamp((goal.radius * pinch) / d, 6, 1800);
+        if (pinch && d) {
+          goal.radius = clamp(
+            goal.radius * (pinch / d) ** pinchZoomSensitivity,
+            6,
+            1800,
+          );
+        }
         pinch = d;
         pan(dx * 0.5, dy * 0.5);
         return;
@@ -252,7 +259,13 @@ export function createControls(
       const steppedWheel =
         wheelDeltaY && wheelDeltaY % 120 === 0 && e.deltaX === 0;
       if (e.ctrlKey || mode !== WheelEvent.DOM_DELTA_PIXEL || steppedWheel) {
-        goal.radius = clamp(goal.radius * Math.exp(e.deltaY * 0.0012), 6, 2200);
+        // Touchpad pinches arrive as Ctrl-modified wheel events.
+        const sensitivity = e.ctrlKey ? pinchZoomSensitivity : 1;
+        goal.radius = clamp(
+          goal.radius * Math.exp(e.deltaY * 0.0012 * sensitivity),
+          6,
+          2200,
+        );
       } else {
         pan(-e.deltaX, -e.deltaY);
       }

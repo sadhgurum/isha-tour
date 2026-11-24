@@ -39,6 +39,22 @@
       <div id="bar"><i></i></div>
       <div id="step">Loading the 3D engine…</div>
     </div>
+    <script>
+      // Catch browser pinch gestures before the tour's camera controls load.
+      {
+        const loader = document.getElementById('loader');
+        loader.addEventListener(
+          'wheel',
+          (event) => {
+            if (event.ctrlKey) event.preventDefault();
+          },
+          { passive: false },
+        );
+        for (const type of ['gesturestart', 'gesturechange']) {
+          loader.addEventListener(type, (event) => event.preventDefault());
+        }
+      }
+    </script>
 
     <div id="title" class="ui">
       <img src="/adiyogi-mark.png" alt="" width="52" height="52" />
