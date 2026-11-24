@@ -30,6 +30,7 @@ interface TerrainPit {
 interface CameraTerrain {
   groundHeight(x: number, z: number): number;
   pits: readonly TerrainPit[];
+  isWater?(x: number, z: number): boolean;
 }
 
 interface PointerPosition {
@@ -377,6 +378,7 @@ export function createWalker(
   const SKIP = new Set([
     'Sky',
     'Terrain',
+    'Campus Stream',
     'Vegetation',
     'Lamps',
     'Dust',
@@ -447,7 +449,8 @@ export function createWalker(
     }
   }
   function terrainSurface(x: number, z: number) {
-    return isInPit(x, z, terrain.pits) ? undefined : terrain.groundHeight(x, z);
+    if (isInPit(x, z, terrain.pits) || terrain.isWater?.(x, z)) return;
+    return terrain.groundHeight(x, z);
   }
   function floorAt(x: number, z: number, feet: number, objs: Mesh[]) {
     return (
@@ -473,6 +476,20 @@ export function createWalker(
       if (ray.intersectObjects(objs, false).length) return true;
     }
     return false;
+  }
+  function canWalk(
+    x: number,
+    z: number,
+    dx: number,
+    dz: number,
+    feet: number,
+    objs: Mesh[],
+  ) {
+    if (blockedMove(x, z, dx, dz, feet, objs)) return false;
+    const nextX = x + dx;
+    const nextZ = z + dz;
+    if (!terrain.isWater?.(nextX, nextZ)) return true;
+    return floorSurface(nextX, nextZ, feet + 0.55, 0.95, objs) !== undefined;
   }
   function landingHeight(x: number, z: number, top: number) {
     if (x < minX || x > maxX || z < minZ || z > maxZ) return;
@@ -732,12 +749,12 @@ export function createWalker(
         stepTime = dt / steps;
       for (let i = 0; i < steps; i++) {
         const objs = near(w.pos.x, w.pos.z);
-        if (!blockedMove(w.pos.x, w.pos.z, stepX, stepZ, w.pos.y, objs)) {
+        if (canWalk(w.pos.x, w.pos.z, stepX, stepZ, w.pos.y, objs)) {
           w.pos.x += stepX;
           w.pos.z += stepZ;
-        } else if (!blockedMove(w.pos.x, w.pos.z, stepX, 0, w.pos.y, objs))
+        } else if (stepX && canWalk(w.pos.x, w.pos.z, stepX, 0, w.pos.y, objs))
           w.pos.x += stepX; // Slide along the wall.
-        else if (!blockedMove(w.pos.x, w.pos.z, 0, stepZ, w.pos.y, objs))
+        else if (stepZ && canWalk(w.pos.x, w.pos.z, 0, stepZ, w.pos.y, objs))
           w.pos.z += stepZ;
         const fl = floorAt(w.pos.x, w.pos.z, w.pos.y, objs);
         if (fl >= w.pos.y - 0.05) {

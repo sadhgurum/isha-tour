@@ -53,6 +53,6 @@ Pull requests run formatting, linting, TypeScript and translation coverage check
 
 ## Credits and license
 
-The original tour modeling and code are credited to Claude (Anthropic). The model uses OpenStreetMap coordinates and was built with reference to the Isha campus map and publicly available photos.
+The original tour modeling and code are credited to Claude (Anthropic). The model uses coordinates, building footprints and route classifications from OpenStreetMap contributors, with reference to the Isha campus map and publicly available photos. Esri World Imagery was used to verify land cover and trace additional roof outlines around the campus and the Adiyogi approach. [OpenStreetMap attribution](https://www.openstreetmap.org/copyright) · [Esri World Imagery](https://www.arcgis.com/home/item.html?id=10df2279f9684e4a9f6a7f08febac2a9)
 
 The repository is licensed under the [MIT License](LICENSE).

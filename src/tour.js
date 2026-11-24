@@ -23,6 +23,7 @@
  * ===================================================================================== */
 
 import { clamp, lerp } from './math';
+import { BUILDING_FOOTPRINTS } from './building-footprints';
 import {
   bindMessage,
   initializeLanguage,
@@ -54,14 +55,27 @@ const nextFrame = () =>
     setTimeout(r, 60);
   }); // The timer keeps loading moving when a background tab suspends requestAnimationFrame.
 
-let THREE, createControls, createWalker, createWildlife;
+let THREE,
+  createControls,
+  createWalker,
+  createWildlife,
+  createRoadTraffic,
+  carParts,
+  createRoadSurfaces;
 try {
-  [THREE, { createControls, createWalker }, { createWildlife }] =
-    await Promise.all([
-      import('three'),
-      import('./camera-controls'),
-      import('./wildlife'),
-    ]);
+  [
+    THREE,
+    { createControls, createWalker },
+    { createWildlife },
+    { createRoadTraffic, carParts },
+    { createRoadSurfaces },
+  ] = await Promise.all([
+    import('three'),
+    import('./camera-controls'),
+    import('./wildlife'),
+    import('./road-traffic'),
+    import('./road-surfaces'),
+  ]);
 } catch (error) {
   $('#step').textContent = message('engineError');
   throw error;
@@ -159,10 +173,14 @@ const MALAI_VILLAGE_HOUSES = [
 ];
 const AX = face(0.992, -0.126); // The axis from Dhyanalinga through Nandi and the Lotus Ponds bridge to Suryakund runs about 7° south of east.
 
-// Road polylines use [[e, n], ...] and a width. PATHS expands them to [x1, z1, x2, z2, w, followTerrain] segments.
+// Road centerlines use [east, north] meters. Pedestrian routes use paving by
+// default. Vehicle routes specify asphalt or gravel, independently of grade.
+// OpenStreetMap highway tags distinguish the Adiyogi promenade from service roads.
 const ROADS = [
   {
     w: 8,
+    surface: 'gravel',
+    traffic: 6,
     pts: [
       [769, -1705],
       [749, -1675],
@@ -178,6 +196,7 @@ const ROADS = [
   }, // Adi Yogi Isha Rd（Malai Vasal → Adiyogi，OSM）
   {
     w: 12,
+    walkDensity: 0.1,
     pts: [
       [577, -1142],
       [562, -1091],
@@ -185,28 +204,53 @@ const ROADS = [
       [559, -890],
       [562, -730],
     ],
-  }, // Malai Vasal to the Adiyogi approach (OSM).
+  }, // Main Adiyogi pedestrian promenade, OSM way 553623269.
   {
     w: 9,
+    surface: 'asphalt',
+    traffic: 6,
     pts: [
       [26, -1022],
       [2, -726],
       [2, -523],
       [130, -286],
+      [146, -248],
+      [159, -232],
       [178, -198],
       [265, -118],
       [336, -38],
       [379, 20],
       [445, 56],
     ],
-  }, // Narasipuram Road
+  }, // Narasipuram Road past Sarpa Vasal (OSM ways 965900325 and 200973134).
   {
-    w: 8,
+    w: 9,
+    surface: 'asphalt',
+    followTerrain: true,
+    traffic: 5,
+    pts: [
+      [445, 56],
+      [479, 63],
+      [533, 56],
+      [603, 52],
+      [741, 51],
+      [827, 51],
+      [933, 31],
+      [1018, 26],
+      [1076, 35],
+      [1099, 46],
+      [1178, 187],
+      [1247, 251],
+    ],
+  }, // Narasipuram Road east of the campus.
+  {
+    w: 4,
+    walkDensity: 0.06,
     pts: [
       [562, -730],
       [535, -680],
-      [526, -655],
-      [526, -608],
+      [517, -655],
+      [517, -608],
       [529, -503],
       [510, -482],
       [444, -394],
@@ -215,9 +259,52 @@ const ROADS = [
       [229, -228],
       [196, -196],
     ],
-  }, // Adiyogi to Sarpa Vasal footpath.
+  }, // West pedestrian path to Sarpa Vasal (OSM way 1532382010).
+  {
+    w: 4,
+    walkDensity: 0.03,
+    pts: [
+      [510, -482],
+      [509, -472],
+      [453, -390],
+      [411, -345],
+      [375, -311],
+      [324, -271],
+      [288, -248],
+      [254, -229],
+      [232, -221],
+      [178, -198],
+    ],
+  }, // East pedestrian path to Sarpa Vasal (OSM way 1532382011).
+  {
+    w: 5.5,
+    surface: 'gravel',
+    followTerrain: true,
+    traffic: 4,
+    pts: [
+      [159, -232],
+      [219, -255],
+      [261, -277],
+      [324, -318],
+      [364, -353],
+      [411, -412],
+      [454, -494],
+      [482, -577],
+      [501, -653],
+      [497, -677],
+      [478, -715],
+      [470, -736],
+      [468, -860],
+      [472, -1062],
+      [477, -1084],
+      [502, -1108],
+      [531, -1124],
+      [577, -1142],
+    ],
+  }, // West service road past Adiyogi (OSM way 1473872227).
   {
     w: 3,
+    walkDensity: 0.08,
     pts: [
       [490, -455],
       [509, -454],
@@ -225,8 +312,26 @@ const ROADS = [
   }, // Entrance to the C Section courtyard.
   {
     w: 7,
+    surface: 'gravel',
+    followTerrain: true,
+    traffic: 4,
     pts: [
-      [526.8, -580],
+      [229, -228],
+      [239, -205],
+      [245, -199],
+      [258, -198],
+      [305, -214],
+      [349, -214],
+      [373, -221],
+      [385, -234],
+      [411, -324],
+      [428, -351],
+      [479, -409],
+      [516, -424],
+      [525, -427],
+      [540, -452],
+      [538, -563],
+      [547, -577],
       [560, -579],
       [620, -580],
       [665, -582],
@@ -246,7 +351,7 @@ const ROADS = [
       [634, -1128],
       [577, -1142],
     ],
-  }, // Satellite imagery shows a service road behind Adiyogi and along the eastern lawn.
+  }, // East service road behind Adiyogi and along the eastern lawn (OSM way 1343276356).
   {
     w: 6,
     pts: [
@@ -296,6 +401,7 @@ const ROADS = [
   }, // Arched bridge to Suryakund.
   {
     w: 5,
+    walkDensity: 0.03,
     pts: [
       [62, 17],
       [66, 33],
@@ -313,6 +419,7 @@ const ROADS = [
   }, // Road to Bhiksha Hall. The junction moved east from (246, 318) to clear the southeast corner of the plinth.
   {
     w: 5,
+    walkDensity: 0.04,
     pts: [
       [84, 142],
       [123, 171],
@@ -320,6 +427,7 @@ const ROADS = [
   }, // → Spanda Hall
   {
     w: 4,
+    surface: 'gravel',
     pts: [
       [84, 142],
       [63, 123],
@@ -334,6 +442,7 @@ const ROADS = [
   }, // West loop past Sadhana Halls and Chandra Vasal.
   {
     w: 4,
+    walkDensity: 0.02,
     pts: [
       [-73, -53],
       [16, -47],
@@ -343,6 +452,7 @@ const ROADS = [
   }, // South footpath.
   {
     w: 3,
+    walkDensity: 0.04,
     pts: [
       [31, -42],
       [-14, -38],
@@ -351,6 +461,7 @@ const ROADS = [
   }, // → Linga Bhairavi
   {
     w: 4,
+    walkDensity: 0.07,
     pts: [
       [97, 180],
       [-80, 174],
@@ -364,6 +475,7 @@ const ROADS = [
   }, // Path around Nalanda Grounds.
   {
     w: 4,
+    walkDensity: 0.03,
     pts: [
       [142, -63],
       [221, -74],
@@ -380,20 +492,22 @@ const ROADS = [
   }, // Toward Chandrakund and the deposit counter.
   {
     w: 5,
+    walkDensity: 0.06,
+    walkEnd: [346, 352.6], // Turn before the bridge ramp.
     pts: [
       [254, 320.5],
       [262, 338],
       [300, 346],
-      [356, 354],
+      [349, 352.3],
     ],
   }, // Bhiksha Hall → Metal Bridge
   {
     w: 5,
     pts: [
-      [388, 358.5],
+      [395, 359.7],
       [420, 364],
     ],
-  }, // East of the bridge toward Velliangiri Prashala, which is outside the model.
+  }, // Pedestrian approach east of the Metal Bridge.
   {
     w: 4,
     pts: [
@@ -402,29 +516,217 @@ const ROADS = [
     ],
   }, // → Moondram Pirai
   {
-    w: 8,
+    w: 5,
+    surface: 'gravel',
     followTerrain: true,
+    pts: [
+      [146, -248],
+      [120, -248],
+      [80, -243],
+      [49, -227],
+      [45, -219],
+      [50, -65],
+      [45, -54],
+    ],
+  }, // South perimeter access from Narasipuram Road (OSM way 640475189).
+  {
+    w: 4.5,
+    surface: 'gravel',
+    followTerrain: true,
+    traffic: 2,
+    pts: [
+      [-73, -53],
+      [-192, -74],
+      [-205, -67],
+      [-204, -47],
+      [-196, -20],
+      [-203, -4],
+      [-223, 3],
+      [-248, 3],
+      [-253, 47],
+      [-251, 94],
+      [-252, 173],
+      [-267, 196],
+      [-268, 233],
+      [-257, 273],
+      [-247, 329],
+      [-249, 369],
+      [-245, 433],
+      [-270, 478],
+      [-283, 518],
+      [-300, 590],
+      [-309, 695],
+      [-307, 759],
+      [-301, 779],
+      [-289, 792],
+    ],
+  }, // West perimeter road (OSM ways 640475189 and 1473872228).
+  {
+    w: 5.5,
+    surface: 'gravel',
+    followTerrain: true,
+    traffic: 3,
+    pts: [
+      [445, 56],
+      [443, 102],
+      [432, 134],
+      [444, 181],
+      [444, 227],
+      [427, 267],
+      [429, 309],
+      [427, 320],
+      [397, 351],
+      [393, 360],
+      [382, 385],
+      [395, 417],
+      [397, 441],
+      [376, 498],
+      [342, 535],
+      [331, 555],
+      [318, 606],
+      [320, 631],
+      [338, 651],
+    ],
+  }, // East perimeter road toward Isha Home School (OSM way 640475222).
+  {
+    w: 5.5,
+    surface: 'gravel',
+    followTerrain: true,
+    traffic: 2,
+    pts: [
+      [395, 417],
+      [411, 377],
+      [432, 353],
+      [451, 342],
+      [525, 347],
+      [613, 342],
+      [713, 337],
+      [719, 342],
+      [727, 381],
+      [742, 411],
+    ],
+  }, // Access to the buildings east of the Metal Bridge (OSM way 1341046300).
+  {
+    w: 4.5,
+    surface: 'gravel',
+    followTerrain: true,
+    pts: [
+      [338, 651],
+      [347, 687],
+      [344, 701],
+      [355, 745],
+      [367, 763],
+      [365, 797],
+      [355, 835],
+      [368, 876],
+      [365, 895],
+      [378, 911],
+      [368, 940],
+      [366, 970],
+    ],
+  }, // Service lane just outside the northeast boundary (OSM way 1532382037).
+  {
+    w: 3.5,
+    surface: 'gravel',
+    followTerrain: true,
+    pts: [
+      [338, 651],
+      [336, 683],
+      [311, 720],
+      [302, 777],
+      [272, 791],
+      [253, 805],
+      [263, 845],
+      [255, 859],
+      [239, 872],
+      [197, 882],
+      [154, 891],
+      [83, 904],
+      [35, 913],
+      [13, 915],
+      [-5, 869],
+      [21, 859],
+      [56, 843],
+      [83, 821],
+      [119, 805],
+      [169, 791],
+      [223, 779],
+      [267, 780],
+      [302, 777],
+    ],
+  }, // Track on the north campus edge (OSM ways 1532382024 and 640475228).
+  {
+    w: 8,
+    surface: 'asphalt',
+    followTerrain: true,
+    traffic: 4,
     pts: [
       [769, -1705],
       [800, -1707],
       [905, -1711],
       [952, -1714],
       [1018, -1717],
+      [1056, -1708],
+      [1116, -1713],
+      [1191, -1741],
+      [1248, -1760],
+      [1352, -1766],
     ],
   }, // Route 876 runs east from the Malai Vasal junction.
   {
     w: 7,
+    surface: 'asphalt',
     followTerrain: true,
+    traffic: 6,
     pts: [
       [769, -1705],
       [768, -1725],
       [769, -1776],
-      [772, -1812],
+      [772, -1809],
+      [765, -1908],
+      [772, -1953],
+      [779, -2021],
+      [767, -2037],
+      [660, -2041],
+      [314, -2051],
+      [71, -2046],
+      [55, -2040],
+      [49, -1915],
+      [33, -1156],
+      [26, -1022],
     ],
-  }, // Poondi Road continues south.
+  }, // Poondi Road curves west and joins Narasipuram Road (OSM way 135400010).
+  {
+    w: 5,
+    surface: 'gravel',
+    followTerrain: true,
+    pts: [
+      [1056, -1708],
+      [1064, -1525],
+      [943, -1464],
+      [906, -1431],
+      [892, -1416],
+      [896, -1297],
+      [904, -1221],
+      [952, -1168],
+      [959, -1137],
+      [955, -1008],
+      [980, -944],
+      [979, -906],
+      [980, -847],
+      [987, -821],
+      [975, -719],
+      [1007, -675],
+      [1046, -573],
+      [1045, -537],
+      [997, -400],
+    ],
+  }, // Farm access track east of Adiyogi (OSM way 1343276353).
   {
     w: 6,
+    surface: 'asphalt',
     followTerrain: true,
+    traffic: 2,
     pts: [
       [724, -1562],
       [740, -1578],
@@ -438,6 +740,7 @@ const ROADS = [
   }, // Road bypassing the gate and forecourt on the east.
   {
     w: 4.5,
+    surface: 'asphalt',
     followTerrain: true,
     pts: [
       [905, -1711],
@@ -447,6 +750,7 @@ const ROADS = [
   }, // North entrance to the residential lanes.
   {
     w: 4.5,
+    surface: 'asphalt',
     followTerrain: true,
     pts: [
       [952, -1714],
@@ -457,6 +761,7 @@ const ROADS = [
   }, // East entrance and the southern lane.
   {
     w: 4.5,
+    surface: 'asphalt',
     followTerrain: true,
     pts: [
       [904, -1740],
@@ -469,30 +774,44 @@ for (const r of ROADS)
   for (let i = 0; i < r.pts.length - 1; i++) {
     const a = geo(...r.pts[i]),
       b = geo(...r.pts[i + 1]);
-    PATHS.push([a[0], a[2], b[0], b[2], r.w, r.followTerrain]);
+    PATHS.push([a[0], a[2], b[0], b[2], r.w, r.followTerrain, r.surface]);
   }
+const MAPPED_BUILDINGS = BUILDING_FOOTPRINTS.map(
+  ([height, finish, vertices]) => {
+    const points = vertices.map(([e, n]) => {
+      const [x, , z] = geo(e, n);
+      return [x, z];
+    });
+    const xs = points.map(([x]) => x);
+    const zs = points.map(([, z]) => z);
+    return {
+      height,
+      finish,
+      points,
+      minX: Math.min(...xs),
+      maxX: Math.max(...xs),
+      minZ: Math.min(...zs),
+      maxZ: Math.max(...zs),
+    };
+  },
+);
 // Ground cover patches, broad fields first: [e, n, width, length, color, edge blend in meters].
 const FIELDS = [
-  [840, -344, 380, 640, 0xa3945e, 75],
-  [780, -1060, 300, 640, 0x9da05a, 65],
-  [353, -467, 220, 220, 0x86a84e, 45],
-  [648, -790, 130, 420, 0x7fa54a, 40],
-  [176, -774, 105, 240, 0x96a257, 28],
-  [165, -1036, 180, 250, 0xa8935f, 40],
-  [424, -15, 130, 115, 0x99a653, 26],
-  [514, -914, 75, 300, 0x93ad5a, 16],
-  [630, -914, 110, 300, 0x93ad5a, 18], // Lawns on either side of the Adiyogi approach.
+  [370, -477, 108, 155, 0x828e55, 18],
+  [638, -795, 98, 400, 0x858d57, 18],
+  [510, -914, 77, 275, 0xb4a37b, 12],
+  [630, -914, 110, 300, 0x93ad5a, 18], // East lawn beside the Adiyogi promenade.
   [627, -1200, 80, 110, 0x8e8a82, 8],
   [633, -1098, 70, 85, 0x8e8a82, 8],
   [814, -1717, 75, 20, 0xa79872, 8], // Roadside yards.
   [912, -1747, 95, 65, 0xa79872, 10], // Residential blocks south of Route 876.
-  [820, -1772, 89, 96, 0x868262, 9], // Open field between Poondi Road and the residential lanes.
 ].map(([e, n, w, d, color, blend]) => {
   const [x, , z] = geo(e, n);
   return { x, z, hw: w / 2, hd: d / 2, color: new Color(color), blend };
 });
 const SPANDA_GARDEN = { width: 68, depth: 34, start: 26.2 };
 const METAL_BRIDGE_AT = [372, 356];
+const ROAD_HEIGHT = 0.15;
 const TERRAIN_SIZE = 5600;
 const TERRAIN_SEGMENTS = 250;
 // [east, north, water width] in meters, ordered from the foothills downstream.
@@ -508,31 +827,42 @@ const CAMPUS_STREAM = [
   [-432, 976, 5],
   [-340, 944, 5.5],
   [-230, 923, 5],
-  [-140, 926, 5],
-  [-35, 902, 5.5],
-  [52, 867, 6],
-  [135, 848, 5.5],
-  [208, 819, 6],
-  [265, 785, 6],
-  [280, 738, 5.5],
-  [285, 686, 6],
-  [304, 639, 6.5],
-  [311, 586, 5.5],
-  [330, 539, 6],
-  [351, 509, 7],
+  [-140, 893, 5],
+  [-65, 852, 5.5],
+  [8, 838, 6],
+  [67, 801, 5.5],
+  [130, 785, 6],
+  [202, 765, 6],
+  [259, 747, 5.5],
+  [280, 712, 5.5],
+  [285, 675, 6],
+  [301, 633, 6.5],
+  [309, 583, 5.5],
+  [323, 537, 6],
+  [349, 508, 7],
   [374, 473, 6],
-  [386, 426, 6],
-  [371, 391, 5.5],
+  [383, 426, 6],
+  [369, 391, 5.5],
   [...METAL_BRIDGE_AT, 6.5],
-  [393, 329, 7.5],
-  [428, 308, 6.5],
-  [438, 277, 6],
-  [432, 240, 6],
-  [443, 199, 6.5],
-  [434, 163, 6.5],
-  [444, 126, 6],
-  [431, 91, 6.5],
-  [443, 56, 7],
+  [388, 329, 6.5],
+  [410, 310, 6.5],
+  [414, 288, 6],
+  [416, 263, 6],
+  [430, 225, 6],
+  [431, 199, 6.5],
+  [425, 166, 6],
+  [417, 141, 6],
+  [420, 118, 6.5],
+  [428, 99, 6],
+  [429, 77, 6],
+  [427, 66, 5],
+];
+
+// The open reaches end beside Narasipuram Road. Canopy obscures the crossing
+// in the aerial imagery, so the road surface spans the gap at ground level.
+const DOWNSTREAM_REACH = [
+  [449, 38, 5],
+  [465, 31, 6.5],
   [483, 31, 7.5],
   [550, 19, 6.5],
   [609, 5, 7],
@@ -568,9 +898,448 @@ function groundFootprint(points, color, blend, opacity = 0.8) {
   };
 }
 
-// Tree blocks traced from the aerial reference around Malai Vasal. Leave the
-// pond, the gate forecourt and the field southwest of the houses open.
-const MALAI_GROVES = [
+function campusFootprint(points, color, blend, opacity) {
+  return groundFootprint(
+    points.map(([e, n]) => {
+      const [x, , z] = geo(e, n);
+      return [x, z];
+    }),
+    color,
+    blend,
+    opacity,
+  );
+}
+
+// Cultivated plots visible in Esri World Imagery. The row angle is the
+// direction across the rows, in degrees from east toward south.
+const CULTIVATED_PLOTS = [
+  // Along Narasipuram Road and east of the campus orchard.
+  [
+    [
+      [328, -63],
+      [375, -9],
+      [441, 46],
+      [468, 29],
+      [457, -34],
+      [435, -72],
+    ],
+    0x8c7253,
+    -10,
+  ],
+  [
+    [
+      [480, 190],
+      [588, 168],
+      [601, 235],
+      [495, 244],
+    ],
+    0x827653,
+    6,
+  ],
+  [
+    [
+      [595, 171],
+      [698, 170],
+      [708, 249],
+      [606, 251],
+    ],
+    0x677d49,
+    8,
+  ],
+  [
+    [
+      [609, 66],
+      [702, 61],
+      [708, 150],
+      [611, 160],
+    ],
+    0x617548,
+    7,
+  ],
+  // East of the Sarpa Vasal to Adiyogi paths.
+  [
+    [
+      [448, -107],
+      [571, -91],
+      [605, -175],
+      [440, -207],
+    ],
+    0x647b4e,
+    -10,
+  ],
+  [
+    [
+      [439, -211],
+      [608, -176],
+      [656, -294],
+      [452, -342],
+      [430, -350],
+    ],
+    0x6c8250,
+    -11,
+  ],
+  [
+    [
+      [567, -375],
+      [721, -346],
+      [728, -439],
+      [547, -461],
+    ],
+    0x8c7651,
+    -7,
+  ],
+  [
+    [
+      [547, -465],
+      [729, -444],
+      [714, -575],
+      [553, -572],
+    ],
+    0x586e42,
+    -4,
+  ],
+  [
+    [
+      [746, -62],
+      [890, -39],
+      [972, -72],
+      [976, -359],
+      [759, -335],
+    ],
+    0x658250,
+    5,
+  ],
+  [
+    [
+      [745, -347],
+      [974, -383],
+      [1017, -494],
+      [1030, -583],
+      [974, -693],
+      [730, -666],
+    ],
+    0x627a46,
+    10,
+  ],
+  [
+    [
+      [718, -709],
+      [980, -723],
+      [985, -820],
+      [703, -795],
+    ],
+    0x61784a,
+    4,
+  ],
+  [
+    [
+      [699, -801],
+      [982, -824],
+      [970, -944],
+      [699, -942],
+    ],
+    0x71824f,
+    1,
+  ],
+  [
+    [
+      [696, -949],
+      [963, -951],
+      [949, -1102],
+      [704, -1129],
+    ],
+    0x7a8053,
+    -4,
+  ],
+  [
+    [
+      [705, -1146],
+      [935, -1154],
+      [898, -1288],
+      [902, -1355],
+      [841, -1377],
+      [761, -1320],
+      [711, -1257],
+    ],
+    0x67814d,
+    6,
+  ],
+  // West of Adiyogi, on each side of the east–west farm track.
+  [
+    [
+      [122, -655],
+      [218, -649],
+      [231, -898],
+      [134, -900],
+    ],
+    0x68804a,
+    4,
+  ],
+  [
+    [
+      [42, -910],
+      [217, -905],
+      [231, -1170],
+      [49, -1144],
+    ],
+    0x947b58,
+    3,
+  ],
+  [
+    [
+      [332, -1190],
+      [468, -1151],
+      [489, -1487],
+      [356, -1493],
+    ],
+    0x5a7545,
+    4,
+  ],
+  [
+    [
+      [471, -1162],
+      [547, -1155],
+      [587, -1535],
+      [501, -1547],
+    ],
+    0x64794b,
+    6,
+  ],
+  // Southwest of Malai Vasal and south of Route 876.
+  [
+    [
+      [321, -1592],
+      [493, -1567],
+      [493, -1630],
+      [386, -1666],
+      [322, -1695],
+    ],
+    0x65834d,
+    3,
+  ],
+  [
+    [
+      [386, -1666],
+      [493, -1630],
+      [497, -1839],
+      [397, -1873],
+    ],
+    0x73804f,
+    2,
+  ],
+  [
+    [
+      [780, -1733],
+      [864, -1737],
+      [859, -1795],
+      [776, -1787],
+    ],
+    0x788453,
+    2,
+  ],
+  [
+    [
+      [779, -1791],
+      [871, -1800],
+      [931, -1799],
+      [934, -1847],
+      [789, -1841],
+    ],
+    0x8a7556,
+    -4,
+  ],
+].map(([points, color, degrees]) => {
+  const angle = THREE.MathUtils.degToRad(degrees);
+  return {
+    ...campusFootprint(points, color, 3, 0.94),
+    cropRows: [Math.cos(angle), Math.sin(angle)],
+  };
+});
+FIELDS.push(...CULTIVATED_PLOTS);
+
+// Regular planting blocks where the imagery shows rows of tree crowns.
+const ORCHARDS = [
+  // North of Narasipuram Road (OpenStreetMap way 1532382029).
+  [
+    [
+      [387, 351],
+      [418, 318],
+      [417, 264],
+      [433, 230],
+      [432, 183],
+      [421, 138],
+      [433, 103],
+      [436, 60],
+      [373, 26],
+      [351, 0],
+      [368, 140],
+      [206, 182],
+      [258, 331],
+    ],
+    9,
+  ],
+  // West of the Adiyogi grounds, following the canopy visible in Esri imagery.
+  [
+    [
+      [213, -455],
+      [312, -468],
+      [315, -581],
+      [391, -585],
+      [403, -692],
+      [420, -891],
+      [344, -904],
+      [230, -906],
+      [219, -758],
+      [213, -703],
+      [216, -647],
+      [198, -578],
+    ],
+    9,
+  ],
+  // Planting block south of the farm track (OpenStreetMap way 1532382013).
+  [
+    [
+      [223, -915],
+      [420, -905],
+      [462, -1133],
+      [288, -1181],
+      [232, -1173],
+    ],
+    10,
+  ],
+  // Immediately north and west of Sarpa Vasal.
+  [
+    [
+      [53, -63],
+      [151, -69],
+      [228, -105],
+      [178, -173],
+      [131, -231],
+      [54, -239],
+    ],
+    9,
+  ],
+  // Northeast of Adiyogi, among the open fields.
+  [
+    [
+      [604, -49],
+      [734, -53],
+      [774, -151],
+      [727, -188],
+      [662, -199],
+      [613, -150],
+    ],
+    12,
+  ],
+].map(([points, spacing]) => ({
+  ...campusFootprint(points, 0x506736, 6),
+  spacing,
+}));
+FIELDS.push(...ORCHARDS);
+
+// Canopy visible at the campus edge and along the approach to Malai Vasal.
+const GROVES = [
+  // Woodland above the track and creek at the north edge of campus.
+  [
+    [
+      [-405, 900],
+      [-300, 893],
+      [-244, 872],
+      [-151, 856],
+      [-60, 898],
+      [14, 925],
+      [157, 897],
+      [234, 879],
+      [271, 922],
+      [305, 1003],
+      [338, 1096],
+      [250, 1138],
+      [98, 1142],
+      [-95, 1125],
+      [-260, 1111],
+      [-394, 1109],
+    ],
+    14,
+  ],
+  // Continuous canopy outside the west side of campus and south of the halls.
+  [
+    [
+      [-382, 743],
+      [-120, 766],
+      [-97, 593],
+      [-81, 478],
+      [-122, 384],
+      [-238, 385],
+      [-275, 229],
+      [-320, 197],
+      [-386, 234],
+    ],
+    10,
+  ],
+  [
+    [
+      [-363, 215],
+      [-272, 235],
+      [-261, 112],
+      [-208, 86],
+      [-197, -13],
+      [-75, -51],
+      [32, -54],
+      [44, -224],
+      [147, -247],
+      [120, -358],
+      [48, -424],
+      [-140, -466],
+      [-358, -413],
+    ],
+    11,
+  ],
+  // Woodland between Narasipuram Road and cultivated plots west of Adiyogi.
+  [
+    [
+      [-16, -384],
+      [102, -401],
+      [130, -372],
+      [198, -382],
+      [210, -459],
+      [196, -575],
+      [211, -644],
+      [115, -653],
+      [107, -785],
+      [30, -800],
+      [-49, -711],
+      [-51, -545],
+    ],
+    12,
+  ],
+  // Mixed trees along the east campus stream between the Metal Bridge and Isha Home School.
+  [
+    [
+      [270, 581],
+      [312, 630],
+      [333, 555],
+      [368, 508],
+      [391, 448],
+      [393, 403],
+      [359, 373],
+      [280, 385],
+      [251, 475],
+    ],
+    10,
+  ],
+  // Trees between the eastern Malai Vasal bypass and the fields.
+  [
+    [
+      [743, -1435],
+      [824, -1433],
+      [895, -1475],
+      [912, -1538],
+      [921, -1571],
+      [792, -1568],
+      [771, -1591],
+    ],
+    11,
+  ],
   [
     [
       [776, -1629],
@@ -609,20 +1378,34 @@ const MALAI_GROVES = [
     12,
   ],
 ].map(([points, spacing]) => ({
-  ...groundFootprint(
-    points.map(([e, n]) => {
-      const [x, , z] = geo(e, n);
-      return [x, z];
-    }),
-    0x4d6437,
-    7,
-  ),
+  ...campusFootprint(points, 0x4d6437, 7),
   spacing,
 }));
-FIELDS.push(...MALAI_GROVES);
+FIELDS.push(...GROVES);
 
 // Map footprints in meters east and north of Dhyanalinga, rounded to the nearest meter.
 const campusFootprints = [
+  // Playing field just inside the northern campus edge.
+  [
+    [
+      [-52, 617],
+      [-58, 641],
+      [-46, 718],
+      [-35, 741],
+      [-13, 755],
+      [17, 756],
+      [39, 744],
+      [50, 719],
+      [48, 684],
+      [34, 628],
+      [26, 603],
+      [3, 588],
+      [-21, 590],
+      [-40, 598],
+    ],
+    0x818651,
+    5,
+  ],
   // Nalanda Ground, OpenStreetMap way 639660570.
   [
     [
@@ -693,11 +1476,7 @@ const campusFootprints = [
   ],
 ];
 for (const [points, color, blend, opacity] of campusFootprints) {
-  const footprint = points.map(([e, n]) => {
-    const [x, , z] = geo(e, n);
-    return [x, z];
-  });
-  FIELDS.push(groundFootprint(footprint, color, blend, opacity));
+  FIELDS.push(campusFootprint(points, color, blend, opacity));
 }
 let EXCLUDE = []; // Vegetation exclusion circles [x, z, r], generated from component clear entries.
 let PITS = []; // Terrain openings for sunken pools, generated from component pit entries.
@@ -1486,8 +2265,13 @@ function createFieldTint() {
         const x = minX + (i + 0.5) * stepX;
         const alpha = fieldCoverage(f, x, z) * (f.opacity ?? 0.8);
         if (alpha === 0) continue;
+        const cropTone = f.cropRows
+          ? 0.13 *
+            Math.cos(((x * f.cropRows[0] + z * f.cropRows[1]) * Math.PI) / 3.5)
+          : 0;
         const tone =
           0.78 +
+          cropTone +
           0.38 * vnoise(x * 0.021, z * 0.021) +
           0.14 * vnoise(x * 0.09, z * 0.09);
         const offset = (j * width + i) * 4;
@@ -1564,7 +2348,8 @@ function streamStrip(rows) {
 
 // The terrain grid is wider than the stream. Cut the opening along the strip
 // with a mask so that the banks can meet the existing terrain between vertices.
-function createStreamCut(outline) {
+function createStreamCut(outlines) {
+  const outline = outlines.flat();
   const minX = Math.floor(Math.min(...outline.map(([x]) => x))) - 2;
   const maxX = Math.ceil(Math.max(...outline.map(([x]) => x))) + 2;
   const minZ = Math.floor(Math.min(...outline.map(([, z]) => z))) - 2;
@@ -1578,10 +2363,12 @@ function createStreamCut(outline) {
   ctx.fillStyle = '#000';
   ctx.fillRect(0, 0, width, height);
   ctx.fillStyle = '#fff';
-  ctx.beginPath();
-  for (const [x, z] of outline) ctx.lineTo(x - minX, z - minZ);
-  ctx.closePath();
-  ctx.fill();
+  for (const ring of outlines) {
+    ctx.beginPath();
+    for (const [x, z] of ring) ctx.lineTo(x - minX, z - minZ);
+    ctx.closePath();
+    ctx.fill();
+  }
 
   const texture = new THREE.CanvasTexture(canvas);
   texture.flipY = false;
@@ -1610,80 +2397,6 @@ let streamCut;
 function createStream() {
   const group = new THREE.Group();
   group.name = 'Campus Stream';
-  const centerline = new THREE.CatmullRomCurve3(
-    CAMPUS_STREAM.map(([e, n, width]) => {
-      const [x, , z] = geo(e, n);
-      return new V3(x, width, z);
-    }),
-  );
-  centerline.arcLengthDivisions = CAMPUS_STREAM.length * 16;
-  const length = centerline.getLength();
-  const segments = Math.ceil(length / 3);
-  const waterRows = [];
-  const bankRows = [];
-  const leftCut = [];
-  const rightCut = [];
-  const rocks = [];
-  const random = mulberry(291);
-  let waterLevel = Infinity;
-  for (let i = 0; i <= segments; i++) {
-    const t = i / segments;
-    const distance = t * length;
-    const { x, y: width, z } = centerline.getPointAt(t);
-    const tangent = centerline.getTangentAt(t);
-    const horizontal = Math.hypot(tangent.x, tangent.z);
-    const acrossX = -tangent.z / horizontal;
-    const acrossZ = tangent.x / horizontal;
-    const taper = smooth(0, 75, distance) * smooth(0, 55, length - distance);
-    const halfWidth = (width / 2) * taper;
-    const bankEdge = halfWidth + 3 * taper;
-    const point = (offset, y) => [
-      x + acrossX * offset,
-      y,
-      z + acrossZ * offset,
-    ];
-    const shoulder = (offset) => {
-      const p = point(offset, 0);
-      p[1] = terrainSurface(p[0], p[2]) - 0.05;
-      return p;
-    };
-    const leftBank = shoulder(-bankEdge);
-    const rightBank = shoulder(bankEdge);
-    waterLevel = Math.min(
-      waterLevel,
-      terrainSurface(x, z) - 0.85 * taper,
-      Math.min(leftBank[1], rightBank[1]) - 0.25 * taper,
-    );
-    waterRows.push({
-      distance,
-      points: [point(-bankEdge, waterLevel), point(bankEdge, waterLevel)],
-    });
-    bankRows.push({
-      distance,
-      points: [
-        leftBank,
-        point(-halfWidth * 0.72, waterLevel - 0.35 * taper),
-        point(halfWidth * 0.72, waterLevel - 0.35 * taper),
-        rightBank,
-      ],
-    });
-    const cutEdge = halfWidth + 2.2 * taper;
-    leftCut.push([x - acrossX * cutEdge, z - acrossZ * cutEdge]);
-    rightCut.push([x + acrossX * cutEdge, z + acrossZ * cutEdge]);
-    if (taper > 0.5 && random() < 0.6) {
-      const side = random() < 0.5 ? -1 : 1;
-      const [rx, ry, rz] = point(
-        side * halfWidth * (0.7 + random() * 0.5),
-        waterLevel,
-      );
-      const size = 0.35 + random() * 0.9;
-      rocks.push(
-        M(rx, ry + 0.08, rz, size * 1.3, size * 0.65, size, random() * 6),
-      );
-    }
-  }
-  streamCut = createStreamCut(leftCut.concat(rightCut.reverse()));
-
   const map = TEX.water.clone();
   const water = new THREE.MeshStandardMaterial({
     map,
@@ -1696,11 +2409,93 @@ function createStream() {
     map: TEX.ground,
     color: 0x887957,
   });
-  group.add(
-    mesh(streamStrip(waterRows), water, 0, 0, 0, false),
-    mesh(streamStrip(bankRows), gravel, 0, 0, 0, false),
-    instanced(new THREE.IcosahedronGeometry(1, 0), MAT.rock, rocks, false),
-  );
+  const random = mulberry(291);
+  const outlines = [];
+  for (const [reach, startTaper, endTaper] of [
+    [CAMPUS_STREAM, 75, 16],
+    [DOWNSTREAM_REACH, 15, 55],
+  ]) {
+    const centerline = new THREE.CatmullRomCurve3(
+      reach.map(([e, n, width]) => {
+        const [x, , z] = geo(e, n);
+        return new V3(x, width, z);
+      }),
+    );
+    centerline.arcLengthDivisions = reach.length * 16;
+    const length = centerline.getLength();
+    const segments = Math.ceil(length / 3);
+    const waterRows = [];
+    const bankRows = [];
+    const leftCut = [];
+    const rightCut = [];
+    const rocks = [];
+    let waterLevel = Infinity;
+    for (let i = 0; i <= segments; i++) {
+      const t = i / segments;
+      const distance = t * length;
+      const { x, y: width, z } = centerline.getPointAt(t);
+      const tangent = centerline.getTangentAt(t);
+      const horizontal = Math.hypot(tangent.x, tangent.z);
+      const acrossX = -tangent.z / horizontal;
+      const acrossZ = tangent.x / horizontal;
+      const taper =
+        smooth(0, startTaper, distance) *
+        smooth(0, endTaper, length - distance);
+      const halfWidth = (width / 2) * taper;
+      const bankEdge = halfWidth + 3 * taper;
+      const point = (offset, y) => [
+        x + acrossX * offset,
+        y,
+        z + acrossZ * offset,
+      ];
+      const shoulder = (offset) => {
+        const p = point(offset, 0);
+        p[1] = terrainSurface(p[0], p[2]) - 0.05;
+        return p;
+      };
+      const leftBank = shoulder(-bankEdge);
+      const rightBank = shoulder(bankEdge);
+      waterLevel = Math.min(
+        waterLevel,
+        terrainSurface(x, z) - 0.85 * taper,
+        Math.min(leftBank[1], rightBank[1]) - 0.25 * taper,
+      );
+      waterRows.push({
+        distance,
+        points: [point(-bankEdge, waterLevel), point(bankEdge, waterLevel)],
+      });
+      bankRows.push({
+        distance,
+        points: [
+          leftBank,
+          point(-halfWidth * 0.72, waterLevel - 0.35 * taper),
+          point(halfWidth * 0.72, waterLevel - 0.35 * taper),
+          rightBank,
+        ],
+      });
+      const cutEdge = halfWidth + 2.2 * taper;
+      leftCut.push([x - acrossX * cutEdge, z - acrossZ * cutEdge]);
+      rightCut.push([x + acrossX * cutEdge, z + acrossZ * cutEdge]);
+      if (taper > 0.5 && random() < 0.6) {
+        const side = random() < 0.5 ? -1 : 1;
+        const [rx, ry, rz] = point(
+          side * halfWidth * (0.7 + random() * 0.5),
+          waterLevel,
+        );
+        const size = 0.35 + random() * 0.9;
+        rocks.push(
+          M(rx, ry + 0.08, rz, size * 1.3, size * 0.65, size, random() * 6),
+        );
+      }
+    }
+    outlines.push(leftCut.concat(rightCut.reverse()));
+    group.add(
+      mesh(streamStrip(waterRows), water, 0, 0, 0, false),
+      mesh(streamStrip(bankRows), gravel, 0, 0, 0, false),
+      instanced(new THREE.IcosahedronGeometry(1, 0), MAT.rock, rocks, false),
+    );
+  }
+  streamCut = createStreamCut(outlines);
   // UVs increase downstream in ten-meter repeats. Move the ripples at 1.1 m/s.
   group.userData.update = (t) => {
     map.offset.x = -((t * 0.11) % 1);
@@ -1801,48 +2596,32 @@ function createTerrain() {
 function createPaths() {
   const g = new THREE.Group();
   g.name = 'Paths';
-  const villageRoad = new THREE.MeshLambertMaterial({
-    map: TEX.ground,
-    color: 0x8f8980,
-  });
-  PATHS.forEach(([x1, z1, x2, z2, w, followTerrain], i) => {
-    const len = Math.hypot(x2 - x1, z2 - z1);
-    const length = len + w * 0.5;
-    const x = (x1 + x2) / 2;
-    const z = (z1 + z2) / 2;
-    const rotation = -Math.atan2(z2 - z1, x2 - x1);
-    const height = 0.13 + (i % 7) * 0.004;
-    if (followTerrain) {
-      const surface = new THREE.PlaneGeometry(
-        length,
-        w,
-        Math.ceil(length / 2),
-        4,
-      );
-      surface
-        .rotateX(-Math.PI / 2)
-        .rotateY(rotation)
-        .translate(x, 0, z);
-      const points = surface.attributes.position;
-      for (let j = 0; j < points.count; j++) {
-        points.setY(j, terrainSurface(points.getX(j), points.getZ(j)) + height);
-      }
-      surface.computeVertexNormals();
-      g.add(
-        mesh(scaleUV(surface, length / 7, w / 7), villageRoad, 0, 0, 0, false),
-      );
-      return;
-    }
-    const b = tbox(length, 0.12, w, MAT.paving, x, height - 0.06, z);
-    b.rotation.y = rotation;
-    b.castShadow = false;
-    g.add(b);
-  });
+  const surfaces = {
+    paving: MAT.paving,
+    asphalt: new THREE.MeshLambertMaterial({
+      map: TEX.ground,
+      color: 0x737577,
+    }),
+    gravel: new THREE.MeshLambertMaterial({ map: TEX.ground, color: 0x9b8d74 }),
+  };
+  for (const { geometry, surface } of createRoadSurfaces(PATHS, {
+    height: ROAD_HEIGHT,
+    terrainSurface,
+    terrainSize: TERRAIN_SIZE,
+    terrainSegments: TERRAIN_SEGMENTS,
+  })) {
+    g.add(mesh(geometry, surfaces[surface], 0, 0, 0, false));
+  }
   return g;
 }
 
 function clearOfBuildings(x, z, pad) {
-  return !EXCLUDE.some(([ex, ez, r]) => Math.hypot(x - ex, z - ez) < r + pad);
+  if (EXCLUDE.some(([ex, ez, r]) => Math.hypot(x - ex, z - ez) < r + pad))
+    return false;
+  return !MAPPED_BUILDINGS.some(
+    ({ points, minX, maxX, minZ, maxZ }) =>
+      x > minX && x < maxX && z > minZ && z < maxZ && inPoly(x, z, points),
+  );
 }
 
 function blocked(x, z, pad = 0) {
@@ -1859,7 +2638,7 @@ function blocked(x, z, pad = 0) {
 
 function wildlifeGround(x, z) {
   let height = groundH(x, z);
-  for (const [i, [x1, z1, x2, z2, width, followTerrain]] of PATHS.entries()) {
+  for (const [x1, z1, x2, z2, width, followTerrain] of PATHS) {
     const dx = x2 - x1;
     const dz = z2 - z1;
     const length = Math.hypot(dx, dz);
@@ -1869,7 +2648,7 @@ function wildlifeGround(x, z) {
       length / 2 + width / 4 - Math.abs(px * dx + pz * dz) / length,
       width / 2 - Math.abs(px * dz - pz * dx) / length,
     );
-    const offset = (0.13 + (i % 7) * 0.004) * smooth(-0.25, 0, edge);
+    const offset = ROAD_HEIGHT * smooth(-0.25, 0, edge);
     if (offset > 0)
       height = Math.max(
         height,
@@ -1902,7 +2681,7 @@ function palmCrownGeo() {
   out.computeVertexNormals();
   return out;
 }
-function leafCrownGeo() {
+function leafCrownGeo(detail) {
   const parts = [];
   for (const [x, y, z, r] of [
     [0, 0, 0, 2.6],
@@ -1911,7 +2690,7 @@ function leafCrownGeo() {
     [0.2, 1.4, -0.4, 1.8],
     [-0.6, -0.4, 1.7, 1.7],
   ]) {
-    const g = new THREE.IcosahedronGeometry(r, 1);
+    const g = new THREE.IcosahedronGeometry(r, detail);
     g.scale(1, 0.8, 1);
     g.translate(x, y, z);
     parts.push(g);
@@ -1948,17 +2727,18 @@ function createVegetation() {
     }
     return out;
   };
-  // Scatter coconut palms and plant two orchards in rows using OSM orchard locations.
+  // Scatter coconut palms and add regular orchard rows.
   const palms = scatter(1800, 1, 0.012, 0.36);
-  for (const [e0, e1, n0, n1] of [
-    [348, 492, 84, 330],
-    [250, 492, -1040, -600],
-  ])
-    for (let e = e0; e <= e1; e += 13)
-      for (let n = n0; n <= n1; n += 13) {
-        const [x, , z] = geo(e + rr(-2, 2), n + rr(-2, 2));
-        if (!blocked(x, z, 1)) palms.push([x, z]);
+  const orchardRandom = mulberry(20261125);
+  for (const { x, z, hw, hd, points, spacing } of ORCHARDS) {
+    for (let gx = x - hw + spacing / 2; gx < x + hw; gx += spacing) {
+      for (let gz = z - hd + spacing / 2; gz < z + hd; gz += spacing) {
+        const tx = gx + (orchardRandom() - 0.5) * 3;
+        const tz = gz + (orchardRandom() - 0.5) * 3;
+        if (inPoly(tx, tz, points) && !blocked(tx, tz, 1)) palms.push([tx, tz]);
       }
+    }
+  }
   for (let n = -1000; n <= -770; n += 16)
     for (const de of [-13, 13]) {
       const [x, , z] = geo(562 + de, n);
@@ -1973,9 +2753,10 @@ function createVegetation() {
       rz = rr(-0.1, 0.1),
       ry = rnd() * 6.28,
       s = rr(0.85, 1.2);
-    trunkM.push(M(x, 0, z, s, h, s, ry, rx, rz));
+    const y = terrainSurface(x, z);
+    trunkM.push(M(x, y, z, s, h, s, ry, rx, rz));
     up.set(0, h, 0).applyEuler(_e.set(rx, ry, rz));
-    crownM.push(M(x + up.x, up.y, z + up.z, s, s, s, ry));
+    crownM.push(M(x + up.x, y + up.y, z + up.z, s, s, s, ry));
   }
   const trunkGeo = new THREE.CylinderGeometry(0.2, 0.34, 1, 5);
   trunkGeo.translate(0, 0.5, 0);
@@ -2004,20 +2785,22 @@ function createVegetation() {
     rr(0.8, 1.8),
   ]);
   // The groves use their own seed and follow the visible canopy edges.
+  const groveTrees = [];
   const groveRandom = mulberry(20261124);
-  for (const { x, z, hw, hd, points, spacing } of MALAI_GROVES) {
+  for (const { x, z, hw, hd, points, spacing } of GROVES) {
     for (let gx = x - hw + spacing / 2; gx < x + hw; gx += spacing) {
       for (let gz = z - hd + spacing / 2; gz < z + hd; gz += spacing) {
         const tx = gx + (groveRandom() - 0.5) * spacing * 0.6;
         const tz = gz + (groveRandom() - 0.5) * spacing * 0.6;
         if (inPoly(tx, tz, points) && !blocked(tx, tz, 2)) {
           const scale = lerp(0.82, 1.3, groveRandom());
-          trees.push([tx, tz, scale, terrainSurface(tx, tz)]);
+          groveTrees.push([tx, tz, scale, terrainSurface(tx, tz)]);
         }
       }
     }
   }
-  g.userData.trees = trees;
+  const allTrees = [...trees, ...groveTrees];
+  g.userData.trees = allTrees;
   g.userData.palms = palms;
   const tTrunk = new THREE.CylinderGeometry(0.28, 0.42, 1, 6);
   tTrunk.translate(0, 0.5, 0);
@@ -2025,28 +2808,38 @@ function createVegetation() {
     instanced(
       tTrunk,
       new THREE.MeshLambertMaterial({ color: 0x5c4634 }),
-      trees.map(([x, z, s, y = 0]) => M(x, y, z, s, 3.6 * s, s)),
+      allTrees.map(([x, z, s, y = 0]) => M(x, y, z, s, 3.6 * s, s)),
     ),
   );
-  const crowns = instanced(
-    leafCrownGeo(),
-    new THREE.MeshLambertMaterial({ color: 0xffffff, flatShading: true }),
-    trees.map(([x, z, s, y = 0]) =>
-      M(x, y + 4.6 * s, z, s, s, s, rnd() * 6.28),
-    ),
-  );
-  trees.forEach((_, i) =>
-    crowns.setColorAt(
-      i,
-      col.setHSL(
-        rr(0.22, 0.31),
-        rr(0.32, 0.5),
-        rr(0.24, 0.36),
-        THREE.SRGBColorSpace,
+  const leaves = new THREE.MeshLambertMaterial({
+    color: 0xffffff,
+    flatShading: true,
+  });
+  // Large groves retain the crown shapes with fewer triangles per tree.
+  for (const [planting, detail] of [
+    [trees, 1],
+    [groveTrees, 0],
+  ]) {
+    const crowns = instanced(
+      leafCrownGeo(detail),
+      leaves,
+      planting.map(([x, z, s, y = 0]) =>
+        M(x, y + 4.6 * s, z, s, s, s, rnd() * 6.28),
       ),
-    ),
-  );
-  g.add(crowns);
+    );
+    planting.forEach((_, i) =>
+      crowns.setColorAt(
+        i,
+        col.setHSL(
+          rr(0.22, 0.31),
+          rr(0.32, 0.5),
+          rr(0.24, 0.36),
+          THREE.SRGBColorSpace,
+        ),
+      ),
+    );
+    g.add(crowns);
+  }
 
   // Shrubs.
   const bush = scatter(320, 0.5, 0.03, 0.3).map(([x, z]) =>
@@ -2072,7 +2865,7 @@ function createVegetation() {
     const x = rr(-2300, 900),
       z = rr(-2400, 1500),
       h = groundH(x, z);
-    if (h > 1.5 && h < 420 && !streamCut.contains(x, z)) {
+    if (h > 1.5 && h < 420 && !blocked(x, z, 4)) {
       const s = rr(6, 13);
       far.push(
         M(x, h + s * 0.2, z, s * 1.3, s * rr(0.8, 1.2), s * 1.3, rnd() * 6),
@@ -2167,9 +2960,9 @@ function createDust() {
   return p;
 }
 
-// Pedestrians and bullock carts
+// Pedestrians, bullock carts, and road traffic
 // Pedestrians walk alone or in pairs and turn at route ends. Carts keep left between Welcome Point and Metal Bridge and pause 15 seconds before turning back.
-// The shadow map updates with lighting changes. Moving people and carts use soft contact shadows.
+// The shadow map updates with lighting changes. Moving figures and vehicles use soft contact shadows.
 function createPeople() {
   const g = new THREE.Group();
   g.name = 'People';
@@ -2214,19 +3007,12 @@ function createPeople() {
       return 0.13;
     return t <= 0 || t >= 1 ? 0.3 : 0.3 + 4.6 * t * (1 - t);
   };
-  // Pedestrians per meter in ROADS order. The temple route below replaces the two Lotus Ponds bridge segments.
-  const DENS = [
-    0.015, 0.1, 0.01, 0.06, 0.08, 0.05, 0, 0, 0.05, 0.05, 0.03, 0.04, 0.08,
-    0.02, 0.04, 0.07, 0.03, 0, 0.06,
-  ];
-  const R = [];
-  // Keep pedestrians clear of Adiyogi's west plinth edge near e=526 and the ramps at Metal Bridge.
-  const PTS = {
-    3: ROADS[3].pts.map(([e, n]) => [e === 526 ? 517 : e, n]),
-    16: [...ROADS[16].pts.slice(0, -1), [346, 352.6]],
-  };
-  ROADS.forEach((r, i) => {
-    if (DENS[i]) R.push({ ...route(PTS[i] || r.pts), w: r.w, d: DENS[i] });
+  const R = ROADS.flatMap((road) => {
+    if (road.surface || !road.walkDensity) return [];
+    const points = road.walkEnd
+      ? [...road.pts.slice(0, -1), road.walkEnd]
+      : road.pts;
+    return [{ ...route(points), w: road.w, d: road.walkDensity }];
   });
   // Temple route from Dhyanalinga, around Nandi on both sides, across the Lotus Ponds bridge, and to Suryakund.
   for (const sd of [-1, 1])
@@ -2305,6 +3091,13 @@ function createPeople() {
     W.length,
     blobMat,
   );
+  const traffic = createRoadTraffic(ROADS, {
+    geo,
+    terrainSurface,
+    camera,
+    shadow: blobMat,
+  });
+  g.add(traffic);
   const visitorMeshes = [...uppers.values(), legs];
   const color = new Color();
   for (const im of visitorMeshes) im.setColorAt(0, color);
@@ -2372,6 +3165,7 @@ function createPeople() {
   g.userData.update = (t, dt) => {
     if (!g.visible) return;
     const cp = camera.position;
+    traffic.userData.update(dt);
     // Cull pedestrians beyond NPC_FAR. Cull stationary groups together and moving pedestrians individually.
     if ((frameNo = (frameNo + 1) % 10) === 0)
       for (const cg of CROWDS) {
@@ -2474,6 +3268,48 @@ function createPeople() {
 }
 
 // ───────────────────────────── [5] Buildings ─────────────────────────────
+function createMappedBuildings() {
+  const group = new THREE.Group();
+  group.name = 'Mapped buildings';
+  const material = (color) =>
+    new THREE.MeshLambertMaterial({ color, flatShading: true });
+  const roofs = {
+    tile: material(0x9e5c42),
+    metal: material(0x526d79),
+    sage: material(0x506b64),
+    white: material(0xc4c3b7),
+    concrete: material(0x8c8981),
+  };
+  const walls = material(0xc2aa90);
+  for (const {
+    points,
+    height,
+    finish,
+    minX,
+    maxX,
+    minZ,
+    maxZ,
+  } of MAPPED_BUILDINGS) {
+    const x = (minX + maxX) / 2;
+    const z = (minZ + maxZ) / 2;
+    const elevations = points.map(([px, pz]) => terrainSurface(px, pz));
+    const bottom = Math.min(...elevations) - 0.08;
+    const top = Math.max(...elevations) + height;
+    const footprint = new THREE.Shape();
+    points.forEach(([px, pz], i) => {
+      if (i === 0) footprint.moveTo(px - x, z - pz);
+      else footprint.lineTo(px - x, z - pz);
+    });
+    footprint.closePath();
+    const geometry = new THREE.ExtrudeGeometry(footprint, {
+      depth: top - bottom,
+      bevelEnabled: false,
+    }).rotateX(-Math.PI / 2);
+    group.add(mesh(geometry, [roofs[finish], walls], x, bottom, z));
+  }
+  return group;
+}
+
 // Cutaway hides objects marked as roofs to reveal interiors.
 const asRoof = (o) => {
   o.userData.roof = true;
@@ -9363,23 +10199,14 @@ function createAdiyogiParking() {
       );
       const length = 3.7 + random() * 0.7;
       const color = colors[Math.floor(random() * colors.length)];
-      bodies.push(
-        frame.clone().multiply(M(0, 0.65, 0, 1.78, 0.72, length)),
-        frame.clone().multiply(M(0, 1.35, -0.22, 1.38, 0.12, 1.6)),
-      );
-      bodyColors.push(color, color);
-      windows.push(frame.clone().multiply(M(0, 1.13, -0.22, 1.5, 0.43, 1.9)));
-      for (const side of [-1, 1]) {
-        for (const axle of [-1, 1]) {
-          tires.push(
-            frame
-              .clone()
-              .multiply(
-                M(side * 0.83, 0.32, axle * length * 0.32, 0.2, 0.32, 0.32),
-              ),
-          );
-        }
+      const parts = carParts(length);
+      for (const part of parts.body) {
+        bodies.push(frame.clone().multiply(M(...part)));
+        bodyColors.push(color);
       }
+      windows.push(frame.clone().multiply(M(...parts.window)));
+      for (const part of parts.wheels)
+        tires.push(frame.clone().multiply(M(...part)));
     }
   }
   // Motorbikes line the edge closest to the food stalls.
@@ -10033,7 +10860,11 @@ function fitShadow(x, z, radius, force = false) {
 }
 scene.add(hemi, sun, sun.target);
 
-const terrain = { groundHeight: groundH, pits: PITS };
+const terrain = {
+  groundHeight: groundH,
+  pits: PITS,
+  isWater: (x, z) => streamCut?.contains(x, z) ?? false,
+};
 const controls = createControls(camera, canvas, OVERVIEW, terrain);
 const walker = createWalker(camera, canvas, scene, terrain);
 
@@ -10364,6 +11195,7 @@ const steps = [
     () => {
       addToScene(createStream());
       addToScene(createTerrain());
+      addToScene(createMappedBuildings());
     },
   ],
   [
