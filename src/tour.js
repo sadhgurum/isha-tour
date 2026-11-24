@@ -1757,8 +1757,8 @@ function buildMaterials() {
     0.6,
   );
   MAT.steel = new THREE.MeshStandardMaterial({
-    color: 0x6b7890,
-    roughness: 0.55,
+    color: 0x47484d,
+    roughness: 0.5,
     metalness: 0.3,
   }); // Blue-black steel plates on Adiyogi.
   MAT.mud = std(
@@ -4612,7 +4612,7 @@ function adiyogiHead() {
     for (const s of [-1, 1]) {
       F -= 0.25 * G(x, y, s * 4.3, 1.7, 0.8, 1.2); // Temples.
       F +=
-        0.75 *
+        0.57 *
         G(
           x,
           y,
@@ -4624,7 +4624,7 @@ function adiyogiHead() {
       const ex = s * 2.05,
         u = (x - ex) / 1.0,
         inEye = line(Math.max(0, Math.abs(u) - 0.95), 0.14);
-      F -= 0.78 * G(x, y, ex, 0.25, 1.25, 0.8); // Eye socket.
+      F -= 0.63 * G(x, y, ex, 0.25, 1.25, 0.8); // Eye socket.
       F += 0.62 * G(x, y, ex, 0.28, 0.95, 0.42); // Partially closed upper lid over the eyeball.
       F += 0.16 * G(x, y, ex, -0.22, 0.85, 0.2); // Lower lid.
       const ySlit = -0.02 + 0.1 * u * s - 0.08 * (1 - u * u); // Eye opening looks downward and rises slightly at the outside corner.
@@ -4635,28 +4635,24 @@ function adiyogiHead() {
         line(y - (ySlit + 0.46 - 0.06 * u * u), 0.09) *
         line(Math.max(0, Math.abs(u) - 0.8), 0.15);
       F -= 0.09 * crease;
-      dark += 0.25 * crease; // Upper eyelid crease.
+      dark += 0.14 * crease; // Upper eyelid crease.
       F += 0.35 * G(x, y, s * 3.3, -0.8, 1.2, 0.9); // Cheekbone.
       F += 0.38 * G(x, y, s * 2.55, -2.0, 1.1, 1.0); // Full cheek.
-      F += 0.72 * G(x, y, s * 0.72, -2.3, 0.38, 0.32); // Nostril wing.
-      const alar = G(x, y, s * 1.06, -2.2, 0.12, 0.36);
-      F -= 0.22 * alar;
-      dark += 0.5 * alar;
-      const nos = G(x, y, s * 0.4, -2.56, 0.2, 0.1);
-      F -= 0.3 * nos;
-      dark += 0.9 * nos;
+      F += 0.48 * G(x, y, s * 0.72, -1.99, 0.44, 0.34); // Nostril wing.
+      const alar = G(x, y, s * 1.11, -1.98, 0.16, 0.4);
+      F -= 0.14 * alar;
+      dark += 0.28 * alar;
+      const nos = G(x, y, s * 0.44, -2.26, 0.21, 0.11);
+      F -= 0.21 * nos;
+      dark += 0.65 * nos;
       const cor = G(x, y, s * 1.78, -3.55, 0.24, 0.26);
       F -= 0.18 * cor;
       dark += 0.4 * cor; // Slightly raised mouth corner.
     }
     F += 0.35 * G(x, y, 0, 1.0, 0.8, 0.5); // Space between the brows.
-    // The bridge grows wider and more prominent from the brow to the tip (y about -2.05), then recedes sharply.
-    const nh =
-        (0.15 + 1.75 * smooth(0.9, -2.0, y)) *
-        smooth(-2.75, -2.3, y) *
-        smooth(1.5, 0.7, y),
-      nw = 0.42 + 0.25 * smooth(0, -2.2, y);
-    F += nh * Math.exp(-((x / nw) ** 2)) + 0.35 * G(x, y, 0, -2.05, 0.5, 0.4);
+    // The bridge blends into a short, rounded tip above the nostrils.
+    F += 0.83 * G(x, y, 0, -0.57, 0.75, 1.45);
+    F += 1.03 * G(x, y, 0, -1.76, 0.82, 0.6);
     F += 0.45 * G(x, y, 0, -3.1, 1.3, 0.6); // Philtrum.
     F +=
       0.78 * G(x, y, 0, -3.5, 1.35, 0.3) - 0.1 * G(x, y, 0, -3.33, 0.25, 0.12); // Upper lip and Cupid's bow.
@@ -4666,13 +4662,13 @@ function adiyogiHead() {
     F -= 0.35 * mouth;
     dark += 0.8 * mouth; // Mouth opening.
     F -= 0.25 * G(x, y, 0, -4.65, 0.9, 0.22); // Indentation below the lower lip.
-    F += 1.05 * G(x, y, 0, -5.45, 1.25, 0.8); // Full chin, almost level with the lips in profile.
+    F += 1.38 * G(x, y, 0, -5.65, 2.65, 1.45); // Full chin under the lower lip.
     return F;
   };
   const taper = (y) => {
     const t = clamp((-y + 0.2) / 7.5, 0, 1);
-    return [1 - 0.44 * t ** 1.3, 1 - 0.1 * t ** 1.3];
-  }; // Taper the lower face into an oval chin while retaining depth.
+    return [1 - 0.14 * t ** 1.3, 1 - 0.055 * t ** 1.3];
+  }; // Retain the width and depth of the lower jaw.
   // The same angular grid makes the face and scalp at 260 × 200 and the coarser hair layer at 150 × 110.
   const build = (hairLayer, NU, NV) => {
     const idx = [];
@@ -4687,13 +4683,18 @@ function adiyogiHead() {
     let k = 0;
     for (let j = 0; j <= NV; j++) {
       const s = (j / NV) * 2 - 1,
-        th = Math.PI / 2 + (Math.PI / 2) * (0.4 * s + 0.6 * s ** 3); // Concentrate latitude samples near face height.
+        th = Math.PI / 2 + (Math.PI / 2) * (0.4 * s + 0.6 * s ** 3), // Concentrate latitude samples near face height.
+        ring = Math.sin(th),
+        height = Math.cos(th) * B,
+        jaw = smooth(-4.05, -6.75, height),
+        // Widen the lowest rings to give the chin a broad, rounded underside.
+        jawRing = lerp(ring, ring ** 0.63, jaw);
       for (let i = 0; i <= NU; i++, k += 3) {
         const u = (i / NU) * 2 - 1,
           ph = Math.PI * (0.35 * u + 0.65 * u ** 3); // Concentrate longitude samples on the front of the head.
-        const dz = Math.sin(th) * Math.cos(ph);
-        let x = Math.sin(th) * Math.sin(ph) * A,
-          y = Math.cos(th) * B,
+        const dz = ring * Math.cos(ph);
+        let x = jawRing * Math.sin(ph) * A,
+          y = height,
           z = dz * (dz > 0 ? CF : CB);
         let [kx, kz] = taper(y);
         if (hairLayer) {
@@ -4706,6 +4707,8 @@ function adiyogiHead() {
         const w = smooth(0.2, 0.7, dz);
         dark = 0;
         if (w > 0) z += relief(x, y) * w;
+        z += 0.53 * jaw * smooth(0, 0.58, dz);
+        y -= 0.25 * jaw;
         let c = 1 - Math.min(0.75, dark * w);
         if (hairLayer) {
           // The hairline starts near y=4, dips toward the temples, and covers the back. Samples below the hairline tuck inside the head.
@@ -4714,7 +4717,7 @@ function adiyogiHead() {
             h = 1 - m + m * smooth(yH - 0.25, yH + 0.25, y);
           const q = Math.atan2(x, y + 4) + 0.08 * Math.sin(z * 0.6),
             ridge =
-              0.8 * (0.5 + 0.5 * Math.cos(q * 22)) ** 0.7 +
+              0.63 * (0.5 + 0.5 * Math.cos(q * 22)) ** 0.7 +
               0.5 * (fbm(q * 9 + 3, z * 0.35 + y * 0.2, 3) - 0.5); // Swept-back ridges with slightly irregular clumps.
           const t =
               -0.6 +
@@ -4744,7 +4747,7 @@ function adiyogiHead() {
   };
   const geo = build(false, 260, 200),
     hairGeo = build(true, 150, 110);
-  // Front surface depth at (x, y), used to place the tilak and other details.
+  // Forehead depth at (x, y), used to place the tilak.
   const surfZ = (x, y) => {
     const [kx, kz] = taper(y),
       xx = x / kx,
@@ -4755,6 +4758,88 @@ function adiyogiHead() {
   return { geo, hairGeo, surfZ };
 }
 
+// The front and side photographs show the cobra rising from Adiyogi's right shoulder,
+// with a cupped face to the hood and the body returning behind the neck.
+function adiyogiCobra() {
+  // Center (x, y, z), half-width, half-depth, and forward sweep at the hood edges.
+  const sections = [
+    [-9.1, 17.8, 7.3, 0, 0, 0],
+    [-9.1, 17.55, 7.05, 1.65, 0.25, 0.28],
+    [-9.0, 16.8, 6.7, 2.65, 0.44, 0.67],
+    [-8.85, 15.5, 6.3, 2.7, 0.64, 0.82],
+    [-8.6, 13.8, 6.2, 2.15, 0.79, 0.53],
+    [-8.45, 12.0, 6.4, 1.45, 0.94, 0.19],
+    [-8.6, 10.45, 6.75, 1.15, 1.0, 0],
+    [-9.25, 9.35, 6.25, 1.14, 0.86, 0],
+    [-11.2, 8.8, 4.5, 1.03, 0.78, 0],
+    [-11.8, 8.65, 1.65, 0.94, 0.75, 0],
+    [-10.55, 9.7, -2.3, 0.88, 0.72, 0],
+    [-7.3, 10.5, -5.8, 0.68, 0.56, 0],
+    [-2.5, 10.8, -7.9, 0.4, 0.32, 0],
+    [2.0, 10.1, -8.45, 0, 0, 0],
+  ];
+  const spine = new THREE.CatmullRomCurve3(
+    sections.map(([x, y, z]) => new V3(x, y, z)),
+  );
+  const profile = new THREE.CatmullRomCurve3(
+    sections.map(([, , , width, depth, cup]) => new V3(width, depth, cup)),
+    false,
+    'catmullrom',
+  );
+  const lengthSegments = 144,
+    ringSegments = 32,
+    frames = spine.computeFrenetFrames(lengthSegments, false);
+  // Align the first ring with the shoulder line. Transport that orientation
+  // down the hood and into the curved body so the surface stays continuous.
+  const across = new V3(1, 0, 0.16);
+  const roll = Math.atan2(
+    across.dot(frames.binormals[0]),
+    across.dot(frames.normals[0]),
+  );
+  const positions = [],
+    indices = [];
+  const vertex = new V3();
+  for (let i = 0; i <= lengthSegments; i++) {
+    const t = spine.getUtoTmapping(i / lengthSegments),
+      center = spine.getPoint(t),
+      { x: width, y: depth, z: cup } = profile.getPoint(t),
+      side = frames.normals[i].clone().applyAxisAngle(frames.tangents[i], roll),
+      front = new V3().crossVectors(frames.tangents[i], side);
+    for (let j = 0; j < ringSegments; j++) {
+      const a = (j / ringSegments) * Math.PI * 2,
+        u = Math.cos(a);
+      vertex
+        .copy(center)
+        .addScaledVector(side, u * width)
+        .addScaledVector(front, Math.sin(a) * depth + u * u * cup);
+      positions.push(vertex.x, vertex.y, vertex.z);
+      if (i < lengthSegments) {
+        const start = i * ringSegments,
+          current = start + j,
+          next = start + ((j + 1) % ringSegments);
+        indices.push(
+          current,
+          next,
+          current + ringSegments,
+          next,
+          next + ringSegments,
+          current + ringSegments,
+        );
+      }
+    }
+  }
+  const geometry = new THREE.BufferGeometry();
+  geometry.setAttribute(
+    'position',
+    new THREE.Float32BufferAttribute(positions, 3),
+  );
+  geometry.setIndex(indices);
+  geometry.computeVertexNormals();
+  const cobra = mesh(geometry, MAT.steel);
+  cobra.name = 'Adiyogi cobra';
+  return cobra;
+}
+
 // Adiyogi is a south-facing steel bust, 34 m tall, 45 m wide, and 25 m deep.
 function createAdiyogi() {
   const g = new THREE.Group(),
@@ -4763,8 +4848,12 @@ function createAdiyogi() {
     TA = 22.5,
     TB = 11,
     TC = 12.5; // yc is the head's center height. TA, TB, and TC are the shoulder ellipsoid axes.
+  const shoulderLift = (x) =>
+    1 + 0.22 * Math.exp(-(((Math.abs(x) - 16.3) / 4.1) ** 2));
   const surf = (x, z) =>
-    TB * Math.sqrt(Math.max(0.02, 1 - (x / TA) ** 2 - (z / TC) ** 2)); // Shoulder surface height.
+    shoulderLift(x) *
+    TB *
+    Math.sqrt(Math.max(0.02, 1 - (x / TA) ** 2 - (z / TC) ** 2));
   // North-south paved plaza with red brick bands, steps, and stone columns.
   const plaza = tbox(124, 0.16, 152, MAT.paving, 0, 0.08, 58);
   plaza.castShadow = false;
@@ -4787,18 +4876,106 @@ function createAdiyogi() {
   const body = new THREE.Group();
   body.position.y = 1;
   g.add(body);
-  // Wide, shallow shoulder dome and a thick neck.
-  const torso = mesh(new THREE.SphereGeometry(1, 40, 20), S, 0, 0, 0);
-  torso.scale.set(TA, TB, TC);
-  body.add(
-    torso,
-    mesh(new THREE.CylinderGeometry(4.9, 6.4, 10, 20), S, 0, 12, 0.4),
+  // Blend the neck and shoulders into a single surface so the neck flares
+  // into the chest with no seam. The bust ends at the plane of the plinth.
+  const neckProfile = new THREE.CatmullRomCurve3(
+    [
+      [9.2, 5],
+      [8.55, 7.4],
+      [7.6, 9.1],
+      [6.4, 10.35],
+      [5.55, 12.2],
+      [5.1, 14.7],
+      [5.15, 17.3],
+      [5.3, 19.5],
+    ].map(([radius, y]) => new V3(radius, y, 0)),
+  ).getPoints(80);
+  const torsoPositions = [],
+    torsoIndices = [],
+    torsoSides = 96,
+    torsoRings = 80,
+    neckTop = neckProfile.at(-1).y,
+    blendDistance = 2.6;
+  let upperProfile = 1;
+  for (let ring = 0; ring <= torsoRings; ring++) {
+    const y = (ring / torsoRings) * neckTop;
+    while (neckProfile[upperProfile].y < y) upperProfile++;
+    const below = neckProfile[upperProfile - 1],
+      above = neckProfile[upperProfile],
+      neckRadius = lerp(
+        below.x,
+        above.x,
+        clamp((y - below.y) / (above.y - below.y), 0, 1),
+      ),
+      shoulder = Math.sqrt(Math.max(0, 1 - (y / TB) ** 2)),
+      centerZ = 0.4 * smooth(5, 12, y);
+    for (let i = 0; i < torsoSides; i++) {
+      const angle = (i / torsoSides) * Math.PI * 2,
+        x = Math.sin(angle),
+        z = Math.cos(angle),
+        shoulderRadius = shoulder / Math.hypot(x / TA, z / TC),
+        narrowNeck = neckRadius / Math.hypot(x / 0.92, z),
+        blend = Math.max(
+          0,
+          blendDistance - Math.abs(shoulderRadius - narrowNeck),
+        ),
+        radius =
+          Math.max(shoulderRadius, narrowNeck) +
+          (blend * blend) / (4 * blendDistance);
+      const torsoX = x * radius,
+        torsoZ = centerZ + z * radius,
+        across = Math.abs(torsoX),
+        front = smooth(0, 7, torsoZ),
+        chest = Math.exp(-(((y - 3.7) / 4.9) ** 2)),
+        pectoral = 1.5 * Math.exp(-(((across - 6.25) / 5.1) ** 2)),
+        sternum = 0.92 * Math.exp(-((across / 1.25) ** 2)),
+        shoulderHollow = 0.95 * Math.exp(-(((across - 13.1) / 2.1) ** 2)),
+        neckLine = lerp(1.7, 3.8, smooth(7, 17, y)),
+        neckRelief =
+          0.32 *
+          Math.exp(-(((across - neckLine) / 1.2) ** 2)) *
+          smooth(5, 9, y) *
+          smooth(17, 13, y);
+      torsoPositions.push(
+        torsoX,
+        y * shoulderLift(torsoX),
+        torsoZ +
+          front * (chest * (pectoral - sternum - shoulderHollow) + neckRelief),
+      );
+      if (ring < torsoRings) {
+        const current = ring * torsoSides + i,
+          next = ring * torsoSides + ((i + 1) % torsoSides);
+        torsoIndices.push(
+          current,
+          next,
+          current + torsoSides,
+          next,
+          next + torsoSides,
+          current + torsoSides,
+        );
+      }
+    }
+  }
+  // The top of the neck is under the head mesh.
+  const topCenter = torsoPositions.length / 3;
+  torsoPositions.push(0, neckTop, 0.4);
+  const topRing = torsoRings * torsoSides;
+  for (let i = 0; i < torsoSides; i++) {
+    torsoIndices.push(topRing + i, topRing + ((i + 1) % torsoSides), topCenter);
+  }
+  const torso = new THREE.BufferGeometry();
+  torso.setAttribute(
+    'position',
+    new THREE.Float32BufferAttribute(torsoPositions, 3),
   );
+  torso.setIndex(torsoIndices);
+  torso.computeVertexNormals();
+  const torsoMesh = mesh(torso, S);
   // The hd group uses head-centered coordinates. Adjust hd.scale or hd.rotation to change its proportions or tilt.
   const hd = new THREE.Group();
   hd.position.set(0, yc, 0.6);
   hd.scale.setScalar(1.25);
-  hd.rotation.x = -0.1;
+  hd.rotation.x = -0.17;
   body.add(hd);
   // The dense face mesh from adiyogiHead uses the reference photos. Mesh relief shapes the features and vertex colors darken recesses.
   const HEAD = adiyogiHead(),
@@ -4816,13 +4993,13 @@ function createAdiyogi() {
     ear.scale.set(0.42, 2.3, 1.15);
     ear.rotation.z = sx * 0.08;
     const ring = mesh(
-      new THREE.TorusGeometry(0.95, 0.2, 8, 18),
+      new THREE.TorusGeometry(0.79, 0.16, 10, 24),
       MAT.copper,
-      sx * 5.55,
+      sx * 5.45,
       -3.6,
       0.5,
     );
-    ring.rotation.y = Math.PI / 2;
+    ring.rotation.y = sx * 0.72;
     hd.add(ear, ring);
   }
   // White teardrop-shaped tilak with a pointed top and rounded base.
@@ -4845,15 +5022,28 @@ function createAdiyogi() {
   hd.add(tilak);
   // Full crown of hair and large wavy braids over the shoulders.
   hd.add(mesh(HEAD.hairGeo, faceMat)); // A close-fitting hair shell with swept-back ridges covers the upper head and back.
+  // The horns taper to an upright point and a second point sweeping out to the side.
+  const crescent = new THREE.Shape();
+  crescent.moveTo(0, 2.4);
+  crescent.bezierCurveTo(-1.55, 0.25, -0.9, -2.05, 1.55, -2.23);
+  crescent.bezierCurveTo(2.65, -2.42, 3.7, -1.95, 4.15, -1.28);
+  crescent.bezierCurveTo(3.3, -1.85, 2.0, -1.75, 1.15, -1.17);
+  crescent.bezierCurveTo(-0.1, -0.25, -0.48, 0.8, 0, 2.4);
   const moon = mesh(
-    new THREE.TorusGeometry(2.3, 0.34, 8, 20, Math.PI * 1.1),
+    new THREE.ExtrudeGeometry(crescent, {
+      depth: 0.16,
+      bevelThickness: 0.04,
+      bevelSize: 0.035,
+      bevelSegments: 2,
+      curveSegments: 20,
+    }),
     MAT.moon,
-    4.9,
-    6.9,
-    2.6,
+    4.55,
+    6.65,
+    2.9,
     false,
   );
-  moon.rotation.set(-0.35, 0.5, Math.PI + 1.15);
+  moon.rotation.set(-0.2, -0.28, 0);
   hd.add(moon);
   const locks = [];
   for (let a = 96; a <= 264.1; a += 168 / 26) {
@@ -4873,57 +5063,40 @@ function createAdiyogi() {
       new V3(sn * 9.0 - cs * wv, yc - 7.5, cs * 8.2 - 0.4),
       new V3(sn * 11, 13.2, cs * 8.6 - 0.8),
       new V3(p3x, surf(p3x, p3z) + 0.7, p3z),
-      new V3(p4x, surf(p4x, p4z) + 0.2, p4z),
+      new V3(p4x, surf(p4x, p4z) - 0.5, p4z),
     ]);
-    locks.push(new THREE.TubeGeometry(curve, 16, rr(1.05, 1.6), 6));
+    const strand = new THREE.TubeGeometry(curve, 22, rr(1.05, 1.6), 8);
+    const positions = strand.attributes.position;
+    const vertex = new V3();
+    for (let j = 15; j <= 22; j++) {
+      const t = j / 22,
+        center = curve.getPointAt(t),
+        taper = smooth(0.66, 1, t) * 0.94;
+      for (let k = 0; k <= 8; k++) {
+        const index = j * 9 + k;
+        vertex.fromBufferAttribute(positions, index).lerp(center, taper);
+        positions.setXYZ(index, vertex.x, vertex.y, vertex.z);
+      }
+    }
+    strand.computeVertexNormals();
+    locks.push(strand);
   }
   body.add(mesh(mergeGeos(locks), S));
-  // The serpent coils around the neck with its head raised over his right shoulder, on the viewer's left.
-  const sp = [],
-    a0 = 0.75 - Math.PI * 2 * 1.3;
-  for (let i = 0; i <= 40; i++) {
-    const t = i / 40,
-      a = a0 + t * Math.PI * 2 * 1.3,
-      r = 6.9 - t * 0.6;
-    sp.push(new V3(-Math.sin(a) * r, 9.6 + t * 2.4, Math.cos(a) * r + 0.4));
-  }
-  sp.push(
-    new V3(-Math.sin(0.85) * 7.2, 13.6, Math.cos(0.85) * 7.2),
-    new V3(-Math.sin(0.95) * 8.2, 15.6, Math.cos(0.95) * 8.0),
-    new V3(-Math.sin(1.0) * 8.6, 17.4, Math.cos(1.0) * 8.2),
-  );
-  body.add(
-    mesh(
-      new THREE.TubeGeometry(new THREE.CatmullRomCurve3(sp), 100, 0.6, 8),
-      S,
-    ),
-  );
-  const hood = mesh(
-    new THREE.SphereGeometry(1, 12, 10),
-    S,
-    -Math.sin(1.0) * 8.7,
-    18.4,
-    Math.cos(1.0) * 8.3,
-  );
-  hood.scale.set(1.5, 1.9, 0.5);
-  hood.rotation.y = -0.9;
-  body.add(hood);
-  // Small prayer beads on a cord.
+  body.add(adiyogiCobra());
+  // Project the cord onto the sculpted chest while the torso is in local coordinates.
+  const cordRay = new THREE.Raycaster(new V3(), new V3(0, 0, -1));
   const mp = [];
   for (let i = 0; i <= 24; i++) {
-    const a = -Math.PI / 2 + (i * Math.PI) / 24,
-      x = 7.4 * Math.sin(a),
-      y = 9.2 - 5.4 * Math.cos(a);
-    mp.push(
-      new V3(
-        x,
-        y,
-        TC * Math.sqrt(Math.max(0.02, 1 - (x / TA) ** 2 - (y / TB) ** 2)) +
-          0.12,
-      ),
-    );
+    const t = i / 12 - 1,
+      x = 8.75 * t,
+      y = 2.9 + 6.9 * Math.abs(t) ** 1.45;
+    cordRay.ray.origin.set(x, y, TC + 4);
+    const [{ point }] = cordRay.intersectObject(torsoMesh, false);
+    point.z += 0.1;
+    mp.push(point);
   }
   body.add(
+    torsoMesh,
     mesh(
       new THREE.TubeGeometry(new THREE.CatmullRomCurve3(mp), 48, 0.13, 5),
       MAT.wood,
@@ -4932,7 +5105,7 @@ function createAdiyogi() {
       new THREE.SphereGeometry(0.45, 8, 6),
       MAT.wood,
       0,
-      3.6,
+      mp[12].y - 0.18,
       mp[12].z + 0.2,
     ),
   );
